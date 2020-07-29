@@ -1,11 +1,12 @@
-# Computer solution of puzzle game ([Rubik's Cube]())
+# Computer solution of puzzle game ([Rubik's Cube]([https://en.wikipedia.org/wiki/Rubik%27s_Cube](https://en.wikipedia.org/wiki/Rubik's_Cube)))
 
 ##### Table of contents
 
 1. [Project Description.](#desc)
-2. [What should be achieved during this project's production.](#achieve)
-3. [What skills / knowledge should you have to create this or a similar project?](#skill)
-4. [References](#references)
+2. [What should be achieved during this project.](#achieve)
+3. [What skills / knowledge are required to create this or similar projects?](#skill)
+4. [Stages of creation.](#stages)
+5. [References](#references).
 
 ---
 
@@ -17,7 +18,9 @@ How to make the 'puzzle instance' more difficult? - By adding more [cubies](http
 
 ---
 
-### What should be achieved during this project's production <a name="achieve"></a>
+### What should be achieved during this project <a name="achieve"></a>
+
+First thing's first is to create an emulator of the puzzle game in order to be able to work on guiding a computer to solving it. I've chosen to use Processing Java as the language to create the Rubiks cube emulator.
 
 **Mandatory**
 
@@ -29,7 +32,8 @@ How to make the 'puzzle instance' more difficult? - By adding more [cubies](http
 
 - [ ] Allow user to create custom cube sizes
 - [ ] Allow user to create a custom cube scramble
-- [ ] Provide output of solving steps to user as well as number of steps required to solve the cube from its scrambled state
+- [ ] Provide output of scramble/solve steps to console for the user
+- [ ] The number of steps required to solve the cube from its scrambled state - could be a factor used to help determine the efficiency of the solve ([God's number]([https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves.](https://www.cube20.org/#:~:text=New results%3A God's Number is,requires more than twenty moves.)))
 
 ---
 
@@ -45,6 +49,24 @@ I've spent a considerable amount of time with solving Rubik's cubes. I have a fa
 
 ---
 
+**Stages of creation** <a name="stages"></a>
+
+Stage 1
+
+<img src=Stages/Stage1.gif width="300" height ="300"/>
+
+Stage 2
+
+<img src=Stages/Stage2.gif width="300" height ="300"/>
+
+Stage 3
+
+
+
+---------------------------------------------------------------------------------------------
+
+
+
 ### **References** <a name="references"></a>
 
 The intention here is to use these references as inspiration for features, ideas or conventions to implement into my own Rubik's Cube Solver. 
@@ -52,5 +74,8 @@ The intention here is to use these references as inspiration for features, ideas
 1. [Python Rubiks Cube Solver](https://github.com/sylvain-reynaud/RubiksSolver/)
 2. [Code Bullet Rubiks Cube Solver](https://github.com/Code-Bullet/RubiksCubeAI)
 3. [Rotation Matrix Wiki Page](https://en.wikipedia.org/wiki/Rotation_matrix)
-4. 
+4. Rubiks Cube Emulator
+   1. [Part 1](https://www.youtube.com/watch?v=9PGfL4t-uqE)
+   2. [Part 2](https://www.youtube.com/watch?v=EGmVulED_4M)
+   3. [Part 3](https://www.youtube.com/watch?v=8U2gsbNe1Uo)
 

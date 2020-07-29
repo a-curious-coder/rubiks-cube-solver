@@ -40,12 +40,10 @@ void keyPressed() {
     break;
   case 's':
     scrambleCube();
-    print("\n");
-    break;
+    //currentMove.start();
   case 'S':
     scrambleCube();
-    print("\n");
-    break;
+    currentMove.start();
   }
 }
 
