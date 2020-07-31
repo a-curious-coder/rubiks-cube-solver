@@ -4,6 +4,7 @@ class Move {
   int y = 0;
   int z = 0;
   int dir;
+  float speed = 0.05;
   boolean animating = false;
   boolean finished = false;
   

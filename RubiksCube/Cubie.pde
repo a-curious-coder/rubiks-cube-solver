@@ -53,6 +53,7 @@ class Cubie {
     noFill();
     stroke(0);
     strokeWeight(0.05);
+    
     //Push and Pop Matrix functions means that positioning one box/Cubie does not affect others.
     pushMatrix();  // Saves transformation states
     applyMatrix(matrix);
