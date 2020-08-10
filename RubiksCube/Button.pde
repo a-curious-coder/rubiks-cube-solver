@@ -8,7 +8,7 @@ class Button
  Boolean pressed = false;
  Boolean clicked = false;
  
- //      x, y, width, height, text, red, green, blue;
+ // Creates new button with x, y, width, height, text, red, green and blue parameters
  Button(int x, int y, int w, int h, String t, int r, int g, int b)  
  {
    pos.x = x;

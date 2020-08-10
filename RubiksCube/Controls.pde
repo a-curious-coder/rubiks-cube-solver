@@ -2,6 +2,11 @@
 // Moves indexes:   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 // Reference for allMoves[]  
 void keyPressed() {
+  // if a cube is animating, skip switch case
+  if(currentMove.animating)  {
+    return;
+  }
+  
   switch(key) {
   case 'D':
     currentMove = allMoves[0];
@@ -53,6 +58,7 @@ void keyPressed() {
     break; 
 // --------------------------------
   case 's':
+    scrambleCube();
     currentMove.start();
     break; 
   case 'S':
@@ -61,6 +67,9 @@ void keyPressed() {
   case '1':
     reverseScramble();
     break; 
+  case '2':
+    resetScramble();
+    break;
   }
 }
 

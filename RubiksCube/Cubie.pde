@@ -6,13 +6,12 @@ class Cubie {
   color c;
   Face[] faces = new Face[6];
   
-  
+  // create new cubie with 6 faces
   Cubie(PMatrix3D m, int x, int y, int z) {
     matrix = m;
     this.x = x;
     this.y = y;
     this.z = z;
-    //c = color(255);
     
     // Sets colour for each face of the cube.
     faces[0] = new Face(new PVector(0, 0, -1), color(0, 0, 255)); // Blue face
@@ -54,7 +53,7 @@ class Cubie {
     stroke(0);
     strokeWeight(0.05);
     
-    //Push and Pop Matrix functions means that positioning one box/Cubie does not affect others.
+    // Push and Pop Matrix functions means that positioning one box/Cubie does not affect others.
     pushMatrix();  // Saves transformation states
     applyMatrix(matrix);
     box(1);

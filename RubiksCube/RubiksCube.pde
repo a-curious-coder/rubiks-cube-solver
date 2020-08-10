@@ -4,42 +4,40 @@ PeasyCam cam;
 
 int displayWidth = 600, displayHeight = 600;
 int numberOfMoves;
-int lNumberOfMoves = 3; // Lowest number of moves
-int mNumberOfMoves = 6; // Maximum number of moves
+int lNumberOfMoves = 10; // Lowest number of moves
+int mNumberOfMoves = 20; // Maximum number of moves
 String moves = "";
 
-float speed = 15;
 int dim = 3;
 Cubie[] cube = new Cubie[dim*dim*dim];
 
-// Order of moves:  D, d, U, u, R, r, L, l, F, f, B, b
-// Moves indexes:   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 Move[] allMoves = new Move[] {
-  new Move(0, 1, 0, 1), 
-  new Move(0, 1, 0, -1), 
-  new Move(0, -1, 0, 1), 
-  new Move(0, -1, 0, -1), 
-  new Move(1, 0, 0, 1), 
-  new Move(1, 0, 0, -1), 
-  new Move(-1, 0, 0, 1), 
-  new Move(-1, 0, 0, -1), 
-  new Move(0, 0, 1, 1), 
-  new Move(0, 0, 1, -1), 
-  new Move(0, 0, -1, 1), 
-  new Move(0, 0, -1, -1)
+  new Move(0, 1, 0, 1), // Index  0 = D
+  new Move(0, 1, 0, -1), // Index  1 = d
+  new Move(0, -1, 0, 1), // Index  2 = U
+  new Move(0, -1, 0, -1), // Index  3 = u
+  new Move(1, 0, 0, 1), // Index  4 = R
+  new Move(1, 0, 0, -1), // Index  5 = r
+  new Move(-1, 0, 0, 1), // Index  6 = L
+  new Move(-1, 0, 0, -1), // Index  7 = l
+  new Move(0, 0, 1, 1), // Index  8 = F
+  new Move(0, 0, 1, -1), // Index  9 = f
+  new Move(0, 0, -1, 1), // Index  10 = B
+  new Move(0, 0, -1, -1)   // Index  11 = b
 };
-String[] listOfMoves = {"D", "d", "U", "u", "R", "r", "L", "l", "F", "f", "B", "b"};
+
+String[] listOfMoves = {"D", "D\'", "U", "U\'", "R", "R\'", "L", "L\'", "F", "F\'", "B", "B\'"};
 ArrayList<Move> sequence = new ArrayList<Move>();
-ArrayList<Move> reverseSequence = new ArrayList<Move>();
 int counter = 0;
 
-Move currentMove;
+Move thisMove;
+Move currentMove = new Move (0, 0, 0, 0);
 Button scrambleButton;
 
-/** sets up emulation **/
+// initialises rubik's cube emulation
 void setup() {
-  //size(displayWidth, displayHeight, P3D);
-  fullScreen(P3D);
+  size(displayWidth, displayHeight, P3D);
+  //fullScreen(P3D);
   smooth(8);
   cam = new PeasyCam(this, 400);
   cam.setMinimumDistance(200); // max zoom out
@@ -56,14 +54,14 @@ void setup() {
       }
     }
   }
-  scrambleCube();
-  //scrambleButton = new Button(displayWidth/10, displayHeight/10, 100, 50, "Scramble cube", 0, 200, 200);
 }
 
-/** scrambles the cube **/
+// scrambles the cube 
 void scrambleCube() {
   int n = 1;
-  this.numberOfMoves = int(random(lNumberOfMoves, mNumberOfMoves));
+  numberOfMoves = int(random(lNumberOfMoves, mNumberOfMoves));
+  sequence.clear();
+  counter = 0;
 
   for (int i = 0; i < numberOfMoves; i++) {
     int r = int(random(allMoves.length));
@@ -73,73 +71,99 @@ void scrambleCube() {
     if (i == numberOfMoves -1) {
       moves+= listOfMoves[r] + ". \n";
     } else if (n % 10 == 0) {
-      moves += listOfMoves[r] + ", \n";
+      moves += listOfMoves[r] + " \n";
     } else {
-      moves += listOfMoves[r] + ", ";
+      moves += listOfMoves[r] + " ";
     }
+
     n++;
   }
-  print("Number of moves required to scramble cube: " + numberOfMoves + "\n" + getMoves());
+  print(numberOfMoves + " moves were taken to scramble the cube " + "\n" + getMoves());
   currentMove = sequence.get(counter);
 }
 
-/** reverses all moves - illusion of a solve from scramble **/
+// reverses all moves - illusion of a solve from scramble
 void reverseScramble() {
   
   int n = 0;
+  int c = 1;
+  ArrayList<Move> reverseSequence = new ArrayList<Move>();
+  counter = 0;
+  clearMoves();
   
-  for (int f = 0; f < allMoves.length; f++) {
-    if(f == sequence.size())
-      break;
-    if (sequence.get(f) == allMoves[f]) {
-      moves += listOfMoves[f] + ", ";
-    }
+  if (sequence.size() == 0) {
+    return;
   }
   
-  print("Original moves: " + moves + "sequence.size(): " + sequence.size());
-  moves = "";
-  print("Moves deleted: (nothing should appear) " + moves + "\n");
-  
-  for (int i = sequence.size()-1; i >= 0; i--) {
-    Move nextMove = sequence.get(i);
-    print("nextMove " + (n+1) + ": \"" + convertMoveToString(nextMove) + "\"\n");
+  //print("Original moves\n" + moves);
+
+  // store all sequence elements to reverseSequence
+  for (int i = 0; i < sequence.size(); i++) {
+    reverseSequence.add(sequence.get(i));
+  }
+
+  sequence.clear();
+
+  for (int i = reverseSequence.size()-1; i >= 0; i--) {
+    Move nextMove = reverseSequence.get(i).copy();
     nextMove.reverse();
+    sequence.add(nextMove);
     
-    reverseSequence.add(nextMove);
-    print("reverseSequence index " + i + ": " + convertMoveToString(reverseSequence.get(reverseSequence.size() -1)) + "\n");
-    moves += convertMoveToString(reverseSequence.get(n)) + ", ";
+    if (i == 0) {
+      moves += convertMoveToString(sequence.get(n)) + ".\n";
+    } else if (c % 10 == 0) {
+      moves += convertMoveToString(sequence.get(n)) + " \n";
+    } else {
+      moves += convertMoveToString(sequence.get(n)) + " ";
+    }
+
+    c++;
     n++;
   }
-  print("Reversed moves: " + moves + "\n");  
+
+  //print("\nReversed moves \n" + moves + "\n");
+  // reset currentMove to first index of new sequence and start sequence of moves
+  currentMove = sequence.get(counter);
   currentMove.start();
 }
 
-/** resets the cube to original state **/
+// resets the cube to original state
 void resetScramble() {
   this.counter = 0;
-  this.moves = "";
-  this.sequence.clear();
+  clearMoves();
+  clearSequence();
+  setup();
 }
 
-String convertMoveToString(Move m)  {
-  String move = "";
-  
-  for(int i = 0; i < allMoves.length; i++)  {
-    if(m == allMoves[i])  {
-     move += listOfMoves[i] + ", ";
+// converts move object to interpretable string 
+String convertMoveToString(Move m) {
+
+  for (int i = 0; i < allMoves.length; i++) {
+    // compares all parameters of m with parameters of all moves
+    if (m.x == allMoves[i].x &&
+      m.y == allMoves[i].y &&
+      m.z == allMoves[i].z &&
+      m.dir == allMoves[i].dir) {
+
+      String move = listOfMoves[i];
+
+      return move;
     }
   }
-  
-  return move;
+
+  return null;
 }
-/** draws emulation to screen **/
+
+// draws emulation to screen
 void draw() {
   background(51);
+  
+  // Sets the initial view of the cube
+  rotateX(-0.3);
+  rotateY(0.6);
+  //rotateZ(0);
 
-  //rotateX(-0.6);
-  //rotateY(3.9);
-  //rotateZ(-22);
-
+  // updates moves on the screen
   currentMove.update();
   if (currentMove.finished()) {
     if (counter == sequence.size()-1) {
@@ -151,8 +175,10 @@ void draw() {
       currentMove.start();
     }
   }
-
+  
   scale(50);
+  
+  // 
   for (int i = 0; i < cube.length; i++) {
     push();
     if (abs(cube[i].z) > 0 && cube[i].z == currentMove.z) {
@@ -166,7 +192,7 @@ void draw() {
     pop();
   }
 
-  // HUD to hold buttons/text
+  // creates a HUD which contains relevant information
   cam.beginHUD();
   fill(255);
   textSize(32);
@@ -178,4 +204,12 @@ void draw() {
 
 String getMoves() {
   return moves;
+}
+
+void clearMoves() {
+  moves = "";
+}
+
+void clearSequence() {
+  sequence.clear();
 }
