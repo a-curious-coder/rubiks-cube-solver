@@ -1,116 +1,113 @@
-// Order of moves:  D, d, U, u, R, r, L, l, F, f, B, b
-// Moves indexes:   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-// Reference for allMoves[]  
+
 void keyPressed() {
-  // if a cube is animating, skip switch case
+  // if a cube is animating, skip  switch case
   if(currentMove.animating)  {
+    print("animating\n");
     return;
   }
-  
-  switch(key) {
-  case 'D':
-    currentMove = allMoves[0];
-    currentMove.start();
-    break;
-  case 'd':
-    currentMove = allMoves[1];
-    currentMove.start();
-    break;
-  case 'U':
-    currentMove = allMoves[2];
-    currentMove.start();
-    break;
-  case 'u':
-    currentMove = allMoves[3];
-    currentMove.start();
-    break;
-  case 'R':
-    currentMove = allMoves[4];
-    currentMove.start();
-    break;
-  case 'r':
-    currentMove = allMoves[5];
-    currentMove.start();
-    break;
-  case 'L':
-    currentMove = allMoves[6];
-    currentMove.start();
-    break;
-  case 'l':
-    currentMove = allMoves[7];
-    currentMove.start();
-    break;
-  case 'F':
-    currentMove = allMoves[8];
-    currentMove.start();
-    break;
-  case 'f':
-    currentMove = allMoves[9];
-    currentMove.start();
-    break;
-  case 'B':
-    currentMove = allMoves[10];
-    currentMove.start();
-    break;
-  case 'b':
-    currentMove = allMoves[11];
-    currentMove.start();
-    break; 
-// --------------------------------
-  case 's':
-    scrambleCube();
-    currentMove.start();
-    break; 
-  case 'S':
-    currentMove.start();
-    break; 
-  case '1':
-    reverseScramble();
-    break; 
-  case '2':
-    resetScramble();
-    break;
+  switch(key)  {
+    case 's':
+      currentMove = sequence.get(counter);
+      currentMove.start();
+      counter = 0;
+      break;
+    case '1':
+      reverseScramble();
+      break;
+    case '2':
+      resetCube();
+      break;
   }
+  
+  //print(key + "\n");
+  applyMove(key);
 }
+
+
+Move makeAMove(String m) {
+  Move move = null;
+  //moves += m;
+  switch (m) {
+  case "R2":
+    return move = new Move(axis, 0, 0, 2);
+  case "L2":
+    return move = new Move(-axis, 0, 0, 2);
+  case "D2":
+    return move = new Move(0, axis, 0, 2);
+  case "U2":
+    return move = new Move(0, -axis, 0, 2);
+  case "F2":
+    return move = new Move(0, 0, axis, 2);
+  case "B2":
+    return move = new Move(0, 0, -axis, 2);
+  case "R":
+    return move = new Move(axis, 0, 0, 1);
+  case "R\'":
+    return move = new Move(axis, 0, 0, -1);
+  case "L":
+    return move = new Move(-axis, 0, 0, 1);
+  case "L\'":
+    return move = new Move(-axis, 0, 0, -1);
+  case "F":
+    return move = new Move(0, 0, axis, 1);
+  case "F\'":
+    return move = new Move(0, 0, axis, -1);
+  case "B":
+    return move = new Move(0, 0, -axis, 1);
+  case "B\'":
+    return move = new Move(0, 0, -axis, -1);
+  case "D":
+    return move = new Move(0, axis, 0, 1);
+  case "D\'":
+    return move = new Move(0, axis, 0, -1);
+  case "U":
+    return move = new Move(0, -axis, 0, 1);
+  case "U\'":
+    return move = new Move(0, -axis, 0, -1);
+  }
+  return move;
+}
+
 
 // For scramblers reference
 void applyMove(char move) {
   switch(move) {
   case 'f':
-    turnZ(1, 1);
+    currentMove = makeAMove("F");
     break;
   case 'F':
-    turnZ(1, -1);
+    currentMove = makeAMove("F\'");
     break;
   case 'b':
-    turnZ(-1, 1);
+    currentMove = makeAMove("B");
     break;
   case 'B':
-    turnZ(-1, -1);
+    currentMove = makeAMove("B\'");
     break;
   case 'r':
-    turnX(1, 1);
+    currentMove = makeAMove("R");
     break;
   case 'R':
-    turnX(1, -1);
+    currentMove = makeAMove("R\'");
     break;
   case 'l':
-    turnX(-1, 1);
+    currentMove = makeAMove("L");
     break;
   case 'L':
-    turnX(-1, -1);
+    currentMove = makeAMove("L\'");
     break;
   case 'u':
-    turnY(-1, 1);
+    currentMove = makeAMove("U");
     break;
   case 'U':
-    turnY(-1, -1);
+    currentMove = makeAMove("U\'");
     break;
   case 'd':
-    turnY(1, 1);
+    currentMove = makeAMove("D");
     break;
   case 'D':
-    turnY(1, -1);
+    currentMove = makeAMove("D\'");
     break;
   }
+  currentMove.start();
 }

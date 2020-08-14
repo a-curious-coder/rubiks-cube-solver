@@ -1,13 +1,13 @@
 class Cubie {
   PMatrix3D matrix;  // Contains all information for each cubie of what is where
-  int x = 0;
-  int y = 0;
-  int z = 0;
+  float x = 0;
+  float y = 0;
+  float z = 0;
   color c;
   Face[] faces = new Face[6];
   
   // create new cubie with 6 faces
-  Cubie(PMatrix3D m, int x, int y, int z) {
+  Cubie(PMatrix3D m, float x, float y, float z) {
     matrix = m;
     this.x = x;
     this.y = y;
@@ -22,25 +22,33 @@ class Cubie {
     faces[5] = new Face(new PVector(-1, 0, 0), color(255, 0, 0));
   }
   
-  void turnFacesX(int dir)  {
+  void turnFace(char axis, int dir)  {
+    float angle = dir * HALF_PI;
     for(Face f : faces)  {
-     f.turnX(dir * HALF_PI); 
+      f.turn(axis, angle);
     }
   }
   
-  void turnFacesY(int dir)  {
-    for(Face f : faces)  {
-     f.turnY(dir * HALF_PI); 
-    }
-  }
+  // Refactored these three functions into a single function that takes an axis argument
+  //void turnFacesX(int dir)  {
+  //  for(Face f : faces)  {
+  //   f.turnX(dir * HALF_PI); 
+  //  }
+  //}
   
-  void turnFacesZ(int dir)  {
-    for(Face f : faces)  {
-     f.turnZ(dir * HALF_PI); 
-    }
-  }
+  //void turnFacesY(int dir)  {
+  //  for(Face f : faces)  {
+  //   f.turnY(dir * HALF_PI); 
+  //  }
+  //}
   
-  void update(int x, int y, int z)  {
+  //void turnFacesZ(int dir)  {
+  //  for(Face f : faces)  {
+  //   f.turnZ(dir * HALF_PI); 
+  //  }
+  //}
+  
+  void update(float x, float y, float z)  {
     matrix.reset();
     matrix.translate(x, y, z);
     this.x = x;
@@ -51,10 +59,10 @@ class Cubie {
   void show() {
     noFill();
     stroke(0);
-    strokeWeight(0.05);
+    strokeWeight(0.2 / dim);
     
     // Push and Pop Matrix functions means that positioning one box/Cubie does not affect others.
-    pushMatrix();  // Saves transformation states
+    push();  // Saves transformation states
     applyMatrix(matrix);
     box(1);
     for(Face f : faces)  {
