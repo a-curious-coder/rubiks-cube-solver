@@ -7,6 +7,7 @@ void keyPressed() {
   }
   switch(key)  {
     case 's':
+      setupScramble();
       currentMove = sequence.get(counter);
       currentMove.start();
       counter = 0;
@@ -17,10 +18,35 @@ void keyPressed() {
     case '2':
       resetCube();
       break;
+    case '3':
+       print(cube.length + " are being stored\n");
+       print((int)(pow(dim, 3)) + " would have been stored\n");
+       print(((int)(pow(dim, 3)) - cube.length) + " cubies are not being stored, saving cpu power\n\n");
+       break;
+    case 'm':
+      speed += 0.10;
+      break;
+    case 'n':
+      speed -= 0.10;
+      break;
+    case ' ':
+      bool = true;
+      break;
+    case 'w':  
+      dim ++;
+      resetCube();
+      break;
+    case 'e':  
+      dim--;
+      resetCube();
+      break;
+    default: 
+    applyMove(key);
+    break;
   }
   
   //print(key + "\n");
-  applyMove(key);
+  
 }
 
 
@@ -108,6 +134,8 @@ void applyMove(char move) {
   case 'D':
     currentMove = makeAMove("D\'");
     break;
+  default:
+    return;
   }
   currentMove.start();
 }

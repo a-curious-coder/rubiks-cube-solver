@@ -2,72 +2,85 @@ import peasy.*;
 
 PeasyCam cam;
 
-int c = 1;
 // Dimensions of the cube
 int dim = 25;
 int counter = 0;
-// The more complex the cube, the more moves required to scramble it.
-int numberOfMoves = dim * 10;
 
+// The more complex the cube, the more moves required to scramble it.
+int numberOfMoves = dim * 5;
 // represents each edge of the cube for each size
 float axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
-float speed = 0.1;
+float speed = 0.5;
 
 String moves = "";
 
 boolean scramble;
 boolean reverse;
+boolean bool = false;
 
-/* States number of cubies to be held by cube
-/* Hoping to optimise this in future so hidden cubies aren't stored nor drawn
-/* Saving computing power */
-Cubie[] cube = new Cubie[(int)pow(dim, 3)];
+// Now only holds the least amount of cubies for the cube size.
+Cubie[] cube;
 
 Move currentMove;
 ArrayList<Move> sequence = new ArrayList<Move>();
 ArrayList<Move> allMoves = new ArrayList<Move>();
-//Button scrambleButton;
-
 
 // initialises rubik's cube emulation
 void setup() {
-  size(600, 600, P3D);
+  size(800, 800, P3D);
   //fullScreen(P3D);
+  frameRate(60);
+  setupCamera();
 
   smooth(8);
   scramble = false;
   reverse = false;
   cam = new PeasyCam(this, 100 * (dim));
-  // Removing Min/Max distance for zoom as it obstructs the view of larger cubes.
-  //cam.setMinimumDistance(200); // max zoom out
-  //cam.setMaximumDistance(displayWidth); // max zoom in
 
   int index = 0;
-
-  for (float x = -axis; x <= axis; x++) {
-    for (float y = -axis; y <= axis; y++) {
-      for (float z = -axis; z <= axis; z++) {
+  //cube = new Cubie[(int)pow(dim, 3)];
+  cube = new Cubie[(int)(pow(dim, 3) - pow(dim-2, 3))];
+  //for (float x = -axis; x <= axis; x++) {
+  //  for (float y = -axis; y <= axis; y++) {
+  //    for (float z = -axis; z <= axis; z++) {
+  //      PMatrix3D matrix = new PMatrix3D();
+  //      matrix.translate(x, y, z);
+  //      cube[index] = new Cubie(matrix, x, y, z);
+  //      index++;
+  //    }
+  //  }
+  //}
+  // Need to use 0 to dim for if statement that checks whether to store each cubie.
+  // Inner cubies aren't stored.
+  for (float x = 0; x < dim; x++) {
+    for (float y = 0; y < dim; y++) {
+      for (float z = 0; z < dim; z++) {
+        if (x > 0 && x < dim - 1 && 
+          y > 0 && y < dim - 1 && 
+          z > 0 && z < dim - 1) continue;
         PMatrix3D matrix = new PMatrix3D();
-        matrix.translate(x, y, z);
-        cube[index] = new Cubie(matrix, x, y, z);
+        // translates all cubies to center by subtracting axis from x, y, z
+        matrix.translate(x-axis, y-axis, z-axis);
+        cube[index] = new Cubie(matrix, x-axis, y-axis, z-axis);
         index++;
       }
     }
   }
-  if(dim > 1)  {
+
+  if (dim > 1)
     InitialiseMoves();
-    setupScramble();
-  }
+
   currentMove = new Move (0, 0, 0, 0);
 }
 
 // draws emulation to screen
 void draw() {
   background(51);
-
   // Sets the initial view of the cube
   rotateX(-0.3);
   rotateY(0.6);
+
+  updateCam();
 
   // updates moves on the screen
   currentMove.update();
@@ -82,13 +95,16 @@ void draw() {
         print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves + "\n");
       }
     }
-
+    if ( counter == sequence.size() -1 )
+      counter++;
     if (counter < sequence.size()-1) {
+      //counter = currentMove.dir == 2 ? counter+2 : counter + 1;
       counter++;
       currentMove = sequence.get(counter);
       currentMove.start();
     }
   }
+
 
   scale(50);
 
@@ -96,15 +112,42 @@ void draw() {
 
   // creates a HUD which contains relevant information
   cam.beginHUD();
-    fill(255);
-    rect(20, 10, 30, 30, 30);
-    fill(0);
-    text(counter, 30, 30);
-    fill(255);
-    textSize(14);
-    if (!scramble)
-      text(getMoves(), 50, 50);
+  String ctr = "Moves:\t" + str(counter);
+  String fps = nf(frameRate, 1, 1);
+  float tSize = 12;
+  textSize(tSize);
+  fill(255);
+  //rect(20, 10, 30, 30, 30);
+  // x, y, width, height
+  text(ctr, 20, 20);
+  text("FPS:\t" + fps, 20, 20 + tSize);
+  text("Speed:\t" + speed, 20, 20+20+tSize);
+  text("Cube:\t" + dim + "x" + dim + "x" + dim, 20, 20+20+20+tSize);
+  fill(255);
+  textSize(14);
+  if (!scramble)
+    text(getMoves(), 50, 50);
   cam.endHUD();
+}
+
+void setupCamera () {
+  //hint(ENABLE_STROKE_PERSPECTIVE);
+  float fov      = PI/3;  // field of view
+  float nearClip = 1;
+  float farClip  = 100000;
+  float aspect   = float(width)/float(height);  
+  perspective(fov, aspect, nearClip, farClip);  
+  cam = new PeasyCam(this, 100 * (dim));
+}
+
+void updateCam () {
+  //----- perspective -----
+  float fov      = PI/3;  // field of view
+  float nearClip = 1;
+  float farClip  = 100000;
+  float aspect   = float(width)/float(height);  
+  perspective(fov, aspect, nearClip, farClip);
+  //println(cam.getDistance());
 }
 
 // scrambles the cube 
@@ -158,7 +201,7 @@ void reverseScramble() {
     print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves);
   else
     print("Solving cube...");
-    
+
   // reset currentMove to index 0 of new sequence and start sequence of moves
   currentMove = sequence.get(counter);
   currentMove.start();
@@ -172,7 +215,8 @@ void resetCube() {
   setup();
 }
 
-// initialises all possible moves of cube (caters for various cube sizes - scramble can use all possible moves)
+// initialises all possible moves of cube 
+// (caters for various cube sizes - scramble can use all possible moves)
 void InitialiseMoves() {
   for (float i = -axis; i <= axis; i++) {
     if (i != 0) {

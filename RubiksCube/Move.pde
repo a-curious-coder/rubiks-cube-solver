@@ -1,7 +1,7 @@
 class Move {
-
+  
   float x, y, z;
-  int dir;
+  int dir, c;
   float angle = 0;
   boolean animating = false;
   boolean finished = false;
@@ -31,17 +31,16 @@ class Move {
     this.finished = false;
     this.angle = 0;
   }
-
+  
   boolean finished() {
     return finished;
   }
-
+  
+  // Update move being made to screen
   void update() {
-    float pi = HALF_PI;
+    float pi = 0;
     if (animating) {
-      if (dir == 2)
-        pi = PI;
-
+      pi = dir == 2 ? pi = PI : pi;
       angle += dir * speed * 0.5;
 
       if (abs(angle) > pi) {
@@ -61,7 +60,7 @@ class Move {
 
   //converts move object to interpretable string 
   void moveToString() {
-
+    
     // compares all parameters of m with parameters of all moves
     if (this.x == 1) {
       if (this.dir == 1) {
