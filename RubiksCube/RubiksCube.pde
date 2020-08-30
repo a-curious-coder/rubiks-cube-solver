@@ -2,74 +2,72 @@ import peasy.*;
 
 PeasyCam cam;
 
-// Dimensions of the cube
-int dim = 25;
-int counter = 0;
+// Cube object
+Cube cube;
+Cubie[] edges;
+// Stores the currentMove in the scramble/solve process
+Move currentMove;
 
+float rotationAngle = 0;
+// Dimensions of the cube
+int dim = 3;
+// Responsible for counting number of moves made in scramble and solve.
+int counter = 0;
 // The more complex the cube, the more moves required to scramble it.
 int numberOfMoves = dim * 5;
 // represents each edge of the cube for each size
+float middle = dim / 2;
+// axis is the width/height/thickness of a cubie.
+// Mainly represents the rows/columns of a cube
 float axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
-float speed = 0.5;
-
+float speed = 0.01;
+// Stores moves to print to screen.
 String moves = "";
-
+// Used to store moves in the solving function in HumanAlgorithm
+String turns = "";
+// Pausing boolean - enables me to pause the cube's operations.
+boolean paused = false;
+// Is the cube scrambling boolean
 boolean scramble;
+// Is the cube solved boolean
+boolean solve;
+// Is the cube reversing scramble
 boolean reverse;
-boolean bool = false;
-
-// Now only holds the least amount of cubies for the cube size.
-Cubie[] cube;
-
-Move currentMove;
+// sequence stores the moves to scramble and reverse the cube's scramble
 ArrayList<Move> sequence = new ArrayList<Move>();
+// allMoves stores all possible moves for any cube size
 ArrayList<Move> allMoves = new ArrayList<Move>();
+
 
 // initialises rubik's cube emulation
 void setup() {
+  // Screen size
   size(800, 800, P3D);
-  //fullScreen(P3D);
-  frameRate(60);
+  // fullScreen(P3D);
+  // FPS
+  frameRate(120);
+  // Sets camera up (caters for larger cubes)
   setupCamera();
-
-  smooth(8);
   scramble = false;
+  solve = false;
   reverse = false;
   cam = new PeasyCam(this, 100 * (dim));
+  cube = new Cube();
+  smooth(8);
 
-  int index = 0;
-  //cube = new Cubie[(int)pow(dim, 3)];
-  cube = new Cubie[(int)(pow(dim, 3) - pow(dim-2, 3))];
-  //for (float x = -axis; x <= axis; x++) {
-  //  for (float y = -axis; y <= axis; y++) {
-  //    for (float z = -axis; z <= axis; z++) {
-  //      PMatrix3D matrix = new PMatrix3D();
-  //      matrix.translate(x, y, z);
-  //      cube[index] = new Cubie(matrix, x, y, z);
-  //      index++;
-  //    }
-  //  }
-  //}
-  // Need to use 0 to dim for if statement that checks whether to store each cubie.
-  // Inner cubies aren't stored.
-  for (float x = 0; x < dim; x++) {
-    for (float y = 0; y < dim; y++) {
-      for (float z = 0; z < dim; z++) {
-        if (x > 0 && x < dim - 1 && 
-          y > 0 && y < dim - 1 && 
-          z > 0 && z < dim - 1) continue;
-        PMatrix3D matrix = new PMatrix3D();
-        // translates all cubies to center by subtracting axis from x, y, z
-        matrix.translate(x-axis, y-axis, z-axis);
-        cube[index] = new Cubie(matrix, x-axis, y-axis, z-axis);
-        index++;
+  if (dim == 3) {
+    int n = 0;
+    edges = new Cubie[12];
+    for (int i = 0; i < cube.len; i++) {
+      Cubie qb = cube.getCubie(i);
+      if (qb.nCols == 2) {
+        edges[n] = qb;
+        n++;
       }
     }
   }
 
-  if (dim > 1)
-    InitialiseMoves();
-
+  if (dim > 1)  InitialiseMoves();
   currentMove = new Move (0, 0, 0, 0);
 }
 
@@ -79,54 +77,72 @@ void draw() {
   // Sets the initial view of the cube
   rotateX(-0.3);
   rotateY(0.6);
-
+  
   updateCam();
-
-  // updates moves on the screen
-  currentMove.update();
+  // If boolean paused is false
+  if (!paused)
+    // updates moves on the screen
+    currentMove.update();
+  // If currentMove is finished
   if (currentMove.finished()) {
-    // Prints moves for any cube less than 4x4x4 due to lack of notation
-    if (dim <= 3) {
-      if (scramble) {
-        scramble = false;
-        print(numberOfMoves + " moves were taken to scramble the cube " + "\n" + moves + "\n");
-      } else if (reverse) {
-        reverse = false;
-        print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves + "\n");
-      }
+    // print sequence of moves to console
+    printScrambleInfo();
+    // counter is equal to sequence size - 1 then
+    if (counter == sequence.size() - 1) {
+      // Iterate final counter number
+      counter++;
+      // if scramble is false, reset currentMove to nothing.
+      currentMove = !scramble ? new Move(0, 0, 0, 0) : currentMove;
     }
-    if ( counter == sequence.size() -1 )
+    // if counter is less than number of sequence of moves
+    if (counter < sequence.size() - 1) {
+      // iterate counter value
       counter++;
-    if (counter < sequence.size()-1) {
-      //counter = currentMove.dir == 2 ? counter+2 : counter + 1;
-      counter++;
+      // currentMove becomes next move in the sequence
       currentMove = sequence.get(counter);
+      // start move
       currentMove.start();
     }
   }
-
-
+  // Scales size of cube up so user can see it
   scale(50);
-
-  rotateFace(currentMove);
-
+  // Calculates each cubie position / rotation - Shows each cubie in cube
+  cube.show(currentMove);
+  // Updates rotationAngle for cube
+  cube.update();
+  // If cube is not turning and there are turns to be done
+  if (!cube.turning && turns.length() > 0) {
+    // if scramble is done / false
+    if (!scramble) {
+      // Make first move.
+      if (sequence.size() > 0) sequence.clear();
+      while (turns.length() != 0) {turnFace();}
+      for (int i = 0; i < sequence.size(); i++) {print(sequence.get(i).moveToString());}
+    }
+  }
   // creates a HUD which contains relevant information
   cam.beginHUD();
   String ctr = "Moves:\t" + str(counter);
   String fps = nf(frameRate, 1, 1);
   float tSize = 12;
+  float x = 0;
+  float y = tSize;
   textSize(tSize);
   fill(255);
   //rect(20, 10, 30, 30, 30);
   // x, y, width, height
-  text(ctr, 20, 20);
-  text("FPS:\t" + fps, 20, 20 + tSize);
-  text("Speed:\t" + speed, 20, 20+20+tSize);
-  text("Cube:\t" + dim + "x" + dim + "x" + dim, 20, 20+20+20+tSize);
+  x += 20;
+  y += 20;
+  text(ctr, x, y);
+  y += 20;
+  text("FPS:\t" + fps, x, y);
+  y += 20;
+  text("Speed:\t" + nf(speed, 1, 1), x, y);
+  y += 20;
+  text("Cube:\t" + dim + "x" + dim + "x" + dim, x, y);
   fill(255);
-  textSize(14);
-  if (!scramble)
-    text(getMoves(), 50, 50);
+  y += 20;
+  text(getMoves(), x, y);
   cam.endHUD();
 }
 
@@ -150,69 +166,152 @@ void updateCam () {
   //println(cam.getDistance());
 }
 
-// scrambles the cube 
-void setupScramble() {
-  scramble = true;
-  sequence.clear();
-  clearMoves();
+void turnFace() {
+  solve = true;
   counter = 0;
-
-  for (int i = 0; i < numberOfMoves; i++) {
-    int r = int(random(allMoves.size()));
-    Move m = allMoves.get(r);
-    if (dim <= 3)
-      m.moveToString();
-    sequence.add(m);
+  print("\n---- turnFace ----\n");
+  print("\n" + turns.length() + " chars in turns left.\t"+ turns +"\n");
+  // turn becomes the first move of turns String
+  char turn = turns.charAt(0);
+  // Rest of turns are stored back in turns
+  turns = turns.substring(1, turns.length());
+  // Clockwise rotation default true
+  // int dir = 1;
+  boolean clockwise = true;
+  // If there are turns left and the new first char is a prime (')
+  if (turns.length() > 0 && turns.charAt(0) == '\'') {
+    // Rotation will not be clockwise
+    // dir = -1;
+    clockwise = false;
+    // Subtract the prime from the turns String
+    turns = turns.substring(1, turns.length());
+    // If there are 4 more chars in turns
+    if (turns.length() >= 4) {      
+      //  If the next turns are both opposite of rotations of turn prime
+      if (turns.substring(0, 4).equals( "" + turn  + "'" + turn + "'")) {
+        // dir = 1;
+        clockwise = true;
+        // Turns subtracts the 4 chars.
+        turns = turns.substring(4, turns.length());
+      }
+    }
+  } else {
+    // If there are 2 or more chars left in turns String
+    if (turns.length() >= 2) {
+      // If the first and second chars in turns is the same as turn
+      if (turns.charAt(0) == turn && turns.charAt(1) == turn) {
+        // dir = -1;
+        clockwise = false;
+        // turns subtracts 2 chars
+        turns = turns.substring(2, turns.length());
+      }
+    }
   }
 
-  print("Scramble prepared\n");
-
-  currentMove = sequence.get(counter);
-}
-
-// reverses all moves - illusion of a solve from scramble state
-void reverseScramble() {
-
-  ArrayList<Move> reverseSequence = new ArrayList<Move>();
-  clearMoves();
-  counter = 0;
-
-  // If cube has not been scrambled, return.
-  if (sequence.size() == 0) {
-    return;
+  // if turn is right, down or a front face rotation
+  if (turn == 'R' || turn =='D' || turn == 'F') {
+    // reverse clockwise boolean
+    // dir *= -1;
+    clockwise = !clockwise;
   }
+  switch(turn) {
+  case 'R':
+    if (clockwise) {
+      print("Added R to sequence\n");
+      sequence.add(new Move(1, 0, 0, 1));
+    } else {
+      print("Added R' to sequence\n");
+      sequence.add(new Move(1, 0, 0, -1));
+    }
+    // sequence.add(new Move(1, 0, 0, dir));
+    break;
+  case 'L':
+    if (clockwise) {
+      print("Added L to sequence\n");
+      this.sequence.add(new Move(-1, 0, 0, 1));
+    } else {
+      print("Added L' to sequence\n");
+      this.sequence.add(new Move(-1, 0, 0, -1));
+    }
+    // cube.rotateSide(-1, 0, 0, dir);
+    // currentMove = new Move(-1, 0, 0, dir);
+    // currentMove.start();
 
-  // store all sequence elements to reverseSequence
-  for (int i = 0; i < sequence.size(); i++) {
-    reverseSequence.add(sequence.get(i));
+    break;
+  case 'U':
+    if (clockwise) {
+      print("Added U to sequence\n");
+      this.sequence.add(new Move(0, -1, 0, 1));
+    } else {
+      print("Added U' to sequence\n");
+      this.sequence.add(new Move(0, -1, 0, -1));
+    }
+    // currentMove = new Move(0, -1, 0, dir);
+    // currentMove.start();
+    // cube.rotateSide(0, -1, 0, dir);
+
+    break;
+  case 'D':
+    // currentMove = new Move(0, 1, 0, dir);
+    // currentMove.start();
+    // cube.rotateSide(0, 1, 0, dir);
+    sequence.add(new Move(0, 1, 0, 1));
+    break;
+  case 'F':
+    // currentMove = new Move(0, 0, 1, dir);
+    // currentMove.start();
+    // cube.rotateSide(0, 0, 1, dir);
+    sequence.add(new Move(0, 0, 1, 1));
+    break;
+  case 'B':
+    // currentMove = new Move(0, 0, -1, dir);
+    // currentMove.start();
+    // cube.rotateSide(0, 0, -1, dir);
+    sequence.add(new Move(0, 0, -1, 1));
+    break;
+    // Have yet to get a full cube rotation.
+  case 'X':
+    if (clockwise)
+      print("Added X");
+    else
+      print("Added X' ");
+    cube.rotateWholeCube('X', 1);
+    break;
+  case 'Y':
+    if (clockwise)
+      print("Added Y");
+    else
+      print("Added Y' ");
+    cube.rotateWholeCube('Y', 1);
+    break;
+  case 'Z':
+    if (clockwise)
+      print("Added Z");
+    else
+      print("Added Z' ");
+    cube.rotateWholeCube('Z', 1);
+    break;
   }
-
-  sequence.clear();
-
-  for (int i = reverseSequence.size()-1; i >= 0; i--) {
-    Move m = reverseSequence.get(i).copy();
-    m.reverse();
-    if (dim <= 3)
-      m.moveToString();
-    sequence.add(m);
-  }
-
-  if (moves != "")
-    print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves);
-  else
-    print("Solving cube...");
-
-  // reset currentMove to index 0 of new sequence and start sequence of moves
-  currentMove = sequence.get(counter);
-  currentMove.start();
+  cube.turning = !cube.turning;
 }
 
 // resets the cube to original state
 void resetCube() {
-  this.counter = 0;
-  clearMoves();
-  clearSequence();
+  Cube cube = new Cube();
   setup();
+}
+
+void printScrambleInfo() {
+  // Prints moves for any cube < 4x4x4 due to lack of notation
+  if (dim <= 3) {
+    if (scramble) {
+      scramble = false;
+      print(numberOfMoves + " moves were taken to scramble the cube " + "\n" + moves + "\n");
+    } else if (reverse) {
+      reverse = false;
+      print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves + "\n");
+    }
+  }
 }
 
 // initialises all possible moves of cube 
@@ -235,24 +334,6 @@ void InitialiseMoves() {
       allMoves.add(new Move(0, 0, i, 1));   // F   B
       allMoves.add(new Move(0, 0, i, -1));  // F'  B'
     }
-  }
-}
-
-// rotates a face determined by parameter
-void rotateFace(Move m) {
-  for (int i = 0; i < cube.length; i++) {
-    push();
-    if (abs(cube[i].z) > 0 && cube[i].z == m.z) {
-      rotateZ(m.angle);
-    } else if (abs(cube[i].x) > 0 && cube[i].x == m.x) {
-      rotateX(m.angle);
-    } else if (abs(cube[i].y) > 0 && cube[i].y == m.y) {
-      rotateY(-m.angle);
-      //print("cube.y\t" + cube[i].y + "\n");
-      //print("move is rotating...\n");
-    }   
-    cube[i].show();
-    pop();
   }
 }
 

@@ -1,7 +1,8 @@
 class Move {
-  
+
   float x, y, z;
-  int dir, c;
+  int dir;
+  int i = 0;
   float angle = 0;
   boolean animating = false;
   boolean finished = false;
@@ -14,31 +15,9 @@ class Move {
     this.dir = dir;
   }
 
-  // Returns a deep copy of a move
-  Move copy() {
-    return new Move(x, y, z, dir);
-  }
-
-  // Reverses the direction of a move
-  void reverse() {
-    if (dir != 2)
-      this.dir *= -1;
-  }
-
-  // Starts animation of move
-  void start() {
-    this.animating = true;
-    this.finished = false;
-    this.angle = 0;
-  }
-  
-  boolean finished() {
-    return finished;
-  }
-  
   // Update move being made to screen
   void update() {
-    float pi = 0;
+    float pi = HALF_PI;
     if (animating) {
       pi = dir == 2 ? pi = PI : pi;
       angle += dir * speed * 0.5;
@@ -58,71 +37,99 @@ class Move {
     }
   }
 
+  // Returns a deep copy of a move
+  Move copy() {
+    return new Move(x, y, z, dir);
+  }
+
+  // Reverses the direction of a move
+  void reverse() {
+    if (dir != 2)
+      this.dir *= -1;
+  }
+
+  // Starts animation of move
+  void start() {
+    this.animating = true;
+    this.finished = false;
+    this.angle = 0;
+  }
+
+  boolean finished() {
+    return finished;
+  }
+
   //converts move object to interpretable string 
-  void moveToString() {
-    
+  String moveToString() {
+    String move = "";
     // compares all parameters of m with parameters of all moves
-    if (this.x == 1) {
-      if (this.dir == 1) {
-        moves += "R";
-      } else if (this.dir == -1) {
-        moves += "R\'";
+    if (x == 1) {
+      if (dir == 1) {
+        move += "R";
+      } else if (dir == -1) {
+        move += "R\'";
       } else {
-        moves += "R2";
+        move += "R2";
       }
-    } else if (this.x == -1) {
-      if (this.dir == 1) {
-        moves += "L";
-      } else if (this.dir == -1) {
-        moves += "L\'";
+    }
+    if (x == -1) {
+      if (dir == 1) {
+        move += "L";
+      } else if (dir == -1) {
+        move += "L\'";
       } else {
-        moves += "L2";
+        move += "L2";
       }
     }
 
     if (this.y == 1) {
       if (this.dir == 1) {
-        moves += "D";
+        move += "D";
       } else if (this.dir == -1) {
-        moves += "D\'";
+        move += "D\'";
       } else {
-        moves += "D2";
+        move += "D2";
       }
-    } else if (this.y == -1) {
+    }
+    if (this.y == -1) {
       if (this.dir == 1) {
-        moves += "U";
+        move += "U";
       } else if (this.dir == -1) {
-        moves += "U\'";
+        move += "U\'";
       } else {
-        moves += "U2";
+        move += "U2";
       }
     }
 
     if (this.z == 1) {
       if (this.dir == 1) {
-        moves += "F";
+        move += "F";
       } else if (this.dir == -1) {
-        moves += "F\'";
+        move += "F\'";
       } else {
-        moves += "F2";
+        move += "F2";
       }
-    } else if (this.z == -1) {
+    } 
+    if (this.z == -1) {
       if (this.dir == 1) {
-        moves += "B";
+        move += "B";
       } else if (this.dir == -1) {
-        moves += "B\'";
+        move += "B\'";
       } else {
-        moves += "B2";
+        move += "B2";
       }
     }
 
-    if (c % 10 == 0) {
-      moves += "\n";
-    } else if (c == sequence.size()) {
-      moves += ".\n";
+
+    i++;
+    if (i % 10 == 0) {
+      move += "\n";
+    } else if (i == sequence.size()) {
+      move += ".\n";
     } else {
-      moves += " ";
+      move += " ";
     }
-    c++;
+    moves += move;
+    return move;
   }
 }

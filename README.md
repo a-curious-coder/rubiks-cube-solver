@@ -30,15 +30,17 @@ By adding or subtracting [cubies](https://www.yourdictionary.com/cubie) to the o
 
 <h2> Goals for this project <a name="achieve"></a></h2>
 
-My first o is to create an emulator of the puzzle game in order to be able to work on guiding a computer to solving it. I've chosen to use Processing Java as the language to create the Rubiks cube emulator.
+My first is to create an emulator of the puzzle game in order to be able to work on guiding a computer to solving it. I've chosen to use Processing Java as the language to create the Rubiks cube emulator since it's easier for me to keep track of compared to learning other programming languages. I started off using the Processing IDE but I discovered random bugs and issues when trying to debug/run my emulation so I switched over to VSCode and imported the java-processing libraries. 
 <h3> Main Objectives </h3>
 
 - [x] Emulation of cube
+- [x] Adding basic moves for cube
 - [x] Scramble function for cube
 - [x] Animation of each move
 - [x] Reverse scramble of cube
 - [x] Adapt the code to cater for larger cubes
 - [x] Save computing power by only storing visible cubies
+- [ ] Adding [X, Y, Z](https://ruwix.com/the-rubiks-cube/notation/advanced/) rotations to cube.
 - [ ] Implement a human algorithm to solve the cube
 <h3>Mandatory</h3>
 
@@ -51,11 +53,11 @@ My first o is to create an emulator of the puzzle game in order to be able to wo
 - [x] Allow user to create custom cube sizes
 - [ ] Allow user to create a custom cube scramble
 - [x] Provide output of scramble/solve steps to console for the user
-- [ ] The number of steps required to solve the cube from its scrambled state - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
+- [ ] Solve the cube from its scrambled state in 20 moves or less - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
 
 ---
 <h2>Terminology and Notation</h2> <a name="notation"></a>
-
+<h3>Terminology</h3>
 <table align = "center">
   <tr> 
     <td>Cubie</td>
@@ -103,6 +105,28 @@ My first o is to create an emulator of the puzzle game in order to be able to wo
       A letter with the number 2 after it marks a double turn 180°.
     </td>
   </tr>
+  <tr> 
+    <td colspan="2";>
+      X, Y, Z rotations aren't normally required to solve a cube. These are whole cube rotations.
+    </td>
+  </tr>
+</table>
+<h3>Notation</h3>
+<table align="center">
+  <tr>
+  <td>Normal moves</td>
+    <td>F</td><td>R</td><td>U</td><td>L</td><td>B</td><td>D</td><td>X</td><td>Y</td><td>Z</td>
+  </tr>
+  <tr>
+    <td>Prime moves</td>
+    <td>F'</td><td>R'</td><td>U'</td><td>L'</td><td>B'</td><td>D'</td><td>X'</td><td>Y'</td><td>Z'</td>
+  </tr>
+  <tr>
+  <td>Double moves</td>
+    <td>F2</td><td>R2</td><td>U2</td><td>L2</td><td>B2</td>
+    <td colspan = "4">D2</td>
+  </tr>
+
 </table>
 
 ---
@@ -234,6 +258,7 @@ Finally, minor additions include an FPS counter, speed control and the size of t
 2. [Computing power issue](#computingpowerissue)
 3. [Even number of dimensions cube scrambling issue](#evenissue)
 4. [Camera fov issue](#camissue)
+5. [Entire cube rotation](#wholecuberotation)
 
 <h4>Notation issue</h4> 
 <a name="notationissue"></a>
@@ -266,7 +291,10 @@ After resolving the computing power issue with storing cubies, I felt comfortabl
   <summary>70x70x70 after solution</summary>
   <p align="center"><img src=Gifs/70x70x70fix.gif width="300" height ="300"/></p>
 </details>
-This meant I could now fully display even bigger cubes to test out solving algorithms with in the future.
+This means I can now fully display even bigger cubes to test out solving algorithms with in the future.
+
+<h4>Whole cube rotation</h4>
+X, Y, Z aren't moves that are needed to solve a cube, however since a computer is doing the solve, for the sake of simplicity when programming algorithms, I will be relying on these whole cube rotations to reposition focussed cubie corner and edge pieces to specific faces/axis on the screen. This means, after repositioning the entire cube, I will hopefully be able to re-use sets of moves for to correctly position cubies that were in different areas of the cube.
 
 ---
 
@@ -285,3 +313,4 @@ The intention here is to use these references as a guide or inspiration for feat
 9. [Markdown Cheatsheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf)
 10. [PEasy Cam setup/update](https://forum.processing.org/two/discussion/27071/how-far-can-i-go-with-peasycam)
 11. [Converting Processing to P5.JS (for live demo)](https://github.com/processing/p5.js/wiki/Processing-transition)
+12. [Human Algorithm - Part 1 (First Layer Edges)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-1-first-layer-edges/)

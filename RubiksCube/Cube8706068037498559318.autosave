@@ -1,0 +1,259 @@
+class Cube {
+
+  Cubie[] cube;
+  ArrayList<ArrayList<Cubie>> cycleLists = new ArrayList();
+  HumanAlgorithm hAlgorithm;
+
+  int len = 0;
+  char currentAxis = 'a';
+  float rotationAngle = 0;
+  boolean turning = false;
+  boolean turningClockwise = true;
+  boolean turningWholeCube = false;
+
+  Cube() {
+    // Sets array size for cubies to be stored in for any cube size
+    // If dimensions of cube are 1x1x1, sets the cube size manually as the math above doesn't cater for it.
+    cube = dim == 1 ? new Cubie[1] : new Cubie[(int)(pow(dim, 3) - pow(dim-2, 3))];
+    // len stores the number value of cubies in cube.
+    len = cube.length;
+    // index of cubie that's being stored to cube object
+    int index = 0;
+    for (float x = 0; x < dim; x++) {
+      for (float y = 0; y < dim; y++) {
+        for (float z = 0; z < dim; z++) {
+          // if cubie is more than 0 and less than dim-1 in all axis, skip this iteration in the for loop 
+          // Basically if the cubie's not visible to user, don't store it.
+          if (x > 0 && x < dim - 1 && y > 0 && y < dim - 1 && z > 0 && z < dim - 1) continue;
+          PMatrix3D matrix = new PMatrix3D();
+          // translates all cubies to center of rotation by subtracting axis from x, y, z
+          matrix.translate(x-axis, y-axis, z-axis);
+          // Store cubie using the translated matrix and x,y,z values subtracting the axis.
+          cube[index] = new Cubie(matrix, x-axis, y-axis, z-axis);
+          index++;
+        }
+      }
+    }
+    // Instantiate new human algorithm for this cube.
+    hAlgorithm = new HumanAlgorithm(this);
+  }
+  // Shows cube to 
+  void show(Move m) {
+    // Determines whether rotation is clockwise or not
+    int angleMultiplier = turningClockwise ? 1 : -1;
+    // For every cubie in the cube
+    for (Cubie qb : cube) {
+      // saves transformation state.
+      push(); 
+      // desired position determined by Move m's angle value - updates and rotates each cubie
+      // If cubie axis > 0 AND it's equal to move axis then rotate by appropriate axis using move angle
+      if (abs(qb.z) > 0 && qb.z == m.z) {rotateZ(m.angle);}
+      else if (abs(qb.x) > 0 && qb.x == m.x) {rotateX(m.angle);}
+      else if (abs(qb.y) > 0 && qb.y == m.y) {rotateY(-m.angle);}
+      // Show cubie
+      qb.show();
+      // If the whole cube is turning
+      if (turningWholeCube) {
+        // Check current axis for cube's rotation
+        switch(currentAxis) {
+        case 'X': 
+          print("rotateX\n");
+          rotateX(angleMultiplier * rotationAngle);
+          break;
+        case 'Y':
+          print("rotateY\n");
+          // rotateY();
+          break;
+        case 'Z':
+          print("rotateZ\n");
+          // rotateZ();
+          break;
+        }
+      }
+      pop();
+    }
+  }
+  // Update the cube
+  void update() {
+    if (turning) {
+
+      if (rotationAngle < HALF_PI) {
+        float scrambleMultiplier = 1;
+        if (scramble) {
+          scrambleMultiplier = 5;
+        } 
+        int turningEaseCoeff = 2;
+        if (rotationAngle < HALF_PI/4) {
+          rotationAngle += scrambleMultiplier * speed / map(rotationAngle, 0, HALF_PI/4, turningEaseCoeff, 1);
+        } else if (rotationAngle > HALF_PI-HALF_PI/4) {
+          rotationAngle += scrambleMultiplier * speed / map(rotationAngle, HALF_PI-HALF_PI/4, HALF_PI, 1, turningEaseCoeff);
+        } else {
+          rotationAngle += scrambleMultiplier * speed;
+        }
+      }
+
+      if (rotationAngle >= HALF_PI) {
+        rotationAngle = 0;
+        turning= false;
+        int dir = turningClockwise ? 1 : -1;
+        if (turningWholeCube) finishTurningWholeCube(currentAxis, dir);
+      }
+
+    }
+  }
+  // Changes booleans to rotate the entire cube along axis
+  void rotateWholeCube(char axis, int dir) {
+    // If cube is already rotating, leave function 
+    if (turning) return;
+    turning = true;
+    turningWholeCube = true;
+    currentAxis = axis;
+    print("turning is now true\n");
+    // if (fixCubeRotation) {
+    //   rotationAngle = 0;
+    //   turning = false;
+    //   finishTurningWholeCube(axis, dir);
+    // }
+  }
+  // finish turning whole cube
+  void finishTurningWholeCube(char axis, int dir) {
+    turning = false;
+    turningWholeCube = false;
+    ArrayList<Cubie> temp = new ArrayList();
+    
+    for (Cubie qb : cube) { 
+      qb.turn(axis, dir);
+      temp.add(qb); 
+    } 
+    
+    returnListToCube(temp);
+    // for (int k = 0; k < dim; k++) {
+    //   // Will add all cubies on each col/row dependent of axis to reposition
+    //   cycleLists = getAllCubiesToRotate(k, axis);
+    //   for (int j = 0; j < cycleLists.size(); j++) {
+    //     // temp holds an arraylist at index j (arraylist of arraylists)
+    //     ArrayList<Cubie> temp = cycleLists.get(j);
+
+    //     for (int i = 0; i < dim - 1 - j * 2; i++) { 
+    //       if (dir == -1) {
+    //         //remove from end and add to start
+    //         temp.add(0, temp.remove(temp.size()-1));
+    //       } else {
+    //         //remove from front and add to the end
+    //         temp.add(temp.remove(0));
+    //       }
+    //     }
+    //     // return new cubie positions to cube.
+    //     returnListToCube(temp, axis, j);
+    //   }
+    // }
+  }
+  void returnListToCube(ArrayList<Cubie> list) {
+    
+      for(int i = 0; i < cube.length; i++)  {
+        cube[i] = list.get(i);
+      }
+  }
+  // Index represents the row/col of the axis the cubies are collected from
+  ArrayList<ArrayList<Cubie>> getAllCubiesToRotate(int index, char axis) {
+    ArrayList<ArrayList<Cubie>>  temp = new ArrayList();   
+    // if index is -1 OR 1 of axis (the sides of cube)
+    if (index == 0 || index == dim-1) {
+      for (int i  = 0; i < floor((dim+1)/2); i++) {
+        // Add list cubies from specified index/axis
+        temp.add(getList(index, axis, i));
+      }
+      // if cubies are in middle column/row of axis
+    } else {
+      temp.add(getList(index, axis, 0));
+    }
+    return temp;
+  } 
+  // return list of cubies to the cube object
+  // void returnListToCube(ArrayList<Cubie> list, char axis, int listNumber) {
+
+  //   int size = dim-listNumber * 2;
+  //   // If the cubie along the x axis, right side as +1
+  //   // Then add new cubie from list and remove from list.
+  //   // Else maintain original cubie values.
+
+  //   switch(axis) {
+  //   case 'X': 
+  //     // Check if valid x axis
+  //     for (int i = 0; i < size; i++) {
+  //       // if x axis is on right side...
+  //       cube[i] = cube[i].x == 1 ? list.get(0) : cube[i];
+  //       // if x axis is on left side...
+  //       cube[i] = cube[i].x == -1 ? list.get(0) : cube[i];
+  //       list.remove(0);
+  //     }
+
+  //     break;
+  //   case 'Y':
+  //     // Check if valid y axis
+  //     for (int i = 0; i < size; i++) {
+  //       cube[i] = cube[i].y == 1 ? list.get(0) : cube[i];
+  //       cube[i] = cube[i].y == -1 ? list.get(0) : cube[i];
+  //       list.remove(0);
+  //     }
+  //     break;
+  //   case 'Z':
+  //     // Check if valid z axis
+  //     for (int i = 0; i < size; i++) {
+  //       cube[i] = cube[i].z == 1 ? list.get(0) : cube[i];
+  //       cube[i] = cube[i].z == -1 ? list.get(0) : cube[i];
+  //       list.remove(0);
+  //     }
+  //     break;
+  //   }
+
+  //   int index = 0;
+  //   for (int x = 0; x < dim; x++) { 
+  //     for (int y = 0; y < dim; y++) { 
+  //       for (int z = 0; z < dim; z++) { 
+  //         if (x > 0 && x < dim - 1 && y > 0 && y < dim - 1 && z > 0 && z < dim - 1) continue;
+  //         PMatrix3D matrix = new PMatrix3D();
+  //         matrix.translate(x-axis, y-axis, z-axis);
+  //         cube[index] = new Cubie(matrix, x-axis, y-axis, z-axis);
+  //         index++;
+  //       }
+  //     }
+  //   }
+  // }
+  // ----- Getters -----
+  // returns a list of all the cubies in the specified axis of cube - only works for 3x3x3 cube
+  ArrayList<Cubie> getList(int index, char axis, int listNumber) {
+    ArrayList<Cubie> list = new ArrayList();
+    int size = dim-listNumber*2;
+    switch(axis) {
+    case 'X':
+      for (int i = 0; i < size; i++) {
+        if (cube[i].x == 1) list.add(cube[i]);
+      }
+      for (int i = 0; i < size; i++) {
+        if (cube[i].x == -1) list.add(cube[i]);
+      }
+      break;
+    case 'Y':
+      for (int i = 0; i < size; i++) { 
+        if (cube[i].y == 1) list.add(cube[i]);
+      }
+      for (int i = 0; i < size; i++) {
+        if (cube[i].y == -1) list.add(cube[i]);
+      }
+      break;
+    case 'Z':
+      for (int i = 0; i < size; i++) { 
+        if (cube[i].z == 1) list.add(cube[i]);
+      }
+      for (int i = 0; i < size; i++) { 
+        if (cube[i].z == -1) list.add(cube[i]);
+      }
+      break;
+    }
+    return list;
+  }
+  Cubie getCubie(int i) {
+    return cube[i];
+  }
+}

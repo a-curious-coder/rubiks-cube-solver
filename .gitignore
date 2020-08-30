@@ -4,6 +4,7 @@
 
 ### Processing ###
 .DS_Store
+.autosave
 applet
 application.linux-arm64
 application.linux-armv6hf
