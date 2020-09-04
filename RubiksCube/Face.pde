@@ -35,9 +35,6 @@ class Face {
   }
 
   void show() {
-    if(c == color(0)) {
-      return;
-    }
     push();
       fill(c);
       noStroke();

@@ -1,15 +1,14 @@
 void keyPressed() {
-
   switch(key) {
   case 's':
     if(bigTroll()) break;
-    cube.hAlgorithm.scramble();
+    cube.scrambleCube();
     break;
   case '0':
     cube.hAlgorithm.solveCube();
     break;
   case '1':
-    cube.hAlgorithm.reverseScramble();
+    cube.rScrambleCube();
     break;
   case '2':
     resetCube();
@@ -19,6 +18,11 @@ void keyPressed() {
     print((int)(pow(dim, 3)) + " would have been stored\n");
     print(((int)(pow(dim, 3)) - cube.len) + " cubies are not being stored, saving cpu power\n\n");
     break;
+  case '4':
+    for(int i = 0; i < 999; i++)  {
+      println("");
+    }
+    println("Number of moves: " + allMoves.size());
   case 'm':
     speed += 0.10;
     break;
@@ -42,12 +46,16 @@ void keyPressed() {
     dim--;
     resetCube();
     break;
+  case 't':
+    cube.turn('Z', -axis, 2);
+    break;
   default: 
     // if a cube is animating, skip  switch case
     if (currentMove.animating) {
       print("animating\n");
       return;
     }
+    println("Key pressed: " + key);
     applyMove(key);
     break;
   }
@@ -55,49 +63,99 @@ void keyPressed() {
   //print(key + "\n");
 }
 
-
-Move makeAMove(String m) {
-  Move move = null;
-  //moves += m;
-  switch (m) {
+// R L on X
+// U D on Y
+// F B on Z
+void makeAMove(String move) {
+  switch(move) {
   case "R2":
-    return move = new Move(axis, 0, 0, 2);
+    // cube.turn('X', axis, 2);
+    cube.turn('X', axis, 1);
+    cube.turn('X', axis, 1);
+    break;
   case "L2":
-    return move = new Move(-axis, 0, 0, 2);
+    // cube.turn('X', -axis, 2);
+    cube.turn('X', -axis, 1);
+    cube.turn('X', -axis, 1);
+    break;
   case "D2":
-    return move = new Move(0, axis, 0, 2);
+    // cube.turn('Y', axis, 2);
+    cube.turn('Y', axis, 1);
+    cube.turn('Y', axis, 1);
+    break;
   case "U2":
-    return move = new Move(0, -axis, 0, 2);
+    // cube.turn('Y', -axis, 2);
+    cube.turn('Y', -axis, 1);
+    cube.turn('Y', -axis, 1);
+    break;
   case "F2":
-    return move = new Move(0, 0, axis, 2);
+    // cube.turn('Z', axis, 2);
+    cube.turn('Z', axis, 1);
+    cube.turn('Z', axis, 1);
+    break;
   case "B2":
-    return move = new Move(0, 0, -axis, 2);
+    // cube.turn('Z', -axis, 2);
+    cube.turn('Z', -axis, 1);
+    cube.turn('Z', -axis, 1);
+    break;
   case "R":
-    return move = new Move(axis, 0, 0, 1);
+    cube.turn('X', axis, 1);
+    break;
   case "R\'":
-    return move = new Move(axis, 0, 0, -1);
+    cube.turn('X', axis, -1);
+    break;
   case "L":
-    return move = new Move(-axis, 0, 0, -1);
+    cube.turn('X', -axis, 1);
+    break;
   case "L\'":
-    return move = new Move(-axis, 0, 0, 1);
+    cube.turn('X', -axis, -1);
+    break;
   case "F":
-    return move = new Move(0, 0, axis, 1);
+    cube.turn('Z', axis, 1);
+    print(axis);
+    break;
   case "F\'":
-    return move = new Move(0, 0, axis, -1);
+    cube.turn('Z', axis, -1);
+    break;
   case "B":
-    return move = new Move(0, 0, -axis, -1);
+    cube.turn('Z', -axis, 1);
+    break;
   case "B\'":
-    return move = new Move(0, 0, -axis, 1);
+    cube.turn('Z', -axis, -1);;
+    break;
   case "D":
-    return move = new Move(0, axis, 0, -1);
+    cube.turn('Y', axis, -1);
+    break;
   case "D\'":
-    return move = new Move(0, axis, 0, 1);
+    cube.turn('Y', axis, 1);
+    break;
   case "U":
-    return move = new Move(0, -axis, 0, 1);
+    cube.turn('Y', -axis, 1);
+    break;
   case "U\'":
-    return move = new Move(0, -axis, 0, -1);
+    cube.turn('Y', -axis, -1);
+    break;
+  case "X":
+    cube.turnWholeCube('X', 1);
+    break;
+  case "X\'":
+    cube.turnWholeCube('X', -1);
+    break;
+  case "Y":
+    cube.turnWholeCube('Y', 1);
+    break;
+  case "Y\'":
+    cube.turnWholeCube('Y', -1);
+    break;
+  case "Z":
+    cube.turnWholeCube('Z', 1);
+    break;
+  case "Z\'":
+    cube.turnWholeCube('Z', -1);
+    break;
+  default:
+    return;
   }
-  return move;
 }
 
 
@@ -105,70 +163,58 @@ Move makeAMove(String m) {
 void applyMove(char move) {
   switch(move) {
   case 'f':
-    currentMove = makeAMove("F");
-    currentMove.start();
+    makeAMove("F");
     break;
   case 'F':
-    currentMove = makeAMove("F\'");
-    currentMove.start();
+    makeAMove("F\'");
     break;
   case 'b':
-    currentMove = makeAMove("B");
-    currentMove.start();
+    makeAMove("B");
     break;
   case 'B':
-    currentMove = makeAMove("B\'");
-    currentMove.start();
+    makeAMove("B\'");
     break;
   case 'r':
-    currentMove = makeAMove("R");
-    currentMove.start();
+    makeAMove("R");
     break;
   case 'R':
-    currentMove = makeAMove("R\'");
-    currentMove.start();
+    makeAMove("R\'");
     break;
   case 'l':
-    currentMove = makeAMove("L");
-    currentMove.start();
+    makeAMove("L");
     break;
   case 'L':
-    currentMove = makeAMove("L\'");
-    currentMove.start();
+    makeAMove("L\'");
     break;
   case 'u':
-    currentMove = makeAMove("U");
-    currentMove.start();
+    makeAMove("U");
     break;
   case 'U':
-    currentMove = makeAMove("U\'");
-    currentMove.start();
+    makeAMove("U\'");
     break;
   case 'd':
-    currentMove = makeAMove("D");
-    currentMove.start();
+    makeAMove("D");
     break;
   case 'D':
-    currentMove = makeAMove("D\'");
-    currentMove.start();
+    makeAMove("D\'");
     break;
   case 'x':
-    cube.rotateWholeCube('X', 1);
+    makeAMove("X");
     break;
   case 'X':
-    cube.rotateWholeCube('X', -1);
+    makeAMove("X\'");
     break;
   case 'y':
-    cube.rotateWholeCube('Y', 1);
+    makeAMove("Y");
     break;
   case 'Y':
-    cube.rotateWholeCube('Y', -1);
+    makeAMove("Y\'");
     break;
   case 'z':
-    cube.rotateWholeCube('Z', 1);
+    makeAMove("Z");
     break;
   case 'Z':
-    cube.rotateWholeCube('Z', -1);
+    makeAMove("Z\'");
     break;
   default:
     return;

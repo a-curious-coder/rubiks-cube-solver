@@ -3,7 +3,6 @@ String YRotation = "FLBR";//'F', 'R', 'B', 'R'};
 String ZRotation = "LDRB";//{'L', 'D', 'R', 'B'};
 
 color[] colours = new color[6];
-
 color orange = color(255, 140, 0);
 color red = color(255, 0, 0);
 color white = color(255);

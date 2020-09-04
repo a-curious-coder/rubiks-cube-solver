@@ -1,3 +1,4 @@
+import java.util.Arrays;
 class Cubie {
   PMatrix3D matrix;  // Contains all information for each cubie of what is where
   float x = 0;
@@ -7,14 +8,14 @@ class Cubie {
                 //    0         1      2        3         4       5
                 //   Right    Left     Up      Down     Front    Back
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
-  color[] completeColourList = new color[6];
-  color defaultRGB = color(0, 0, 0, 126);
+  color defaultRGB = color(0, 45, 0, 0);
   color orange = color(255, 140, 0);
   color red = color(255, 0, 0);
   color white = color(255);
   color yellow = color(255, 255, 0);
   color green = color(0, 255, 0);
   color blue  = color(0, 0, 255);
+
   int nCols = 0;
 
   Face[] faces = new Face[6];
@@ -27,14 +28,6 @@ class Cubie {
     this.z = z;
     // Sets colour for each face of the cube dependant on their position on the cube and whether certain faces are visible
     setColours();
-    print("\t" + x + "\t" + y + "\t" + z + "\t");
-    for(int i = 0; i < colours.length; i++) {
-      print(colToString(colours[i]) + "\t");
-    }
-    if(nCols == 1){print(nCols + "\tCenter\n");}
-    else if(nCols == 2) {print(nCols + "\tEdge\n");}
-    else if(nCols == 3) {print(nCols + "\tCorner\n");}
-    
     // Sets each face to their required colours
     faces[0] = new Face(new PVector(1, 0, 0), colours[0]); // Orange
     faces[1] = new Face(new PVector(-1, 0, 0), colours[1]); // Red
@@ -50,7 +43,7 @@ class Cubie {
   void show() {
     noFill();
     stroke(0);
-    strokeWeight(0.3 / dim);
+    strokeWeight(0.2 / dim);
     // Push and Pop Matrix functions means that positioning one box/Cubie does not affect others.
     push();  // Saves transformation states
       applyMatrix(matrix);
@@ -61,7 +54,6 @@ class Cubie {
         f.show();
         i++;
       }
-
     pop();
   }
 
@@ -84,12 +76,8 @@ class Cubie {
     copy.nCols = nCols;
     return copy;
   }
-  void resetColours() {
 
-    for(int i = 0; i < colours.length; i++) {
-      colours[i] = color(0);
-    }
-  }
+  // Initialises the appropriate colours for each cubie in the cube.
   void setColours() {
     // variable[i] = IF x == value THEN color(a) ELSE color(b)
     colours[0] = x ==  axis  ?  orange : defaultRGB;   // Orange
@@ -114,38 +102,36 @@ class Cubie {
     //assume always clockwise
     // print("--------- TURN FUNCTION ---------\n");
     color[] newColours = colours.clone();
-    // newColours[0] = color(255);
-    // print("testing colours\n" + colToString(newColours[0]) + " AND " +
-    //                             colToString(colours[0])+ "\n");
     if (dir == 1) {
-      int i = 0;
-      for(color c : colours)  {
-      print("colour[" + i + "] : " + colToString(c) + "\t");
-      i++;
-    }
-    print("\n");
+      // int i = 0;
+      // println("\nX: " + x + "\t\tY: " + y + "\t\tZ: " + z + "\nRight\t\t\tLeft\t\t\tUp\t\t\tDown\t\t\tFront\t\t\tBack");
+      // for(color c : colours)  {
+      //   print("colour[" + i + "] : " + colToString(c) + "\t");
+      //   i++;
+      // }
+      // print("\n");
       turn(axisFace, -1); 
       turn(axisFace, -1); 
+      turn(axisFace, -1);
+      return;
+    } else if(dir == 2) {
+      turn(axisFace, -1);
       turn(axisFace, -1);
       return;
     }
     // Swaps colours based on which axis the cube is rotating
     switch(axisFace) {
     case 'X':
-      newColours[2] = colours[4]; // F becomes U 
-      newColours[4] = colours[3]; // D becomes F
-      newColours[3] = colours[5]; // B becomes D 
-      newColours[5] = colours[2]; // U becomes B 
-      // newColours[2] = colours[2]; // F becomes U 
-      // newColours[4] = colours[4]; // D becomes F
-      // newColours[3] = colours[3]; // B becomes D 
-      // newColours[5] = colours[5]; // U becomes B 
+      newColours[2] = colours[4]; // U becomes F
+      newColours[4] = colours[3]; // F becomes D
+      newColours[3] = colours[5]; // D becomes B
+      newColours[5] = colours[2]; // B becomes U
       break;
     case 'Y':
-      newColours[5] = colours[1]; // L becomes B
-      newColours[0] = colours[5]; // B becomes R
-      newColours[4] = colours[0]; // R becomes F
-      newColours[1] = colours[4]; // F becomes L
+      newColours[1] = colours[5]; // L becomes B
+      newColours[5] = colours[0]; // B becomes R
+      newColours[0] = colours[4]; // R becomes F
+      newColours[4] = colours[1]; // F becomes L
       break;
     case 'Z':
       newColours[2] = colours[0]; // U becomes R
@@ -156,13 +142,12 @@ class Cubie {
     }
     
     colours = newColours.clone();
-    int i = 0;
-    for(color c : colours)  {
-      print("colour[" + i + "] : " + colToString(c) + "\t");
-      i++;
-    }
-    print("\n");
-    return;
+    // int i = 0;
+    // for(color c : colours)  {
+    //   print("colour[" + i + "] : " + colToString(c) + "\t");
+    //   i++;
+    // }
+    // print("\n");
   }
 
   // Return char of face with color c
@@ -210,4 +195,29 @@ class Cubie {
     }
     return true;
   }
+
+  String details()  {
+    return "\t" + x + "\t" + y + "\t" + z + "\t"
+                    + colToString(colours[0]) + "\t"
+                    + colToString(colours[1]) + "\t"
+                    + colToString(colours[2]) + "\t"
+                    + colToString(colours[3]) + "\t"
+                    + colToString(colours[4]) + "\t"
+                    + colToString(colours[5]);
+                    
+  }
+
+  @Override
+  boolean equals(final Object other)  {
+    // Checks if other is not a Cubie
+    if(!(other instanceof Cubie)) {
+          return false;
+        }
+    // Cast other into a cubie
+    Cubie c = (Cubie) other;
+    // Returns true if Cubie c colours are equal to this.colours
+    // Compares colours and their orders
+    return c.x == this.x && c.y == this.y && c.z == this.z && Arrays.equals(colours, c.colours);
+  }
+
 }
