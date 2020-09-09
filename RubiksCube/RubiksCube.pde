@@ -1,67 +1,77 @@
 import peasy.*;
 
+// Camera object to visualise a Rubik's Cube
 PeasyCam cam;
-
 // Cube object
 Cube cube;
-Cubie[] edges;
 // Stores the currentMove in the scramble/solve process
 Move currentMove;
 // Dimensions of the cube
 int dim = 3;
 // Responsible for counting number of moves made in scramble and solve.
-int counter = 0;
+int counter;
 // The more complex the cube, the more moves required to scramble it.
-int numberOfMoves = dim * 5;
+int numberOfMoves;
 // represents each edge of the cube for each size
-float middle = dim / 2;
-// axis is the width/height/thickness of a cubie.
-// Mainly represents the rows/columns of a cube
-float axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
-float speed = 0.08;
+float middle;
+// Mainly represents each row/column of a cube 
+float axis;
+// Determines how fast animations / turns are
+float speed;
 // Stores moves to print to screen.
 String moves = "";
 // Used to store moves in the solving function in HumanAlgorithm
 String turns = "";
 // Pausing boolean - enables me to pause the cube's operations.
-boolean paused = false;
+boolean paused;
 // Is the cube scrambling boolean
 boolean scramble;
 // Is the cube solved boolean
 boolean solve;
 // Is the cube reversing scramble
 boolean reverse;
+// Stores edges from cube to this arraylist
+ArrayList<Cubie> edges;
 // sequence stores the moves to scramble and reverse the cube's scramble
-ArrayList<Move> sequence = new ArrayList<Move>();
+ArrayList<Move> sequence;
 // allMoves stores all possible moves for any cube size
-ArrayList<Move> allMoves = new ArrayList<Move>();
+ArrayList<Move> allMoves;
+// Stores moves as strings - each move accessible via an index
+ArrayList<String> fMoves;
 
 
 // initialises rubik's cube emulation
 void setup() {
   // Screen size
-  size(1200,1200, P3D);
+  size(750, 750, P3D);
   // fullScreen(P3D);
   // FPS
   frameRate(120);
-  // Sets camera up (caters for larger cubes)
+  // Sets camera up - sets pov which means it displays all cube sizes to fit in the screen (caters for larger cubes)
   setupCamera();
+
+  // Initialise appropriate variables with default values
+  counter = 0;
+  numberOfMoves = dim * 8;
+  middle = dim / 2;
+  axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
+  speed = 0.001;
   scramble = false;
   solve = false;
   reverse = false;
-  cam = new PeasyCam(this, 100 * (dim));
+  paused = false;
+  edges = new ArrayList<Cubie>();
+  sequence = new ArrayList<Move>();
+  allMoves = new ArrayList<Move>();
+  fMoves = new ArrayList<String>();
   cube = new Cube();
+
+  // Improves details
   smooth(8);
 
-  if (dim == 3) {
-    int n = 0;
-    edges = new Cubie[12];
-    for (int i = 0; i < cube.len; i++) {
-      Cubie qb = cube.getCubie(i);
-      if (qb.nCols == 2) {
-        edges[n] = qb;
-        n++;
-      }
+  for(int i = 0; i < cube.len; i++) {
+    if(cube.getCubie(i).nCols == 2)  {
+      edges.add(cube.getCubie(i));
     }
   }
 
@@ -79,20 +89,19 @@ void draw() {
   updateCam();
   // If boolean paused is false
   if (!paused)  {
+    checkColours();
     // If currentMove is finished
     if (!cube.animating) {
       // print sequence of moves to console
       printScrambleInfo();
       // counter is equal to sequence size - 1 then iterate final counter number
-      if(counter == sequence.size()-1)  {
-        counter++;
-        cube.animating = false;
-      }
+      // if(counter == sequence.size()-1)  {
+      //   counter++;
+      //   cube.animating = false;
+      // }
       
       // if counter is less than number of sequence of moves
-      if (counter < sequence.size() - 1) {
-        // iterate counter value
-        counter++;
+      if (counter <= sequence.size() - 1) {
         // currentMove becomes next move in the sequence
         currentMove = sequence.get(counter);
         // start move
@@ -101,6 +110,8 @@ void draw() {
         } else {
           cube.turn(currentMove.currentAxis, currentMove.index, currentMove.dir);
         }
+        // iterate counter value
+        counter++;
       }
     }
     // Updates rotationAngle for cube
@@ -119,10 +130,11 @@ void draw() {
       if (sequence.size() > 0) sequence.clear();
       while (turns.length() != 0) {doTurn();}
       // for (int i = 0; i < sequence.size(); i++) {
-      //   print(sequence.get(i).moveToString());
+      //   print(sequence.get(i).toString());
       // }
     }
   }
+
   // creates a HUD which contains relevant information
   cam.beginHUD();
     String ctr = "Moves:\t" + str(counter);
@@ -145,8 +157,8 @@ void draw() {
     text("Cube:\t" + dim + "x" + dim + "x" + dim, x, y);
     y += 20;
     float nCombinations = dim == 2 ? fact(7) * pow(3, 6) : 1;
-    nCombinations = dim > 2 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
-    text("Total number of combinations:\t" + nf(nCombinations, 1, 0), x, y);
+    nCombinations = dim == 3 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
+    text("Total number of combinations:\t" + nfc(nCombinations, 0), x, y);
     y += 20;
     text(getMoves(), x, y);
   cam.endHUD();
@@ -308,11 +320,7 @@ void doTurn() {
 
 // resets the cube to original state
 void resetCube() {
-  cube = new Cube();
-  sequence.clear();
-  counter = 0;
-  moves = "";
-  // setup();
+  setup();
 }
 
 void printScrambleInfo() {
@@ -337,17 +345,17 @@ void InitialiseMoves() {
   for (float i = -axis; i <= axis; i++) {
     if (i != 0) {
       // assigns all x axis movements (R, L)
-      // allMoves.add(new Move('X', i, 2));   // R2  L2
+      allMoves.add(new Move('X', i, 2));   // R2  L2
       allMoves.add(new Move('X', i, 1));   // R   L
       allMoves.add(new Move('X', i, -1));  // R'  L'
 
       // assigns all y axis movements (U, D)
-      // allMoves.add(new Move('Y', i, 2));   // U2  D2
+      allMoves.add(new Move('Y', i, 2));   // U2  D2
       allMoves.add(new Move('Y', i, 1));  // U   D
       allMoves.add(new Move('Y', i, -1));  // U'  D'
 
       // assigns all z axis movements (F, B)
-      // allMoves.add(new Move('Z', i, 2));   // F2  B2
+      allMoves.add(new Move('Z', i, 2));   // F2  B2
       allMoves.add(new Move('Z', i, 1));   // F   B
       allMoves.add(new Move('Z', i, -1));  // F'  B'
     }
@@ -361,12 +369,95 @@ void InitialiseMoves() {
   // debugMoves();
 }
 
-int fact(int num) {
-  return num == 1? 1 : fact(num - 1)*num;
+long fact(int num) {
+        long result = 1;
+
+        for (int factor = 2; factor <= num; factor++) {
+            result *= factor;
+        }
+
+        return result;
+  // return num == 1 ? 1 : fact(num - 1)*num;
 }
 
 String getMoves() {
   return moves;
+}
+
+void checkColours() {
+  color[] colours = new color[6*dim*dim*dim];
+  int pColours = dim*dim;
+  int red = 0;
+  int orange = 0;
+  int white = 0;
+  int yellow = 0;
+  int blue = 0;
+  int green = 0;
+  int index = 0;
+
+  for(int j = 0; j < cube.len; j++) {
+    for(int i = 0; i < cube.getCubie(j).colours.length; i++) {
+      colours[index] = cube.getCubie(j).colours[i];
+      index++;
+    }
+  }
+  for (color c : colours) {
+    red += c == cube.getCubie(0).red ? 1 : 0;
+    orange += c == cube.getCubie(0).orange ? 1 : 0;
+    white += c == cube.getCubie(0).white ? 1 : 0;
+    yellow += c == cube.getCubie(0).yellow ? 1 : 0;
+    blue += c == cube.getCubie(0).blue ? 1 : 0;
+    green += c == cube.getCubie(0).green ? 1 : 0;
+  }
+  if(red > pColours || red < pColours)  {
+    paused = true;
+    println("Error occured: ");
+    println(red + " reds");
+  }
+  if(orange > pColours || orange < pColours)  {
+    paused = true;
+    println("Error occured: ");
+    println(orange + " oranges");
+  }
+  if(white > pColours || white < pColours)  {
+    paused = true;
+    println("Error occured: ");
+    println(white + " whites");
+  }
+  if(yellow > pColours || yellow < pColours)  {
+    paused = true;
+    println("Error occured: ");
+    println(yellow + " yellows");
+  }
+  if(blue > pColours || blue < pColours)  {
+    paused = true;
+    println("Error occured: ");
+    println(blue + " blues");
+  }
+  if(green > pColours || green < pColours)  {
+    paused = true;
+    println("Error occured: ");
+    println(green + " greens");
+  }
+}
+
+void formatMoves()  {
+
+  int counter = 1;
+  for(int i = 0; i < fMoves.size(); i++)  {
+
+    if(counter % 10 == 0) {
+      moves += fMoves.get(i) + ",\n";
+      print(fMoves.get(i) + ",\n");
+    } else if(counter == fMoves.size()) {
+      moves += fMoves.get(i) + ".\n";
+      print(fMoves.get(i) + ".\n");
+    } else {
+      moves += fMoves.get(i) + ", ";
+      print(fMoves.get(i) + ", ");
+    }
+    counter++;
+  }
 }
 
 void clearMoves() {
@@ -381,7 +472,7 @@ void clearSequence() {
 void debugMoves() {
   println("Generating Moves...");
   for(Move m : allMoves)  {
-    println("Move: " + m.moveToString() + "\t" + m.currentAxis + "  " + m.index + "  " + m.dir);
+    println("Move: " + m.toString() + "\t" + m.currentAxis + "  " + m.index + "  " + m.dir);
   }
   println("Number of moves: " + allMoves.size());
 }

@@ -1,6 +1,5 @@
 class Move {
 
-  
   int dir;
   int i = 0;
   float x, y, z;
@@ -82,7 +81,7 @@ class Move {
   }
   
   //converts move object to interpretable string 
-  String moveToString() {
+  String toString() {
     String move = "";
     // compares all parameters of m with parameters of all moves
     if (currentAxis == 'X') {
@@ -104,12 +103,18 @@ class Move {
         }
       } else if (index > axis) {
         if(dir == 1)  {
-          move += "Z";
+          move += "X";
         } else {
-          move += "Z\'";
+          move += "X\'";
         }
       } else {
-        move += "X?";
+        if(dir == 1)  {
+          move += "x";
+        } else if(dir == -1) {
+          move += "x\'";
+        } else {
+          move += "x2";
+        }
       }
     } 
 
@@ -137,7 +142,13 @@ class Move {
           move += "Y\'";
         }
       } else {
-        move += "Y?";
+        if(dir == 1)  {
+          move += "y";
+        } else if(dir == -1) {
+          move += "y\'";
+        } else {
+          move += "y2";
+        }
       }
     } 
 
@@ -165,7 +176,13 @@ class Move {
           move += "Z\'";
         }
       } else {
-        move += "Z?";
+        if(dir == 1)  {
+          move += "z";
+        } else if(dir == -1) {
+          move += "z\'";
+        } else {
+          move += "z2";
+        }
       }
     }
     return move;

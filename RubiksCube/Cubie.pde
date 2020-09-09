@@ -8,7 +8,7 @@ class Cubie {
                 //    0         1      2        3         4       5
                 //   Right    Left     Up      Down     Front    Back
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
-  color defaultRGB = color(0, 45, 0, 0);
+  color defaultRGB = color(0);
   color orange = color(255, 140, 0);
   color red = color(255, 0, 0);
   color white = color(255);
@@ -103,13 +103,6 @@ class Cubie {
     // print("--------- TURN FUNCTION ---------\n");
     color[] newColours = colours.clone();
     if (dir == 1) {
-      // int i = 0;
-      // println("\nX: " + x + "\t\tY: " + y + "\t\tZ: " + z + "\nRight\t\t\tLeft\t\t\tUp\t\t\tDown\t\t\tFront\t\t\tBack");
-      // for(color c : colours)  {
-      //   print("colour[" + i + "] : " + colToString(c) + "\t");
-      //   i++;
-      // }
-      // print("\n");
       turn(axisFace, -1); 
       turn(axisFace, -1); 
       turn(axisFace, -1);
@@ -142,12 +135,6 @@ class Cubie {
     }
     
     colours = newColours.clone();
-    // int i = 0;
-    // for(color c : colours)  {
-    //   print("colour[" + i + "] : " + colToString(c) + "\t");
-    //   i++;
-    // }
-    // print("\n");
   }
 
   // Return char of face with color c

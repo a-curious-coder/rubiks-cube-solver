@@ -233,10 +233,10 @@ class HumanAlgorithm {
 
   // Returns the edge piece with the same colours as cubieColours
   Cubie findCenterEdge(color[] cubieColours) {
-    for (int i = 0; i < edges.length; i++) {
-      if (edges[i].matchesColours(cubieColours)) {
+    for (int i = 0; i < edges.size(); i++) {
+      if (edges.get(i).matchesColours(cubieColours)) {
         print("Found center edge\n");
-        return edges[i];
+        return edges.get(i);
       }
     }
     return null;

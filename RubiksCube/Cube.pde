@@ -3,11 +3,9 @@ class Cube { //<>// //<>// //<>// //<>//
   Cubie[] cube;
   ArrayList<ArrayList<Cubie>> cubieLists = new ArrayList();
   ArrayList<Cubie> rotatingCubies = new ArrayList();
-  ArrayList<Cubie> rotatingCubi = new ArrayList();
   HumanAlgorithm hAlgorithm;
 
   int len = 0;
-  int COUNTER = 0;
   char currentAxis = 'X';
   int currentDirection = 0;
   float rotationAngle = 0;
@@ -50,8 +48,19 @@ class Cube { //<>// //<>// //<>// //<>//
   // Shows cube to screen
   void show() {
     // Determines whether rotation is clockwise or not
-    int angleMultiplier = currentDirection > 0 ? -1 : 1;
-    int index = 0;
+    int angleMultiplier = 0;
+    switch(currentDirection)  {
+      case -1: 
+        angleMultiplier = -1;
+        break;
+      case 1:
+        angleMultiplier = 1;
+        break;
+      case 2:
+        angleMultiplier = 2;
+        break;
+    }
+    int i = 0;
     // For every cubie in the cube
     for (float x = 0; x < dim; x++) {
       for (float y = 0; y < dim; y++) {
@@ -59,30 +68,39 @@ class Cube { //<>// //<>// //<>// //<>//
           if (x > 0 && x < dim - 1 && y > 0 && y < dim - 1 && z > 0 && z < dim - 1) continue;
           // saves transformation state.
           push();
-          
           // todo figure out how to rotate face using rotatingCubies arraylist boolean
-          if (animating && (turningWholeCube || rotatingCubies.contains(cube[index]))) {
+          if (animating && (turningWholeCube || rotatingCubies.contains(cube[i]))) {
             // Check current axis for cube's rotation
             switch(currentAxis) {
             case 'X': 
-              rotateX(angleMultiplier * rotationAngle);
+              // Checks which face is moving along the current axis and rotates the correct direction.
+              if(rotatingIndex == -axis)  {
+                rotateX(angleMultiplier * -rotationAngle);
+              } else {
+                rotateX(angleMultiplier * rotationAngle);
+              }
               break;
             case 'Y':
-              rotateY(angleMultiplier * rotationAngle);
+              rotateY(angleMultiplier * -rotationAngle);
               break;
             case 'Z':
-              rotateZ(angleMultiplier * -rotationAngle);
+              if(rotatingIndex == -axis)  {
+                rotateZ(angleMultiplier * -rotationAngle);
+              } else {
+                rotateZ(angleMultiplier * rotationAngle);
+              }
               break;
             }
           }
           // Show cubie
-          cube[index].show();
+          cube[i].show();
           pop();
-          index++;
+          i++;
         }
       }
     }
   }
+
   // Update the cube
   void update() {
     if (animating) {
@@ -121,7 +139,7 @@ class Cube { //<>// //<>// //<>// //<>//
       rotationAngle = 0;
       finaliseTurn(currentAxis, rotatingIndex, currentDirection);
     }
-
+    
     // Setting global variables
     currentAxis = axisFace;
     currentDirection = dir;
@@ -132,12 +150,13 @@ class Cube { //<>// //<>// //<>// //<>//
     cubieLists = getAllCubiesToRotate(currentAxis, index);
     rotatingCubies.clear();
     for (int i = 0; i < cubieLists.size(); i++) {
-      rotatingCubies.addAll(cubieLists.get(i));
+      rotatingCubies.addAll(cubieLists.get(i)); 
     }
-    // println("Rotating Cubies List");
-    for(Cubie c : rotatingCubies) {
-      // println("Cubie " + rotatingCubies.indexOf(c) + c.details());
-    }
+
+    // println("Rotating Cubies List" + rotatingCubies.size());
+    // for(Cubie c : rotatingCubies) {
+    //   println("Cubie " + rotatingCubies.indexOf(c) + c.details());
+    // }
   }
 
   // Changes booleans to rotate the entire cube along axis
@@ -148,6 +167,8 @@ class Cube { //<>// //<>// //<>// //<>//
     turningWholeCube = true;
     currentAxis = axis;
     currentDirection = dir;
+    // Reset rotating index.
+    rotatingIndex = 0;
     // print("animating is now true\n");
     // if (fixCubeRotation) {
     //   rotationAngle = 0;
@@ -156,16 +177,19 @@ class Cube { //<>// //<>// //<>// //<>//
     // }
   }
 
-  void finaliseTurn(char faceAxis, float index, int dir) {
+  void finaliseTurn(char axisFace, float index, int dir) {
     animating = false;
-    for (Cubie c : rotatingCubies) { 
-      // println("Turned cubie " + rotatingCubies.indexOf(c) + c.details());
-      c.turn(faceAxis, dir);
-    }
-    
+    if(axisFace == 'X' && index > -axis && dir != 2)  { dir = -currentDirection; }
+    if(axisFace == 'Z' && index == -axis && dir != 2) { dir = -currentDirection; }
+
+    for (Cubie c : rotatingCubies) { c.turn(axisFace, dir); }
+
     for (int j = 0; j < cubieLists.size(); j++) {
       // Stores list of cubies that will be replaced by newCubies later on
       ArrayList<Cubie> temp = cubieLists.get(j);
+      // for(Cubie c : temp) {
+      //   println("Cubie " + temp.indexOf(c) + "\t" + c.details());
+      // }
       // Holds all the cubies with modified colour faces.
       ArrayList<Cubie> newCubies = new ArrayList(temp);
       // For each list of cubies
@@ -175,35 +199,35 @@ class Cube { //<>// //<>// //<>// //<>//
           // println("Removing from end, adding to start");
           //remove from end and add to start
           temp.add(0, temp.remove(temp.size()-1));
-        } else if (dir == 2) {
-          // temp.
         } else {
           // println("Removing from start, adding to end");
           //remove from front and add to the end
+          if(dir == 2) temp.add(temp.remove(0));
           temp.add(temp.remove(0));
         }
       }
-      returnListToCube(newCubies, temp, faceAxis, index, j);
+      returnListToCube(newCubies, temp, axisFace, index, j);
     }
   }
 
   // finish animating whole cube
-  void finishTurningWholeCube(char faceAxis, int dir) {
+  void finishTurningWholeCube(char axisFace, int dir) {
     // print("finishTurningWholeCube\n");
+    dir = axisFace == 'X' ? -currentDirection : currentDirection;
     animating = false;
     turningWholeCube = false;
     // refreshCube();
     // turn every cubie
     int i = 0;
     for (Cubie c : cube) {
-      // println("Cube  " + cube.indexOf(c) + " turning: \t" + c.details()));                                                     
-      c.turn(faceAxis, dir); 
+      // println("Cube  " + cube.indexOf(c) + " turning: \t" + c.details()));
+        c.turn(axisFace, dir); 
     }
 
     // for each axis (E.g. -1, 0, 1)
     for (float index = -axis; index <= axis; index++) {
       // get all the cubies in that particular axis index and store to cubieLists
-      cubieLists = getAllCubiesToRotate(faceAxis, index);
+      cubieLists = getAllCubiesToRotate(axisFace, index);
       for (int j = 0; j < cubieLists.size(); j++) {
         // temp stores arraylist of cubies on specific face
         ArrayList<Cubie> temp = cubieLists.get(j);
@@ -219,30 +243,31 @@ class Cube { //<>// //<>// //<>// //<>//
           }
         }
         // returns cubies to cube
-        returnListToCube(oldList, temp, faceAxis, index, j);
+        returnListToCube(oldList, temp, axisFace, index, j);
       }
     }
   }
 
   // collects cubies from axis at specified index.
-  ArrayList<ArrayList<Cubie>> getAllCubiesToRotate(char faceAxis, float index) {
+  ArrayList<ArrayList<Cubie>> getAllCubiesToRotate(char axisFace, float index) {
     ArrayList<ArrayList<Cubie>>  temp = new ArrayList();   
     // if index is -axisIndex or axisIndex
     if (index == -axis || index == axis) {
       // Somehow stops bug in center cubie
       for (int i  = 0; i < floor((dim+1)/2); i++) {
         // Add list cubies from specified index/axis
-        temp.add(getList(faceAxis, index, i));
+        temp.add(getList(axisFace, index, i));
       }
       // if cubies are in middle column along axis
     } else {
-      temp.add(getList(faceAxis, index, 0));
+      temp.add(getList(axisFace, index, 0));
     }
+    
     return temp;
-  } 
+  }
 
   // return list of cubies to the cube object
-  void returnListToCube(ArrayList<Cubie> oldList, ArrayList<Cubie> list, char faceAxis, float index, int listNumber) {
+  void returnListToCube(ArrayList<Cubie> oldList, ArrayList<Cubie> list, char axisFace, float index, int listNumber) {
     // print("\n------- Return list to cube -------\n");
     int size = dim-listNumber * 2;
     // If the cubie along the x axis, right side as +1
@@ -288,11 +313,14 @@ class Cube { //<>// //<>// //<>// //<>//
   void scrambleCube() {
     scramble = true;
     sequence.clear();
-    clearMoves();
+    moves = "";
+    fMoves.clear();
     counter = 0;
+
     // Initialising copy move - used to compare previous move with.
     Move copy = new Move();
     boolean isDifferent = true;
+
     // Generate as many moves as valued by numberOfMoves
     for (int i = 0; i < numberOfMoves; i++) {
       // generate random integer based off number of all possible moves
@@ -304,73 +332,113 @@ class Cube { //<>// //<>// //<>// //<>//
         isDifferent = false;
         do{
           r = int(random(allMoves.size()));
+          // If axis and index are not the same as previous move
           if(allMoves.get(r).currentAxis != copy.currentAxis && allMoves.get(r).index != copy.index) {
             m = allMoves.get(r).copy();
             isDifferent = true;
           }
         } while (!isDifferent);
       }
+
+      // If move is a whole cube rotation, don't count it as a move as it does not impact cube's scramble.
+      if(m.index > axis || m.index < -axis) { i--; }
+      // If move has dir of 2 - count it as two moves.
+      if(m.dir == 2)  { i++; }
+      // Store current move to copy for reference when generating next move
       copy = new Move(m.currentAxis, m.index, m.dir);
+      // Store generated move to sequence
       sequence.add(m);
     }
+ 
+    print("Scramble prepared\n");
+    // Add each move in the sequence to fMoves arraylist in string format
+    for(Move m: sequence) { fMoves.add(m.toString()); }
+    // format and store moves to a single string called moves.
+    formatMoves();
+  }
 
-    int c = 0;
-    if (dim <= 3) {
-      for (Move m : sequence) {
-        if(sequence.indexOf(m) < 10)  {
-          println("Initial moves " + sequence.indexOf(m) + "\t\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
-        } else {
-          println("Initial moves " + sequence.indexOf(m) + "\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
-        }
-        c++;
-        moves += m.moveToString() + ", ";
-      }
-      println("Original Moves");
-      for(Move m: allMoves) {
-        println("Move: " + allMoves.indexOf(m) + "\t\t" + m.moveToString() + "\t" + m.currentAxis + "\t" +  m.index + "\t" + m.dir);
-      }
+  void testMoves(char axisFace) {
+    scramble = true;
+    sequence.clear();
+    moves = "";
+    fMoves.clear();
+    counter = 0;
+
+    int numberOfZMoves = 0;
+    ArrayList<Move> allZMoves = new ArrayList();
+
+    for(Move m : allMoves)  {
+      if(m.currentAxis == axisFace)  allZMoves.add(m);
     }
 
-    print("Scramble prepared\n");
+    for (Move m : allZMoves) {
+      sequence.add(m.copy());
+      
+    }
+    
+    ArrayList <Move> doubleMoves = new ArrayList();
+    ArrayList <Move> primeMoves = new ArrayList();
+    ArrayList <Move> normalMoves = new ArrayList();
+    ArrayList <Move> wholeMoves = new ArrayList();
+
+    for(int i = 0; i < sequence.size(); i++)  {
+      if(sequence.get(i).index > axis || sequence.get(i).index < -axis)  {
+        wholeMoves.add(sequence.get(i));
+      } else if(sequence.get(i).dir == 2)  {
+        doubleMoves.add(sequence.get(i));
+      } else if(sequence.get(i).dir == -1)  {
+        primeMoves.add(sequence.get(i));
+      } else if(sequence.get(i).dir == 1) {
+        normalMoves.add(sequence.get(i));
+      }
+    }
+    sequence.clear();
+    sequence.addAll(normalMoves);
+    sequence.addAll(primeMoves);
+    sequence.addAll(doubleMoves);
+    sequence.addAll(wholeMoves);
+    
+    for(Move m: sequence) {
+      fMoves.add(m.toString());
+    }
+    formatMoves();
   }
 
   // reverses all moves - illusion of a solve from scramble state
   void rScrambleCube() {
+    moves = "";
     counter = 0;
     ArrayList<Move> reverseSequence = new ArrayList<Move>();
-    moves = "";
     // If cube has not been scrambled, return.
     if (sequence.size() == 0) return;
-    // store all sequence elements to reverseSequence
-    
+    // store all sequence elements/moves to reverseSequence - for every move in sequence
     for (Move m : sequence) {
       if(sequence.indexOf(m) < 10)  {
-        println("Initial moves " + sequence.indexOf(m) + "\t\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        println("Initial moves " + sequence.indexOf(m) + "\t\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       } else {
-        println("Initial moves " + sequence.indexOf(m) + "\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        println("Initial moves " + sequence.indexOf(m) + "\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       }
+      // Add sequence move m
       reverseSequence.add(m);
     }
-    // Clear current sequence ready for new, re-ordered sequence
+    // Empties current sequence to store reversed sequence later
     sequence.clear();
-    for(Move m : reverseSequence)  {
-      // println("Initial moves " + reverseSequence.indexOf(m) + "\t\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
-    }
     for (int i = reverseSequence.size() - 1; i >= 0; i--) {
       Move m = reverseSequence.get(i);
-      // reverses the move
-      m.reverse();
-      // if cube is less than or equal to 3x3x3, add notation representing move to string moves, else add message.
-      moves += dim <= 3 ? m.moveToString() + ", " : "No notation for " + dim + "x" + dim + "x" + dim + " size cube.";
-      // Add move to the sequence
+      // Reverses the move
+      if(m.dir != 2)
+        m.reverse();
+      // if cube is less than or equal to 3x3x3, add notation representing move to string, else add message.
+      moves += dim <= 3 ? m.toString() + ", " : "No notation for " + dim + "x" + dim + "x" + dim + " size cube.";
+      // Add modified move to the new sequence
       sequence.add(m);
     }
 
     for (Move m : sequence) {
       if(sequence.indexOf(m) < 10)  {
-        println("Reversed moves " + sequence.indexOf(m) + "\t\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        println("Reversed moves " + sequence.indexOf(m) + "\t\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       } else {
-        println("Reversed moves " + sequence.indexOf(m) + "\t" + m.moveToString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        println("Reversed moves " + sequence.indexOf(m) + "\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       }
     }
     
@@ -379,126 +447,260 @@ class Cube { //<>// //<>// //<>// //<>//
     else
       print("Solving cube...");
   }
+
   // ----- Getters -----
   // returns a list of all the cubies in the specified axis of cube - only works for 3x3x3 cube
   // todo optimise this function to cater for all cube sizes
-  ArrayList<Cubie> getList(char faceAxis, float index, int listNumber) {
+  // As list number gets bigger, the collection moves inward toward the center of the cube's face to collect cubies.
+  ArrayList<Cubie> getList(char axisFace, float index, int listNumber) {
+    println("\nGetting list number - " + listNumber);
+    int size = dim - listNumber*2;
+    // 3 - 0 * 2 = 6
+    // 3 - 1 * 2 = 4
+    // 3 - 2 * 2 = 2
     ArrayList<Cubie> list = new ArrayList();
 
     ArrayList<Cubie> leftRow = new ArrayList();
-      ArrayList<Cubie> left1 = new ArrayList();
-      ArrayList<Cubie> left2 = new ArrayList();
-      ArrayList<Cubie> left3 = new ArrayList();
     ArrayList<Cubie> topRow = new ArrayList();
     ArrayList<Cubie> rightRow = new ArrayList();
     ArrayList<Cubie> bottomRow = new ArrayList();
-    // If index is axis or -axis (Because there are no cubies inside the cube)
-    if ((index == axis || index == -axis) && listNumber != 0) {
-      for (Cubie c : cube) {
-        if ((faceAxis == 'X' && c.x == index && c.y == 0 && c.z == 0) ||
-            (faceAxis == 'Y' && c.x == 0 && c.y == index && c.z == 0) ||
-            (faceAxis == 'Z' && c.x == 0 && c.y == 0 && c.z == index)) {
-            list.add(c.copy());
-        }
-      }
-    } else {
-      switch(faceAxis) {
+    ArrayList<Cubie> temp = new ArrayList();
+    int leftSize = 0;
+    int indexOfCubie = 0;
+      switch(axisFace) {
       case 'X':
         // Add top, right, bottom, left rows of the face
         // Adds them in a clockwise fashion - easier to interpret and keep track of
         // ------------
         // Inverts z axis value depending on which axis/index is being stored
         // This is to maintain storing in a clockwise fashion regardless of which face
-        if(listNumber == 0) {
-          for (Cubie c : cube) {
-            // Adding left row
-            if (c.x == index && c.y == 1 && c.z == -1) {
-              left1.add(c.copy());
-            } 
-            else if (c.x == index && c.y == 0 && c.z == -1) {
-              left2.add(c.copy());
+       
+        // Adds left row - Ideally starting with bottom left all the way to the top left in order.
+        // Size reflects the number of possible cubies to collect on any given side - its value changes throughout.
+        // For each cubie on the left side of the cube (Regardless of which listnumber is being collected...)
+        // Iterate over every cube
+        for(Cubie c : cube) {
+
+          // iterates to cube dim
+          for(float i = 0; i < size; i++)  {
+            // Adds left row - issue with this collection...
+            if(c.x == index && 
+               c.y == (i-axis+listNumber) && 
+               c.z == (-axis+listNumber) ) {
+              if(leftRow.contains(c)) continue;
+              // Add copy of cubie to leftRow's list
+              leftRow.add(c.copy());
             }
-            else if (c.x == index && c.y == -1 && c.z == -1) {
-              left3.add(c.copy());
-            } // Adding top row
-            else if (c.x == index  && c.y == -1 && c.z != -1) {
+          }
+
+          // Adds top row (1 less than top row because left should collect the first top cube.)
+          for(float i = 1; i < size; i++) {
+            // If y is (-axis + listNumber) - caters for moving inward every list.
+            if(c.x == index && 
+               c.y == (-axis + listNumber) && 
+               c.z > (-axis+listNumber) && c.z <= (axis-listNumber)  && topRow.size() != size)  {
+              // Avoid storing copies of same cubies
+              if(topRow.contains(c)) {
+                continue;
+              } else {
+                topRow.add(c.copy());
+              }
+             
+            }
+          }
+
+          // Add right row
+          for(float i = 1; i < size; i++) {
+            // Skip y row of -axis, if z is == to axis-listNumber to cater moving inward each iteration of this method.
+            if(c.x == index && 
+               c.y > (-axis+listNumber) && 
+               c.z == (axis-listNumber)) {
+              if(rightRow.contains(c)) {
+                continue;
+              } else {
+                if(c.y <= (axis-listNumber))  {
+                  rightRow.add(c.copy());
+                }
+              }
+            }
+          }
+          
+          // Bottom row
+          for(float i = 2; i < size; i++)  {
+            // If cube y == axis - listNumber and z < axis-listNumber and z > -axis + listnumber
+            if(c.x == index && 
+               c.y == (axis-listNumber) && 
+               c.z <= axis-0.5-listNumber && c.z >= -axis+0.5+listNumber)  {
+              if(bottomRow.contains(c))  {
+                continue;
+              } else {
+                bottomRow.add(c.copy());
+              } 
+            }
+          }
+
+          // Increases index of each cubie object that can be added each loop iteration
+          indexOfCubie++;
+        }
+        // Re orders left row as it's collected in the reverse order I wanted
+        temp = new ArrayList();
+        leftSize = leftRow.size();
+        for(int i = 0; i < leftSize; i++) {
+          temp.add(leftRow.remove(leftRow.size()-1));
+        }
+        leftRow.addAll(temp);
+        
+        break;
+        
+      case 'Y':
+
+        for(Cubie c : cube) {
+
+          // Adds left row
+          for(float i = 0; i < size; i++)  {
+            if(c.x == (-axis+listNumber) && 
+               c.y == index && 
+               c.z == (i-axis+listNumber) ) {
+              if(leftRow.contains(c)) continue;
+              leftRow.add(c.copy());
+            }
+          }
+
+          // Adds top row (1 less than top row because left should collect the first top cube.)
+          for(float i = 1; i < size; i++) {
+            if(c.x > (-axis+listNumber) && c.x <= (axis-listNumber) && 
+               c.y == index && 
+               c.z == (-axis+listNumber)  && topRow.size() != size)  {
+              // Avoid storing copies of same cubies
+              if(topRow.contains(c)) continue;
               topRow.add(c.copy());
-            } // Adding right row
-            else if (c.x == index && c.y != -1 && c.z == 1) {
-              rightRow.add(c.copy());
-            } // Adding bottom row
-            else if (c.x == index && c.y == 1 && c.z == 0) {
+            }
+          }
+
+          // Add right row
+          for(float i = 1; i < size; i++) {
+            if(c.x == (axis-listNumber) && 
+               c.y == index && 
+               c.z > (-axis+listNumber)) {
+              if(rightRow.contains(c)) {
+                continue;
+              } else {
+                if(c.z <= (axis-listNumber))  {
+                  rightRow.add(c.copy());
+                }
+              }
+            }
+          }
+          
+          // Bottom row
+          for(float i = 2; i < size; i++)  {
+            // If cube y == axis - listNumber and z < axis-listNumber and z > -axis + listnumber
+            if(c.x <= (axis-0.5-listNumber) && c.x >= (-axis+0.5+listNumber) && 
+               c.y == index && 
+               c.z == (axis-listNumber))  {
+              if(bottomRow.contains(c)) continue;
               bottomRow.add(c.copy());
             }
           }
-        } 
-        break;
-      case 'Y':
-        for (Cubie c : cube) {
-          // Adding left row
-          if (c.x == -1 && c.y == index && c.z == 1) {
-            left1.add(c.copy());
-          } 
-          else if (c.x == -1 && c.y == index && c.z == 0) {
-            left2.add(c.copy());
-          }
-          else if (c.x == -1 && c.y == index && c.z == -1) {
-            left3.add(c.copy());
-          } // Adding top row
-          else if (c.x != -1  && c.y == index && c.z == -1) {
-            topRow.add(c.copy());
-          } // Adding right row
-          else if (c.x == 1 && c.y == index && c.z != -1) {
-            rightRow.add(c.copy());
-          } // Adding bottom row
-          else if (c.x == 0 && c.y == index && c.z == 1) {
-            bottomRow.add(c.copy());
-          }
+
+          // Increases index of each cubie object that can be added each loop iteration
+          indexOfCubie++;
         }
+        // Re orders left row as it's collected in the reverse order I wanted
+        temp = new ArrayList();
+        leftSize = leftRow.size();
+        for(int i = 0; i < leftSize; i++) {
+          temp.add(leftRow.remove(leftRow.size()-1));
+        }
+        leftRow.addAll(temp);
+        
         break;
       case 'Z':
-        for (Cubie c : cube) {
-          // Adding left row
-          if (c.x == -1 && c.y == 1 && c.z == index) {
-            left1.add(c.copy());
-          } 
-          else if (c.x == -1 && c.y == 0 && c.z == index) {
-            left2.add(c.copy());
+        
+        for(Cubie c : cube) {
+
+          // Adds left row
+          for(float i = 0; i < size; i++)  {
+            if(c.x == (-axis+listNumber)  &&
+               c.y == (i-axis+listNumber) &&
+               c.z == index) {
+              if(leftRow.contains(c)) continue;
+
+              leftRow.add(c.copy());
+            }
           }
-          else if (c.x == -1 && c.y == -1 && c.z == index) {
-            left3.add(c.copy());
-          } // Adding top row
-          else if (c.x != -1  && c.y == -1 && c.z == index) {
-            topRow.add(c.copy());
-          } // Adding right row
-          else if (c.x == 1 && c.y != -1 && c.z == index) {
-            rightRow.add(c.copy());
-          } // Adding bottom row
-          else if (c.x == 0 && c.y == 1 && c.z == index) {
-            bottomRow.add(c.copy());
+
+          // Adds top row (1 less than top row because left should collect the first top cube.)
+          for(float i = 1; i < size; i++) {
+            if(c.x > (-axis+listNumber) && c.x <= (axis-listNumber) &&
+               c.y == (-axis+listNumber) && 
+               c.z == index && topRow.size() != size)  {
+              // Avoid storing copies of same cubies
+              if(topRow.contains(c)) continue;
+              topRow.add(c.copy());
+            }
           }
+
+          // Add right row
+          for(float i = 1; i < size; i++) {
+            if(c.x == (axis-listNumber) &&
+               c.y > (-axis+listNumber)  &&  
+               c.z == index) {
+              if(rightRow.contains(c))  continue;
+              if(c.y <= (axis-listNumber))  {
+                rightRow.add(c.copy());
+              }
+            }
+          }
+          
+          // Bottom row
+          for(float i = 2; i < size; i++)  {
+            // If cube y == axis - listNumber and z < axis-listNumber and z > -axis + listnumber
+            if(c.x <= axis-0.5-listNumber && c.x >= -axis+0.5+listNumber &&
+               c.y == (axis-listNumber) &&
+               c.z == index)  {
+              if(bottomRow.contains(c)) continue;
+
+              bottomRow.add(c.copy());
+            }
+          }
+
+          // Increases index of each cubie object that can be added each loop iteration
+          indexOfCubie++;
         }
+        
+        // Re orders left row as it's collected in the reverse order I wanted
+        temp = new ArrayList();
+        leftSize = leftRow.size();
+        for(int i = 0; i < leftSize; i++) {
+          temp.add(leftRow.remove(leftRow.size()-1));
+        }
+        leftRow.addAll(temp);
+
         break;
       }
 
-      leftRow.addAll(left1);
-      leftRow.addAll(left2);
-      leftRow.addAll(left3);
+    println("Left row\t" + leftRow.size());
+    for(Cubie c : leftRow)  
+    { println("\tCubie " + (leftRow.indexOf(c) + 1) + "\t" + c.details()); }
 
-      list.addAll(leftRow);
-      list.addAll(topRow);
-      list.addAll(rightRow);
-      list.addAll(bottomRow);
-    }
-    // print("left row added\n");
-    // if (list.size() > 1) {
-    //   print("Sizes: " + topRow.size() + "\t" + rightRow.size() + "\t" + bottomRow.size() +"\t" + leftRow.size() +"\n");
-    // } else {
-    //   print("Center piece:\n");
-    // }
-    // for (Cubie c : list) {
-    //   print("ORIGINAL CUBIE: \t" + c.x +"\t" + c.y + "\t" + c.z +"\n");
-    // }
+    println("Top row\t\t" + topRow.size());
+    for(Cubie c : topRow)  
+    { println("\tCubie " + (topRow.indexOf(c) + 1) + "\t" + c.details()); }
+
+    println("Right row\t" + rightRow.size());
+    for(Cubie c : rightRow)  
+    { println("\tCubie " + (rightRow.indexOf(c) + 1) + "\t" + c.details()); }
+
+    println("Bottom row\t" + bottomRow.size());
+    for(Cubie c : bottomRow)  
+    { println("\tCubie " + (bottomRow.indexOf(c) + 1) + "\t" + c.details()); }
+
+    list.addAll(leftRow);
+    list.addAll(topRow);
+    list.addAll(rightRow);
+    list.addAll(bottomRow);
+    
     return list;
   }
 

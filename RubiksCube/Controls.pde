@@ -22,15 +22,32 @@ void keyPressed() {
     for(int i = 0; i < 999; i++)  {
       println("");
     }
-    println("Number of moves: " + allMoves.size());
   case 'm':
     speed += 0.10;
     break;
   case 'n':
     speed -= 0.10;
     break;
+  case 'k':
+    speed += 0.0010;
+    break;
+  case 'j':
+    speed -= 0.0010;
+    break;
   case 'i':
     speed = 10;
+    break;
+  case '6':
+    println("Testing moves X");
+    cube.testMoves('X');
+    break;
+  case '7':
+    println("Testing moves Y");
+    cube.testMoves('Y');
+    break;
+  case '8':
+    println("Testing moves Z");
+    cube.testMoves('Z');
     break;
   case 'o':
     speed = 0.01;
@@ -39,15 +56,12 @@ void keyPressed() {
     paused = !paused;
     break;
   case 'w':  
-    dim ++;
+    dim++;
     resetCube();
     break;
   case 'e':  
     dim--;
     resetCube();
-    break;
-  case 't':
-    cube.turn('Z', -axis, 2);
     break;
   default: 
     // if a cube is animating, skip  switch case

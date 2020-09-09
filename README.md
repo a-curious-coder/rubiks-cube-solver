@@ -161,10 +161,10 @@ I've spent countless hours learning to solve Rubik's cubes of various sizes usin
   </tr>
   <tr>
     <td>
-      <p align="center"><img src=Gifs/Stage1.gif width="100%" height ="100%"/></p>
+      <p align="center"><img src=Gifs/Stage1.gif width= 100% height = 100%/></p>
     </td>
     <td>
-    <p align="center"><img src=Gifs/Stage2.gif width="100%" height ="100%"/></p>
+    <p align="center"><img src=Gifs/Stage2.gif width= 100% height = 100%/></p>
     </td>
   </tr>
   <tr>
@@ -189,10 +189,10 @@ I've spent countless hours learning to solve Rubik's cubes of various sizes usin
   </tr>
   <tr>
     <td>
-      <p align="center"><img src=Gifs/Stage3.gif width="300" height ="300"/></p>
+      <p align="center"><img src=Gifs/Stage3.gif width= 100% height = 100%/></p>
     </td>
     <td>
-    <p align="center"><img src=Gifs/Stage4.gif width="300" height ="300"/></p>
+    <p align="center"><img src=Gifs/Stage4.gif width= 100% height = 100%/></p>
     </td>
   </tr>
   <tr>
@@ -214,10 +214,10 @@ I've spent countless hours learning to solve Rubik's cubes of various sizes usin
   </tr>
   <tr>
     <td>
-      <p align="center"><img src=Gifs/Stage5.gif width="300" height ="300"/></p>
+      <p align="center"><img src=Gifs/Stage5.gif width= 100% height = 100%/></p>
     </td>
     <td>
-    <p align="center"><img src=Gifs/Stage5.1.gif width="300" height ="300"/></p>
+    <p align="center"><img src=Gifs/Stage5.1.gif width= 100% height = 100%/></p>
     </td>
   </tr>
   <tr>
@@ -239,7 +239,7 @@ I've spent countless hours learning to solve Rubik's cubes of various sizes usin
   </tr>
   <tr>
     <td colspan ="2">
-      <p align="center"><img src=Gifs/Stage6.gif width="600" height ="600"/></p>
+      <p align="center"><img src=Gifs/Stage6.gif width=100% height =100%/></p>
     </td>
   </tr>
   <tr>
