@@ -1,15 +1,15 @@
 class Cube { //<>// //<>// //<>// //<>//
 
   Cubie[] cube;
-  ArrayList<ArrayList<Cubie>> cubieLists = new ArrayList();
-  ArrayList<Cubie> rotatingCubies = new ArrayList();
+  ArrayList<ArrayList<Cubie>> cubieLists;
+  ArrayList<Cubie> rotatingCubies;
   HumanAlgorithm hAlgorithm;
 
-  int len = 0;
-  char currentAxis = 'X';
-  int currentDirection = 0;
-  float rotationAngle = 0;
-  float rotatingIndex = 0;
+  int len;
+  char currentAxis;
+  int currentDirection;
+  float rotationAngle;
+  float rotatingIndex;
   boolean rotatingCubie = false;
   boolean animating = false;
   boolean clockwise = true; 
@@ -19,8 +19,13 @@ class Cube { //<>// //<>// //<>// //<>//
     // Sets array size for cubies to be stored in for any cube size
     // If dimensions of cube are 1x1x1, sets the cube size manually as the math above doesn't cater for it.
     cube = dim == 1 ? new Cubie[1] : new Cubie[(int)(pow(dim, 3) - pow(dim-2, 3))];
+    cubieLists = new ArrayList();
+    rotatingCubies = new ArrayList();
     // len stores the number value of cubies in cube.
     len = cube.length;
+    currentDirection = 0;
+    rotationAngle = 0;
+    rotatingIndex = 0;
     // index of cubie that's being stored to cube object
     // print("\tCube\t\tx\ty\tz\tcol1\tcol2\tcol3\tcol4\tcol5\tcol6\tnCols\tCubieType\n");
     int index = 0;
@@ -48,18 +53,8 @@ class Cube { //<>// //<>// //<>// //<>//
   // Shows cube to screen
   void show() {
     // Determines whether rotation is clockwise or not
-    int angleMultiplier = 0;
-    switch(currentDirection)  {
-      case -1: 
-        angleMultiplier = -1;
-        break;
-      case 1:
-        angleMultiplier = 1;
-        break;
-      case 2:
-        angleMultiplier = 2;
-        break;
-    }
+    int angleMultiplier = currentDirection;
+
     int i = 0;
     // For every cubie in the cube
     for (float x = 0; x < dim; x++) {
@@ -414,9 +409,9 @@ class Cube { //<>// //<>// //<>// //<>//
     // store all sequence elements/moves to reverseSequence - for every move in sequence
     for (Move m : sequence) {
       if(sequence.indexOf(m) < 10)  {
-        println("Initial moves " + sequence.indexOf(m) + "\t\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        // println("Initial moves " + sequence.indexOf(m) + "\t\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       } else {
-        println("Initial moves " + sequence.indexOf(m) + "\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        // println("Initial moves " + sequence.indexOf(m) + "\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       }
       // Add sequence move m
       reverseSequence.add(m);
@@ -436,9 +431,9 @@ class Cube { //<>// //<>// //<>// //<>//
 
     for (Move m : sequence) {
       if(sequence.indexOf(m) < 10)  {
-        println("Reversed moves " + sequence.indexOf(m) + "\t\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        // println("Reversed moves " + sequence.indexOf(m) + "\t\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       } else {
-        println("Reversed moves " + sequence.indexOf(m) + "\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
+        // println("Reversed moves " + sequence.indexOf(m) + "\t" + m.toString() + "\t" + m.currentAxis + "\t" + m.index + "\t" + m.dir);
       }
     }
     
@@ -453,7 +448,7 @@ class Cube { //<>// //<>// //<>// //<>//
   // todo optimise this function to cater for all cube sizes
   // As list number gets bigger, the collection moves inward toward the center of the cube's face to collect cubies.
   ArrayList<Cubie> getList(char axisFace, float index, int listNumber) {
-    println("\nGetting list number - " + listNumber);
+    // println("\nGetting list number - " + listNumber);
     int size = dim - listNumber*2;
     // 3 - 0 * 2 = 6
     // 3 - 1 * 2 = 4
@@ -680,21 +675,21 @@ class Cube { //<>// //<>// //<>// //<>//
         break;
       }
 
-    println("Left row\t" + leftRow.size());
-    for(Cubie c : leftRow)  
-    { println("\tCubie " + (leftRow.indexOf(c) + 1) + "\t" + c.details()); }
+    // println("Left row\t" + leftRow.size());
+    // for(Cubie c : leftRow)  
+    // { println("\tCubie " + (leftRow.indexOf(c) + 1) + "\t" + c.details()); }
 
-    println("Top row\t\t" + topRow.size());
-    for(Cubie c : topRow)  
-    { println("\tCubie " + (topRow.indexOf(c) + 1) + "\t" + c.details()); }
+    // println("Top row\t\t" + topRow.size());
+    // for(Cubie c : topRow)  
+    // { println("\tCubie " + (topRow.indexOf(c) + 1) + "\t" + c.details()); }
 
-    println("Right row\t" + rightRow.size());
-    for(Cubie c : rightRow)  
-    { println("\tCubie " + (rightRow.indexOf(c) + 1) + "\t" + c.details()); }
+    // println("Right row\t" + rightRow.size());
+    // for(Cubie c : rightRow)  
+    // { println("\tCubie " + (rightRow.indexOf(c) + 1) + "\t" + c.details()); }
 
-    println("Bottom row\t" + bottomRow.size());
-    for(Cubie c : bottomRow)  
-    { println("\tCubie " + (bottomRow.indexOf(c) + 1) + "\t" + c.details()); }
+    // println("Bottom row\t" + bottomRow.size());
+    // for(Cubie c : bottomRow)  
+    // { println("\tCubie " + (bottomRow.indexOf(c) + 1) + "\t" + c.details()); }
 
     list.addAll(leftRow);
     list.addAll(topRow);

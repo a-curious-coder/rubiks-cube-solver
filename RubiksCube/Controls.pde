@@ -5,7 +5,7 @@ void keyPressed() {
     cube.scrambleCube();
     break;
   case '0':
-    cube.hAlgorithm.solveCube();
+    solve = true;
     break;
   case '1':
     cube.rScrambleCube();
@@ -49,6 +49,10 @@ void keyPressed() {
     println("Testing moves Z");
     cube.testMoves('Z');
     break;
+  case '9':
+    for(Cubie c : centers)  {
+      println(c.details());
+    }
   case 'o':
     speed = 0.01;
     break;

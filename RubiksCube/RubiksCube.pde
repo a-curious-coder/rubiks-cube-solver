@@ -30,8 +30,11 @@ boolean scramble;
 boolean solve;
 // Is the cube reversing scramble
 boolean reverse;
-// Stores edges from cube to this arraylist
+// Displays hud if true
+boolean hud;
+ArrayList<Cubie> corners;
 ArrayList<Cubie> edges;
+ArrayList<Cubie> centers;
 // sequence stores the moves to scramble and reverse the cube's scramble
 ArrayList<Move> sequence;
 // allMoves stores all possible moves for any cube size
@@ -43,8 +46,8 @@ ArrayList<String> fMoves;
 // initialises rubik's cube emulation
 void setup() {
   // Screen size
-  size(750, 750, P3D);
-  // fullScreen(P3D);
+  // size(400, 400, P3D);
+  fullScreen(P3D);
   // FPS
   frameRate(120);
   // Sets camera up - sets pov which means it displays all cube sizes to fit in the screen (caters for larger cubes)
@@ -60,7 +63,10 @@ void setup() {
   solve = false;
   reverse = false;
   paused = false;
+  hud = false;
+  corners = new ArrayList<Cubie>();
   edges = new ArrayList<Cubie>();
+  centers = new ArrayList<Cubie>();
   sequence = new ArrayList<Move>();
   allMoves = new ArrayList<Move>();
   fMoves = new ArrayList<String>();
@@ -69,11 +75,7 @@ void setup() {
   // Improves details
   smooth(8);
 
-  for(int i = 0; i < cube.len; i++) {
-    if(cube.getCubie(i).nCols == 2)  {
-      edges.add(cube.getCubie(i));
-    }
-  }
+  updateLists();
 
   if (dim > 1)  InitialiseMoves();
   currentMove = new Move('X', 0, 0);
@@ -94,12 +96,6 @@ void draw() {
     if (!cube.animating) {
       // print sequence of moves to console
       printScrambleInfo();
-      // counter is equal to sequence size - 1 then iterate final counter number
-      // if(counter == sequence.size()-1)  {
-      //   counter++;
-      //   cube.animating = false;
-      // }
-      
       // if counter is less than number of sequence of moves
       if (counter <= sequence.size() - 1) {
         // currentMove becomes next move in the sequence
@@ -114,6 +110,12 @@ void draw() {
         counter++;
       }
     }
+    
+    if(solve) {
+      if(turns.length() == 0 && !cube.animating)  {
+        cube.hAlgorithm.solveCube();
+      }
+    }
     // Updates rotationAngle for cube
     cube.update();
   }
@@ -122,46 +124,49 @@ void draw() {
   // Calculates each cubie position / rotation - Shows each cubie in cube
   cube.show();
   
-  // If cube is not turning and there are turns to be done
+  // If cube is not animating and there are turns to be done
   if (!cube.animating && turns.length() > 0) {
     // if scramble is done / false
     if (!scramble) {
       // Make first move.
       if (sequence.size() > 0) sequence.clear();
-      while (turns.length() != 0) {doTurn();}
-      // for (int i = 0; i < sequence.size(); i++) {
-      //   print(sequence.get(i).toString());
-      // }
+      if (turns.length() > 0) {doTurn();}
+      for (int i = 0; i < sequence.size(); i++) {
+        print(sequence.get(i).toString());
+      }
     }
   }
-
+  // Always updating positions of every cubie to their respective lists.
+  updateLists();
   // creates a HUD which contains relevant information
-  cam.beginHUD();
-    String ctr = "Moves:\t" + str(counter);
-    String fps = nf(frameRate, 1, 1);
-    float tSize = 12;
-    float x = 0;
-    float y = tSize;
-    textSize(tSize);
-    fill(0);
-    //rect(20, 10, 30, 30, 30);
-    // x, y, width, height
-    x += 20;
-    y += 20;
-    text(ctr, x, y);
-    y += 20;
-    text("FPS:\t" + fps, x, y);
-    y += 20;
-    text("Speed:\t" + nf(speed, 1, 1), x, y);
-    y += 20;
-    text("Cube:\t" + dim + "x" + dim + "x" + dim, x, y);
-    y += 20;
-    float nCombinations = dim == 2 ? fact(7) * pow(3, 6) : 1;
-    nCombinations = dim == 3 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
-    text("Total number of combinations:\t" + nfc(nCombinations, 0), x, y);
-    y += 20;
-    text(getMoves(), x, y);
-  cam.endHUD();
+  if(hud)  {
+    cam.beginHUD();
+      String ctr = "Moves:\t" + str(counter);
+      String fps = nf(frameRate, 1, 1);
+      float tSize = 12;
+      float x = 0;
+      float y = tSize;
+      textSize(tSize);
+      fill(0);
+      //rect(20, 10, 30, 30, 30);
+      // x, y, width, height
+      x += 20;
+      y += 20;
+      text(ctr, x, y);
+      y += 20;
+      text("FPS:\t" + fps, x, y);
+      y += 20;
+      text("Speed:\t" + nf(speed, 1, 1), x, y);
+      y += 20;
+      text("Cube:\t" + dim + "x" + dim + "x" + dim, x, y);
+      y += 20;
+      float nCombinations = dim == 2 ? fact(7) * pow(3, 6) : 1;
+      nCombinations = dim == 3 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
+      text("Total number of combinations:\t" + nfc(nCombinations, 0), x, y);
+      y += 20;
+      text(getMoves(), x, y);
+    cam.endHUD();
+  }
 }
 
 void setupCamera () {
@@ -187,14 +192,12 @@ void updateCam () {
 void doTurn() {
   solve = true;
   counter = 0;
-  print("\n---- turnFace ----\n");
   print("\n" + turns.length() + " chars in turns left.\t"+ turns +"\n");
   // turn becomes the first move of turns String
   char turn = turns.charAt(0);
   // Rest of turns are stored back in turns
   turns = turns.substring(1, turns.length());
   // Clockwise rotation default true
-  // int dir = 1;
   boolean clockwise = true;
   // If there are turns left and the new first char is a prime (')
   if (turns.length() > 0 && turns.charAt(0) == '\'') {
@@ -226,12 +229,6 @@ void doTurn() {
     }
   }
 
-  // if turn is right, down or a front face rotation
-  if (turn == 'R' || turn =='D' || turn == 'F') {
-    // reverse clockwise boolean
-    // dir *= -1;
-    clockwise = !clockwise;
-  }
   switch(turn) {
   case 'R':
     if (clockwise) {
@@ -315,7 +312,6 @@ void doTurn() {
     }
     break;
   }
-  cube.animating = !cube.animating;
 }
 
 // resets the cube to original state
@@ -475,4 +471,19 @@ void debugMoves() {
     println("Move: " + m.toString() + "\t" + m.currentAxis + "  " + m.index + "  " + m.dir);
   }
   println("Number of moves: " + allMoves.size());
+}
+
+void updateLists()  {
+  for(int i = 0; i < cube.len; i++) {
+    Cubie c = cube.getCubie(i);
+    if(c.nCols == 1 && !centers.contains(c))  {
+      centers.add(c);
+    }
+    if(c.nCols == 2 && !edges.contains(c))  {
+      edges.add(c);
+    }
+    if(c.nCols == 3 && !corners.contains(c))  {
+      corners.add(c);
+    }
+  }
 }

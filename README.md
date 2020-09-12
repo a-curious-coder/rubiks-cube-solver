@@ -38,22 +38,25 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 - [x] Scramble function for cube
 - [x] Animation of each move
 - [x] Reverse scramble of cube
-- [x] Adapt the code to cater for larger cubes
+- [ ] Adapt the code to cater for larger cubes - currently facing issues
 - [x] Save computing power by only storing visible cubies
 - [x] Adding [X, Y, Z](https://ruwix.com/the-rubiks-cube/notation/advanced/) rotations to cube.
 - [ ] Implement a human algorithm to solve the cube
+
 <h3>Mandatory</h3>
 
+
 - [ ] Use **local search** or **constraint solvers** to solve well-specified problems
-- [ ] Evaluate empirically the effectiveness of a solution method for a problem - (This step will be the hardest I believe)
+- [ ] Evaluate 'empirically' the effectiveness of a solution method for a problem - (This step will be the hardest I believe)
   - Computing power needed
-  - Steps the cube is solved in
-  - Time to solve
+  - Number of steps required to solve the cube
+  - Time to solve the cube
 - [x] Develop a computer implementation of a puzzle game.
 
 <h3>Optional</h3>
 
 - [x] Allow user to create custom cube sizes
+- [ ] Add a 2D visualisation of the cube
 - [ ] Allow user to create a custom cube scramble
 - [x] Provide output of scramble/solve steps to console for the user
 - [ ] Solve the cube from its scrambled state in 20 moves or less - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
@@ -130,12 +133,10 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
     <td colspan = "4">D2</td>
   </tr>
 
-
-
-
 ---
 
-<h2> Background <a name="skill"></a></h2>
+
+<h2>Background <a name="skill"></a></h2>
 
 - Local search (Heuristic-based)
 - SAT / Constraint solver
@@ -257,19 +258,16 @@ Finally, minor additions include an FPS counter, speed control and the size of t
 ---
 <a name="issues"></a>
 <h2>Issues faced during project creation</h2>
-
-1. [Notation issue](#notationissue)
-2. [Computing power issue](#computingpowerissue)
-3. [Even number of dimensions cube scrambling issue](#evenissue)
-4. [Camera fov issue](#camissue)
-5. [Whole cube rotation](#wholecuberotation)
-6. [Creating new move methods](#newmoves)
-
-<h4>Notation issue<a name="notationissue"></a></h4> 
+<details>
+<summary><b>1. Notation issue<a name="notationissue"></a></b></summary>
 Standard 3x3x3 cubes have a recognised notation for each move but as the cubes get bigger - typically beyond a 5x5x5 cube, the notation for moves being done aren't identifiable. However, this fortunately didn't mean I was limited in regards to actually generating moves for all edges of all cube sizes. The moves generated for each cube are based on the size of the cube itself which means the program will be able to scramble any sized cube... Or so I thought.
 
-<h4>Computing power issue<a name="computingpowerissue"></a>
-</h4> 
+<br></br>
+</details>
+
+
+<details>
+<summary><b>2. Computing power issue<a name="computingpowerissue"></a></summary></b> 
 
 A 20x20x20 cube has 8,000 cubies. A 100x100x100 cube has a whopping 1,000,000 cubies. This is how I made my program - to store every cubie out of ease. However, the majority of these stored cubies are pretty useless as they're not visible to the user nor bring much functionality to the project which means the CPU would be unecessarily put under strain when calculating each cubie position when starting the program.
 
@@ -279,46 +277,57 @@ For a 100x100x100 cube - 1,000,000 cubies would need to be stored.
 In my program, 58,808 are being stored. Saving 941,192 useless cubies from being stored.
 
 This isn't such an issue for a smaller cubes such as the traditional 3x3x3 Rubik's cube since the program only stores 27 cubies. So there's only one extra cubie being stored but for much bigger cubes, a computer struggles to load them, let alone scramble them.
+<br></br>
+</details>
 
-<h4>Even number of dimensions cube scrambling issue<a name="evenissue"></a></h4> 
+<details>
+<summary><b>3. Even number of dimensions cube scrambling issue<a name="evenissue"></a></b></summary>
 
 After countless gruelling hours of research alongside trial and error, I finally managed to adapt my program to cater for displaying all cube sizes. The next objective was to see if they would scramble. It worked perfectly for cubes with an uneven number of dimensions but, as exampled above, any cube with an even number of dimensions would translate incorrectly when being scrambled. This occurred because when there were an even number of dimensions, the axis value increased by 1 which meant it iterated forward and backwards by 0.5. The values being calculated for the update function for each cubie were floats that weren't being correctly rounded to the nearest half (0.5) so they were rounded either up or down to the nearest integer since the values were literally 0.000001 away from an exact 0.5. I created a function to fix this rounding issue - therefore fixing the move issues for even numbered cubes.
+<br></br>
+</details>
 
-<h4>Camera fov issue<a name = "camissue"></a>
-</h4>
+<details>
+<summary><b>4. Camera fov issue<a name = "camissue"></a></b></summary>
 
 After resolving the computing power issue with storing cubies, I felt comfortable in displaying and scrambling larger cubes. The issue was that any cube with 40 or more dimensions had parts of the cube 'cut off'. I researched online and discovered a solution to displaying the entire cube, regardless of size with two PEasy cam related functions: setupCamera() and updateCamera().
-<details>
-<summary>Preview before and after fix was implemented</summary>
-  <table align = "center">
-      <tr>
-          <td align = "center"><h4>Before</h4></td>
-          <td align = "center"><h4>After</h4></td>
-      </tr>
-      <tr>
-          <td><p align="center"><img src=Gifs/70x70x70cut.gif width="600" height ="600"/></p></td>
-          <td><p align="center"><img src=Gifs/70x70x70fix.gif width="600" height ="600"/></p></td>
-      </tr>
-  </table>
+  <details>
+  <summary>Preview before and after fix was implemented</summary>
+    <table align = "center">
+        <tr>
+            <td align = "center"><h4>Before</h4></td>
+            <td align = "center"><h4>After</h4></td>
+        </tr>
+        <tr>
+            <td><p align="center"><img src=Gifs/70x70x70cut.gif width="600" height ="600"/></p></td>
+            <td><p align="center"><img src=Gifs/70x70x70fix.gif width="600" height ="600"/></p></td>
+        </tr>
+    </table>
+  </details>
+This means bigger cubies can fully display (which is going to look pretty impressive when they're solving)
+<br></br>
 </details>
-This means bigger cubies can fully display (which is going to look pretty impressive when they're solving).
 
-<h4>Whole cube rotation<a name="wholecuberotation"></a> </h4>
+<details>
+<summary><b>5. Whole cube rotation<a name="wholecuberotation"></a> </b></summary>
 
 X, Y, Z are moves that aren't required to solve a cube. However since a computer has the job of solving the cube, for the sake of simplicity when programming the algorithms, I will be relying on these whole cube rotations to reposition specific cubies to specific faces/axis on the cube. This means, after repositioning the entire cube, I will hopefully be able to re-use sets of moves to correctly position edge/corner cubies.
 
 After days of research and mental pain, I managed to get the cube to rotate along the X, Y and Z axis. The issue that I didn't foresee or consider was the fact it didn't react well with moves made using my move class since it doesn't relocate each cubies' colours and reassign them new axis coordinates (This is what I did to achieve the full cube rotations).
 
 So if I made any move on the cube and attempted to rotate the entire cube, it assumed the original state and positions of every colour of each cubie were still in the same places they were before scrambling - therefore failing to rotate the cubies to their correct new positions. Therefore I needed to find a way to either make single moves correlating with the logic I already have with rotating the entire cube.
-
-<h4>Creating new move methods<a name="newmoves"></a></h4>
+<br></br>
+</details>
+<details>
+<summary><b>6. Creating new move methods</b><a name="newmoves"></a></summary>
 
 Due to my last issue ([Whole cube rotation](#wholecuberotation)) I had to abandon my move class and turning functions that I originally created to create new moves that correlates with the whole cube rotations logic. This is so I can rotate the entire cube regardless of what combination it's in (Something the last class couldn't tolerate). I've created these functions with the cube class as these movements are done on the cube.
 
 Fortunately, I reused some of the functions I created for the entire cube rotations for the single face movements. I'm hoping to refine how it's laid out for ease of interpretation but for now it works. I will begin working on the human solving algorithm first before pursuing local search and SAT solver algorithms.
 
 The current issue right now is that the move functions is only functioning with 3x3x3 cubes. Nothing bigger or smaller for now. I'm hoping to refine this asap.
-
+<br></br>
+</details>
 ---
 
 <h2> References <a name="references"></a></h2>

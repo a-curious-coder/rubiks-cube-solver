@@ -36,7 +36,7 @@ String getDirection(char fromFace, char toFace) {
   fromIndex = ZRotation.indexOf(fromFace);
   toIndex = ZRotation.indexOf(toFace);
 
-  if (fromIndex != -1 && toIndex !=-1) {
+  if (fromIndex != -1 && toIndex != -1) {
     print("Need to make z rotation\n");
     return foundRotation(fromIndex, toIndex, 'Z');
   }
@@ -52,6 +52,7 @@ String foundRotation(int fromIndex, int toIndex, char turnCharacter) {
   if (abs(fromIndex - toIndex) == 2) {
     return "" + turnCharacter + turnCharacter;
   }
+  
   if (fromIndex <= toIndex) {
     // adds the turnCharacters as they came, clockwise rotations
     for (int i = fromIndex; i < toIndex; i++) { 

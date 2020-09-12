@@ -22,55 +22,41 @@ class HumanAlgorithm {
     }
 
     if (!isLargerCube) {
-      solve = true;
-      print("This is used for 3x3x3 cubes only.\n");
+
       switch(stage) {
       case 0:
-        print("\n--- White cross stage ---\n");
         whiteCross();
         break;
+      case 1:
+
       }
-      print("Must've solved the cube?\n");
     }
   }
 
-
+  // Step 1
   // Solves the white cross on the cube.
   void whiteCross() {
-    // 
+    // If the D face does not have a white center
     if (!(getFaceColour('D') == white)) {
+      // Positions the white center piece to the Downward face
       positionFace(white, 'D', 'X');
-      print(turns);
+      println(turns);
       return;
+    } else {
+      println("White center cubie is on D face");
     }
-
-    if (turns.length() != 0) { 
-      return;
-    }
-    print("White/Red stage\n");
+    // if there are turns left to make, return to start this function again.
+    if (turns.length() != 0)  return;
     positionWhiteCrossEdge(red);
-
     // Checks if the turns are empty, if not the edge hasn't finished moving so return.
-    if (turns.length() != 0) {
-      print("White/Red not finished...");
-      return;
-    }
-    print("White/Red stage finished\n");
-    sequence.clear();
-    print("White/Orange stage\n");
+    if (turns.length() != 0)  return;
     positionWhiteCrossEdge(orange);
-    if (turns.length() != 0) { 
-      return;
-    }
-    print("White/Blue stage\n");
+    if (turns.length() != 0)  return;
     positionWhiteCrossEdge(blue);
-    if (turns.length() != 0) { 
-      return;
-    }
-    print("White/Green stage\n");
+    if (turns.length() != 0)  return;
     positionWhiteCrossEdge(green);
     if (turns.length() == 0) {
-      print("Cross complete\n");
+      println("Step 1 - White cross complete.");
       stage++;
     }
   }
@@ -124,7 +110,8 @@ class HumanAlgorithm {
     if (edge.y == 0) {
       print("\n----------------\n\n");
       print("The " + colToString(c) + " and " + colToString(white) + " edge is at the middle row\n");
-      // turnCubeToFacePiece(edge, white, 'Y');
+      // Caters for moves later else it'll get stuck in a loop.
+      turnCubeToFacePiece(edge, white, 'Y');
 
       if (turns.length() > 0) {
         return;
@@ -149,7 +136,6 @@ class HumanAlgorithm {
         // Set the face with colour'c' to the 'F'
         positionFace(c, 'F', 'Y');
         print("positioning face\n");
-
         return;
       }
 
@@ -181,18 +167,20 @@ class HumanAlgorithm {
     }
   }
 
-
+  // Positions 'face' with colour 'c' toward 'dir'
   void positionFace (color c, char face, char dir) {
+
     String faces = "RLUDFB";
     char fromFace = 'F';
     // checks every face for match with colour c
-    print("---- positionFace ----\n");
+    // print("---- positionFace ----\n");
     for (int i = 0; i < faces.length(); i++) {
       // Locates the face of the cube that has the same colour as colour 'c' on the edge.
       if (getFaceColour(faces.charAt(i)) == c) {
-        print("The face with " + cols[i] + " is located on the " + faces.charAt(i) + " face\n");
+        print("The face with " + c + " is located on the " + faces.charAt(i) + " face\n");
         // fromFace holds the face containing the same colour as c
         fromFace = faces.charAt(i);
+        println("Face we're looking for: " + colToString(fromFace));
         break;
       }
     }
@@ -242,27 +230,101 @@ class HumanAlgorithm {
     return null;
   }
 
+  // Returns the colours of the labelled faces
   color getFaceColour(char f) {
+
+    int middle = dim / 2;
+    int last = dim - 1;
+    int index = 0;
+    color colour = color(0);
+
 
     switch(f) {
     case 'U':
-      return yellow;
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.y == -axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      return colour;
     case 'D':
-      return white;
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.y == axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
     case 'R':
-      return orange;
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.x == axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
     case 'L':
-      return red;
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.x == -axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
     case 'B':
-      return blue;
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.z == -axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
     case 'F':
-      return green;
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.z == axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
     }
     return color(0);
   }
 
+  // Step 2
   // Bottom corner function 
-  //
+  void bottomCorners()  {
+
+  }
+
+  void positionBottomCorner() {
+
+  }
+
   // finish bottom two rows (edges)
 
   // position top cross (pattern)
