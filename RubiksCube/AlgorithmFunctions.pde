@@ -98,6 +98,63 @@ String getTurns(char fromFace, char toFace, int index) {
   return "";
 }
 
+String getDirectionOfCorners(PVector from, PVector to)  {
+  
+  ArrayList<Cubie> upperCorners = new ArrayList();
+  ArrayList<Cubie> lowerCorners = new ArrayList();
+  
+  for(Cubie c : corners)  {
+    if(c.y == -axis)  {
+      upperCorners.add(c);
+    } else if (c.y == axis) {
+      lowerCorners.add(c);
+    }
+  }
+
+  int fromIndex = getLocationOfCubie(upperCorners, from);
+  int toIndex = getLocationOfCubie(upperCorners, to);
+
+  if(fromIndex >= 0 && toIndex >= 0) {
+    return foundRotation(fromIndex, toIndex, 'U');
+  }
+
+  fromIndex = getLocationOfCubie(lowerCorners, from);
+  toIndex = getLocationOfCubie(lowerCorners, to);
+
+  if(fromIndex >= 0 && toIndex >= 0) {
+    return foundRotation(fromIndex, toIndex, 'D');
+  }
+
+  return "";
+}
+
+// Returns the index with the matching values as location from corners arraylist
+int getLocationOfCubie(ArrayList<Cubie> corners, PVector location)  {
+
+  for(Cubie c : corners)  {
+    if(location.x == c.x &&
+       location.y == c.y &&
+       location.z == c.z) {
+         return corners.indexOf(c);
+       }
+  }
+  return -1;
+}
+
+String reverseMoves(String moves) {
+  String reverse = "";
+
+  for(int i = 0; i < moves.length(); i++) {
+    if(i+1 < moves.length() && moves.charAt(i+1) == '\'')  {
+      reverse = moves.charAt(i) + reverse;
+      i+= 1;
+    } else {
+      reverse = moves.charAt(i) + "'" + reverse;
+    }
+  }
+  return reverse;
+}
+
 void setColours() {
   // variable[i] = IF x == value THEN color(a) ELSE color(b)
   colours[0] = orange;  // Orange

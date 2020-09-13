@@ -1,7 +1,7 @@
 <h2 align = "center"> Computer solution of puzzle game - Rubik's Cube Solver </h2>
 
 ---
-![Rubik's Banner](Images/Banner.png)
+![Rubik's Banner](Images/Banner2.png)
 
 <p align = "center">[Live Demo Coming Soon]()</p>
 ---

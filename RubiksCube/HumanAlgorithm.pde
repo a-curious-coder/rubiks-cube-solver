@@ -7,7 +7,9 @@ class HumanAlgorithm {
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   int middle = dim / 2;
   int stage = 0;
-
+  int completedCorners = 0;
+  int completedEdges = 0;
+  
   boolean isLargerCube = false;
 
   HumanAlgorithm(Cube cube) {
@@ -28,7 +30,8 @@ class HumanAlgorithm {
         whiteCross();
         break;
       case 1:
-
+        bottomCorners();
+        break;
       }
     }
   }
@@ -177,7 +180,7 @@ class HumanAlgorithm {
     for (int i = 0; i < faces.length(); i++) {
       // Locates the face of the cube that has the same colour as colour 'c' on the edge.
       if (getFaceColour(faces.charAt(i)) == c) {
-        print("The face with " + c + " is located on the " + faces.charAt(i) + " face\n");
+        print("The face with " + colToString(c) + " is located on the " + faces.charAt(i) + " face\n");
         // fromFace holds the face containing the same colour as c
         fromFace = faces.charAt(i);
         println("Face we're looking for: " + colToString(fromFace));
@@ -223,7 +226,7 @@ class HumanAlgorithm {
   Cubie findCenterEdge(color[] cubieColours) {
     for (int i = 0; i < edges.size(); i++) {
       if (edges.get(i).matchesColours(cubieColours)) {
-        print("Found center edge\n");
+        println("Found center edge");
         return edges.get(i);
       }
     }
@@ -318,14 +321,73 @@ class HumanAlgorithm {
   // Step 2
   // Bottom corner function 
   void bottomCorners()  {
+    color[][] corners = {{red, green}, {green, orange}, {orange, blue}, {blue, red}};
+    while(completedCorners < 4) {
+      positionBottomCorner(corners[completedCorners][0], corners[completedCorners][1]);
+      if(turns.length() > 0)  return;
+      completedCorners++;
+    }
+    stage++;
+  }
+  
+  // Positions corners at the bottom not affecting the cross from previous step
+  void positionBottomCorner(color c1, color c2) {
+    // c1 is left of c2 when white is in correct position on cube.
+    color[] cornerCols = {c1, c2, white};
+    Cubie corner = findCorner(cornerCols);
+    PVector from = new PVector(corner.x, corner.y, corner.z);
+    // Top, Right, Front corner.
+    PVector to = new PVector(axis, -axis, axis);
 
+    if(!(getFaceColour('F') == c1))  {
+      positionFace(c1, 'F', 'Y');
+      return;
+    }
+    // If corner is on top row
+    if(corner.y == -axis) {
+      // println("Top row: " + colToString(c1) + " " + colToString(c2) + " " + colToString(white));
+      
+      String temp = getDirectionOfCorners(from, to);
+      if(!temp.equals(""))  {
+        turns += temp;
+        return;
+      }
+
+      // If colour on top,right,front is white then
+      turns += corner.colours[4] == white ? "F'U'F" : "";
+      turns += corner.colours[4] == c1 ? "RUR'" : ""; // red
+      turns += corner.colours[4] == c2 ? "F'UUFUF'U'F" : ""; // green
+    }
+    // If corner is on bottom row
+    else if(corner.y == axis) {
+      // println("Bottom row: " + colToString(c1) + " " + colToString(c2) + " " + colToString(white));
+      
+      to = new PVector(axis, axis, axis);
+      // if corner is not bottom,right, front OR corner is in incorrect orientation
+      if(!from.equals(to) || corner.colours[3] != white) {
+        String temp = getDirectionOfCorners(from, to);
+        turns += temp;
+        turns += "RUR'";
+        turns += reverseMoves(temp);
+      }
+    }
+    
   }
 
-  void positionBottomCorner() {
 
+  Cubie findCorner(color[] cubieColours)  {
+    for(Cubie c : corners)  {
+      if(c.matchesColours(cubieColours))  {
+        println("Found corner");
+        return c;
+      }
+    }
+    return null;
   }
 
+  // Step 3
   // finish bottom two rows (edges)
+  
 
   // position top cross (pattern)
 
