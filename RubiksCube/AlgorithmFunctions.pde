@@ -10,6 +10,11 @@ color yellow = color(255, 255, 0);
 color green = color(0, 255, 0);
 color blue  = color(0, 0, 255);
 
+Cubie[] upperCorners = new Cubie[4];
+Cubie[] lowerCorners = new Cubie[4];
+Cubie[] upperEdges = new Cubie[4];
+Cubie[] lowerEdges = new Cubie[4];
+
 // Get the direction of where the cube is going to rotate.
 // E.g. L to F
 String getDirection(char fromFace, char toFace) {
@@ -99,16 +104,27 @@ String getTurns(char fromFace, char toFace, int index) {
 }
 
 String getDirectionOfCorners(PVector from, PVector to)  {
-  
-  ArrayList<Cubie> upperCorners = new ArrayList();
-  ArrayList<Cubie> lowerCorners = new ArrayList();
-  
+
   for(Cubie c : corners)  {
     if(c.y == -axis)  {
-      upperCorners.add(c);
+      if(c.x == -axis && c.z == -axis) upperCorners[0] = c;
+      if(c.x == -axis && c.z == axis) upperCorners[1] = c;
+      if(c.x == axis && c.z == axis)  upperCorners[2] = c;
+      if(c.x == axis && c.z == -axis) upperCorners[3] = c;
     } else if (c.y == axis) {
-      lowerCorners.add(c);
+      if(c.x == -axis && c.z == -axis) lowerCorners[0] = c;
+      if(c.x == -axis && c.z == axis) lowerCorners[1] = c;
+      if(c.x == axis && c.z == axis)  lowerCorners[2] = c;
+      if(c.x == axis && c.z == -axis) lowerCorners[3] = c;
     }
+  }
+  println("Upper corners");
+  for(Cubie c : upperCorners) {
+    println(c.details());
+  }
+  println("Lower corners");
+  for(Cubie c : lowerCorners) {
+    println(c.details());
   }
 
   int fromIndex = getLocationOfCubie(upperCorners, from);
@@ -128,15 +144,50 @@ String getDirectionOfCorners(PVector from, PVector to)  {
   return "";
 }
 
-// Returns the index with the matching values as location from corners arraylist
-int getLocationOfCubie(ArrayList<Cubie> corners, PVector location)  {
+String getDirectionOfEdges(PVector from, PVector to)  {
 
-  for(Cubie c : corners)  {
+  for(Cubie c : edges)  {
+    if(c.y == -axis)  {
+      if(c.x == middle && c.z == -axis) upperEdges[0] = c;
+      if(c.x == axis && c.z == middle) upperEdges[1] = c;
+      if(c.x == middle && c.z == axis) upperEdges[2] = c;
+      if(c.x == -axis && c.z == middle) upperEdges[3] = c;
+    } else if (c.y == axis) {
+      if(c.x == middle && c.z == -axis) lowerEdges[0] = c;
+      if(c.x == -axis && c.z == middle) lowerEdges[1] = c;
+      if(c.x == middle && c.z == axis) lowerEdges[2] = c;
+      if(c.x == axis && c.z == middle) lowerEdges[3] = c;
+    }
+  }
+
+  int fromIndex = getLocationOfCubie(upperEdges, from);
+  int toIndex = getLocationOfCubie(upperEdges, to);
+
+  if(fromIndex >= 0 && toIndex >= 0)  {
+    return foundRotation(fromIndex, toIndex, 'U');
+  }
+
+  fromIndex = getLocationOfCubie(lowerEdges, from);
+  toIndex = getLocationOfCubie(lowerEdges, to);
+  if(fromIndex >= 0 && toIndex >= 0)  {
+    return foundRotation(fromIndex, toIndex, 'D');
+  }
+
+  return "";
+}
+
+// Returns the index with the matching values as location from corners arraylist
+int getLocationOfCubie(Cubie[] cubies, PVector location)  {
+  // println("Cubies length: " + cubies.length);
+  println("Location: " + location.x + " " + location.y + " " + location.z);
+  for(int i = 0; i < cubies.length; i++)  {
+    Cubie c = cubies[i];
+    // println(c.details());
     if(location.x == c.x &&
        location.y == c.y &&
        location.z == c.z) {
-         return corners.indexOf(c);
-       }
+      return i;
+    }
   }
   return -1;
 }

@@ -46,8 +46,8 @@ ArrayList<String> fMoves;
 // initialises rubik's cube emulation
 void setup() {
   // Screen size
-  // size(400, 400, P3D);
-  fullScreen(P3D);
+  size(400, 400, P3D);
+  // fullScreen(P3D);
   // FPS
   frameRate(120);
   // Sets camera up - sets pov which means it displays all cube sizes to fit in the screen (caters for larger cubes)
@@ -56,8 +56,8 @@ void setup() {
   // Initialise appropriate variables with default values
   counter = 0;
   numberOfMoves = dim * 8;
-  middle = dim / 2;
   axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
+  middle = axis + -axis;
   speed = 0.001;
   scramble = false;
   solve = false;
@@ -126,6 +126,8 @@ void draw() {
   
   // If cube is not animating and there are turns to be done
   if (!cube.animating && turns.length() > 0) {
+    moves += turns;
+    formatMoves();
     // if scramble is done / false
     if (!scramble) {
       // Make first move.
@@ -260,10 +262,10 @@ void doTurn() {
   case 'D':
     if (clockwise) {
       print("Added D to sequence\n");
-      cube.turn('Y', 1, 1);
+      cube.turn('Y', 1, -1);
     } else {
       print("Added D' to sequence\n");
-      cube.turn('Y', 1, -1);
+      cube.turn('Y', 1, 1);
     }
     break;
   case 'F':
@@ -373,7 +375,6 @@ long fact(int num) {
         }
 
         return result;
-  // return num == 1 ? 1 : fact(num - 1)*num;
 }
 
 String getMoves() {
@@ -454,6 +455,7 @@ void formatMoves()  {
     }
     counter++;
   }
+  fMoves.clear();
 }
 
 void clearMoves() {

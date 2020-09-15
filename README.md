@@ -14,6 +14,7 @@
 4. [Project background.](#skill)
 5. [Stages of creation.](#stages)
 6. [Issues faced during project creation.](#issues)
+7. [How to use the program (Under construction)](#howtouse)
 7. [References.](#references)
 
 ---
@@ -41,7 +42,15 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 - [ ] Adapt the code to cater for larger cubes - currently facing issues
 - [x] Save computing power by only storing visible cubies
 - [x] Adding [X, Y, Z](https://ruwix.com/the-rubiks-cube/notation/advanced/) rotations to cube.
-- [ ] Implement a human algorithm to solve the cube
+- [ ] Implement a human algorithm to solve the cube <details><summary>Steps</summary>
+  - [x] Solve first layer's edges (White cross)
+  - [x] Solve the first layer's corners (White face)
+  - [x] Solve second layer of the cube (F2L)
+  - [ ] Create a yellow cross on top of the cube
+  - [ ] Swap yellow edges to match their partnered colours
+  - [ ] Position yellow corners
+  - [ ] Orient last layer corners
+  </details>
 
 <h3>Mandatory</h3>
 
@@ -117,6 +126,7 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
     </td>
   </tr>
 </table>
+
 <h3>Notation</h3>
 <table align="center">
   <tr>
@@ -132,6 +142,7 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
     <td>F2</td><td>R2</td><td>U2</td><td>L2</td><td>B2</td>
     <td colspan = "4">D2</td>
   </tr>
+</table>
 
 ---
 
@@ -149,7 +160,6 @@ I've spent countless hours learning to solve Rubik's cubes of various sizes usin
 ---
 
 <h2> Stages of creation</h2> <a name="stages"></a>
-
 <!--Stages 1 and 2-->
 <table align = "center">
   <tr>
@@ -253,6 +263,10 @@ I rethought the process in which colours were applied to each face of each cubie
 Finally, minor additions include an FPS counter, speed control and the size of the cube.
    </td>
   </tr>
+
+  <tr>
+  <td>Will add gifs for each stage in the cube solving process in near future!</td>
+  </tr>
 </table>
 
 ---
@@ -328,11 +342,18 @@ Fortunately, I reused some of the functions I created for the entire cube rotati
 The current issue right now is that the move functions is only functioning with 3x3x3 cubes. Nothing bigger or smaller for now. I'm hoping to refine this asap.
 <br></br>
 </details>
+
 ---
 
+<h2> How to use the program </h2>
+Gonna write this section later on in development as most of the current controls are defined with no reasoning really.
+
+---
 <h2> References <a name="references"></a></h2>
 
 The intention here is to use these references as a guide or inspiration for features, ideas or conventions to apply my own Rubik's Cube Solver. 
+
+<h5>Emulator help</h5>
 
 1. [Python Rubiks Cube Solver](https://github.com/sylvain-reynaud/RubiksSolver/)
 2. [Code Bullet Rubiks Cube Solver](https://github.com/Code-Bullet/RubiksCubeAI)
@@ -340,9 +361,20 @@ The intention here is to use these references as a guide or inspiration for feat
 4. [Rubik's Cube Emulator - Part 1](https://www.youtube.com/watch?v=9PGfL4t-uqE)
 5. [Rubik's Cube Emulator - Part 2](https://www.youtube.com/watch?v=EGmVulED_4M)
 6. [Rubik's Cube Emulator - Part 3](https://www.youtube.com/watch?v=8U2gsbNe1Uo)
-7. [Rubik's Cube Notation](https://ruwix.com/the-rubiks-cube/notation/)
-8. [Terminology and Notation](https://ruwix.com/the-rubiks-cube/notation/)
-9. [Markdown Cheatsheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf)
-10. [PEasy Cam setup/update](https://forum.processing.org/two/discussion/27071/how-far-can-i-go-with-peasycam)
-11. [Converting Processing to P5.JS (for live demo)](https://github.com/processing/p5.js/wiki/Processing-transition)
-12. [Human Algorithm - Part 1 (First Layer Edges)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-1-first-layer-edges/)
+7. [PEasy Cam setup/update](https://forum.processing.org/two/discussion/27071/how-far-can-i-go-with-peasycam)
+8. [Converting Processing to P5.JS (for live demo)](https://github.com/processing/p5.js/wiki/Processing-transition)
+
+<h5>Information</h5>
+
+9. [Rubik's Cube Notation](https://ruwix.com/the-rubiks-cube/notation/)
+10. [Terminology and Notation](https://ruwix.com/the-rubiks-cube/notation/)
+
+<h5>Human Algorithm References</h5>
+
+11. [Part 1 (First Layer Edges)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-1-first-layer-edges/)
+12. [Part 2 (First Layer Corners)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-2-first-layer-corners/)
+13. [Part 3 (F2L - Second Layer)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step3-second-layer-f2l/)
+
+<h5>Other</h5>
+
+14. [Markdown Cheatsheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf)

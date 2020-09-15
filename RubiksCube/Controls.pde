@@ -1,5 +1,11 @@
 void keyPressed() {
   switch(key) {
+  case 't':
+    cube.hAlgorithm.nextCorner = true;
+    break;
+  case 'h':
+    hud = true;
+    break;
   case 's':
     if(bigTroll()) break;
     cube.scrambleCube();
