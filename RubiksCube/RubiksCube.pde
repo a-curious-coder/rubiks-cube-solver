@@ -2,6 +2,8 @@ import peasy.*;
 
 // Camera object to visualise a Rubik's Cube
 PeasyCam cam;
+int displayHeight = 600; 
+int displayWidth = 600;
 // Cube object
 Cube cube;
 // Stores the currentMove in the scramble/solve process
@@ -41,18 +43,20 @@ ArrayList<Move> sequence;
 ArrayList<Move> allMoves;
 // Stores moves as strings - each move accessible via an index
 ArrayList<String> fMoves;
-
+// Stores background
+PImage background;
 
 // initialises rubik's cube emulation
 void setup() {
   // Screen size
-  size(400, 400, P3D);
-  // fullScreen(P3D);
+  // size(displayHeight, displayWidth, P3D);
+  fullScreen(P3D);
   // FPS
-  frameRate(120);
+  frameRate(60);
   // Sets camera up - sets pov which means it displays all cube sizes to fit in the screen (caters for larger cubes)
   setupCamera();
-
+  // background = loadImage("C:\\Users\\callu\\Desktop\\Processing\\rubiks-cube-solver\\RubiksCube\\bg.png");
+  // background.resize(displayHeight, displayWidth);
   // Initialise appropriate variables with default values
   counter = 0;
   numberOfMoves = dim * 8;
@@ -84,6 +88,7 @@ void setup() {
 // draws emulation to screen
 void draw() {
   background(220,220,220);
+  // background(background);
   // Sets the initial view of the cube
   rotateX(-0.3);
   rotateY(0.6);
@@ -126,16 +131,16 @@ void draw() {
   
   // If cube is not animating and there are turns to be done
   if (!cube.animating && turns.length() > 0) {
-    moves += turns;
-    formatMoves();
+    // Adds 10 moves at a time to moves string
+    if(fMoves.size() % 10 == 0) {
+      formatMoves();
+    }
     // if scramble is done / false
     if (!scramble) {
       // Make first move.
       if (sequence.size() > 0) sequence.clear();
-      if (turns.length() > 0) {doTurn();}
-      for (int i = 0; i < sequence.size(); i++) {
-        print(sequence.get(i).toString());
-      }
+      if (turns.length() > 0) doTurn();
+      for (int i = 0; i < sequence.size(); i++) print(sequence.get(i).toString());
     }
   }
   // Always updating positions of every cubie to their respective lists.
@@ -166,7 +171,7 @@ void draw() {
       nCombinations = dim == 3 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
       text("Total number of combinations:\t" + nfc(nCombinations, 0), x, y);
       y += 20;
-      text(getMoves(), x, y);
+      text(moves, x, y);
     cam.endHUD();
   }
 }
@@ -194,25 +199,23 @@ void updateCam () {
 void doTurn() {
   solve = true;
   counter = 0;
-  print("\n" + turns.length() + " chars in turns left.\t"+ turns +"\n");
   // turn becomes the first move of turns String
   char turn = turns.charAt(0);
   // Rest of turns are stored back in turns
   turns = turns.substring(1, turns.length());
-  // Clockwise rotation default true
   boolean clockwise = true;
-  // If there are turns left and the new first char is a prime (')
+
+  // If there are turns left and the new first char is a prime (') - The next move is a prime move
   if (turns.length() > 0 && turns.charAt(0) == '\'') {
-    // Rotation will not be clockwise
-    // dir = -1;
+    // Rotation - anticlockwise
     clockwise = false;
-    // Subtract the prime from the turns String
+    // Subtract the 'prime' from the turns String
     turns = turns.substring(1, turns.length());
     // If there are 4 more chars in turns
     if (turns.length() >= 4) {      
-      //  If the next turns are both opposite of rotations of turn prime
+      // If the next two turns are both opposites of the rotation move we have
       if (turns.substring(0, 4).equals( "" + turn  + "'" + turn + "'")) {
-        // dir = 1;
+        // Three moves replaced with a clockwise version of the move
         clockwise = true;
         // Turns subtracts the 4 chars.
         turns = turns.substring(4, turns.length());
@@ -221,7 +224,7 @@ void doTurn() {
   } else {
     // If there are 2 or more chars left in turns String
     if (turns.length() >= 2) {
-      // If the first and second chars in turns is the same as turn
+      // If the next two turns are the same as 'turn' then replace turn with prime version (replaces 3 clockwise rotations)
       if (turns.charAt(0) == turn && turns.charAt(1) == turn) {
         // dir = -1;
         clockwise = false;
@@ -230,86 +233,89 @@ void doTurn() {
       }
     }
   }
+  // Add turn to fMoves arraylist - to print move to console/screen
+  if(clockwise) fMoves.add(turn + "");
+  if(!clockwise) fMoves.add(turn + "\'");
 
   switch(turn) {
   case 'R':
     if (clockwise) {
-      print("Added R to sequence\n");
+      // print("Added R to sequence\n");
       cube.turn('X', 1, 1);
     } else {
-      print("Added R' to sequence\n");
+      // print("Added R' to sequence\n");
       cube.turn('X', 1, -1);
     }
     break;
   case 'L':
     if (clockwise) {
-      print("Added L to sequence\n");
+      // print("Added L to sequence\n");
       cube.turn('X', -1, 1);
     } else {
-      print("Added L' to sequence\n");
+      // print("Added L' to sequence\n");
       cube.turn('X', -1, -1);
     }
     break;
   case 'U':
     if (clockwise) {
-      print("Added U to sequence\n");
+      // print("Added U to sequence\n");
       cube.turn('Y', -1, 1);
     } else {
-      print("Added U' to sequence\n");
+      // print("Added U' to sequence\n");
       cube.turn('Y', -1, -1);
     }
     break;
   case 'D':
     if (clockwise) {
-      print("Added D to sequence\n");
+      // print("Added D to sequence\n");
       cube.turn('Y', 1, -1);
     } else {
-      print("Added D' to sequence\n");
+      // print("Added D' to sequence\n");
       cube.turn('Y', 1, 1);
     }
     break;
   case 'F':
     if (clockwise) {
-      print("Added F to sequence\n");
+      // print("Added F to sequence\n");
       cube.turn('Z', 1, 1);
     } else {
-      print("Added F' to sequence\n");
+      // print("Added F' to sequence\n");
       cube.turn('Z', 1, -1);
     }
     break;
   case 'B':
     if (clockwise) {
-      print("Added B to sequence\n");
+      // print("Added B to sequence\n");
       cube.turn('Z', -1, 1);
     } else {
-      print("Added B' to sequence\n");
+      // print("Added B' to sequence\n");
       cube.turn('Z', -1, -1);
     }
     break;
   case 'X':
     if (clockwise) {
-      print("Added X to sequence\n");
+      // print("Added X to sequence\n");
       cube.turnWholeCube('X', 1);
     } else {
-      print("Added X' to sequence\n");
+      // print("Added X' to sequence\n");
       cube.turnWholeCube('X', -1);
     }
     break;
   case 'Y':
     if (clockwise) {
-      print("Added Y to sequence\n");
+      // print("Added Y to sequence\n");
       cube.turnWholeCube('Y', 1);
     } else {
-      print("Added Y' to sequence\n");
+      // print("Added Y' to sequence\n");
       cube.turnWholeCube('Y', -1);
     }
     break;
   case 'Z':
     if (clockwise) {
-      print("Added Z to sequence\n");
+      // print("Added Z to sequence\n");
       cube.turnWholeCube('Z', 1);
     } else {
-      print("Added Z' to sequence\n");
+      // print("Added Z' to sequence\n");
       cube.turnWholeCube('Z', -1);
     }
     break;
@@ -338,7 +344,7 @@ void printScrambleInfo() {
 // (caters for various cube sizes - scramble can use all possible moves)
 void InitialiseMoves() {
   // clear moves arraylist to avoid generating the same moves if cube is reset
-  println("Initialising Moves");
+  // println("Initialising Moves");
   allMoves.clear();
   for (float i = -axis; i <= axis; i++) {
     if (i != 0) {
@@ -441,17 +447,18 @@ void checkColours() {
 void formatMoves()  {
 
   int counter = 1;
+
   for(int i = 0; i < fMoves.size(); i++)  {
 
     if(counter % 10 == 0) {
       moves += fMoves.get(i) + ",\n";
-      print(fMoves.get(i) + ",\n");
+      // print(fMoves.get(i) + ",\n");
     } else if(counter == fMoves.size()) {
       moves += fMoves.get(i) + ".\n";
-      print(fMoves.get(i) + ".\n");
+      // print(fMoves.get(i) + ".\n");
     } else {
       moves += fMoves.get(i) + ", ";
-      print(fMoves.get(i) + ", ");
+      // print(fMoves.get(i) + ", ");
     }
     counter++;
   }

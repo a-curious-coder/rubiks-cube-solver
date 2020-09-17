@@ -24,7 +24,7 @@ String getDirection(char fromFace, char toFace) {
 
   // If fromIndex and toIndex have valid faces
   if (fromIndex != -1 && toIndex != -1) {
-    print("Need to make x rotation\n");
+    // print("Need to make x rotation\n");
     return foundRotation(fromIndex, toIndex, 'X');
   }
 
@@ -34,7 +34,7 @@ String getDirection(char fromFace, char toFace) {
 
   // If fromIndex and toIndex have valid faces
   if (fromIndex != -1 && toIndex !=-1) {
-    print("Need to make y rotation\n");
+    // print("Need to make y rotation\n");
     return foundRotation(fromIndex, toIndex, 'Y');
   }
   // Checks to see if faces are valid for a Z rotation
@@ -42,7 +42,7 @@ String getDirection(char fromFace, char toFace) {
   toIndex = ZRotation.indexOf(toFace);
 
   if (fromIndex != -1 && toIndex != -1) {
-    print("Need to make z rotation\n");
+    // print("Need to make z rotation\n");
     return foundRotation(fromIndex, toIndex, 'Z');
   }
   return "";
@@ -118,14 +118,14 @@ String getDirectionOfCorners(PVector from, PVector to)  {
       if(c.x == axis && c.z == -axis) lowerCorners[3] = c;
     }
   }
-  println("Upper corners");
-  for(Cubie c : upperCorners) {
-    println(c.details());
-  }
-  println("Lower corners");
-  for(Cubie c : lowerCorners) {
-    println(c.details());
-  }
+  // println("Upper corners");
+  // for(Cubie c : upperCorners) {
+    // println(c.details());
+  // }
+  // println("Lower corners");
+  // for(Cubie c : lowerCorners) {
+    // println(c.details());
+  // }
 
   int fromIndex = getLocationOfCubie(upperCorners, from);
   int toIndex = getLocationOfCubie(upperCorners, to);
@@ -179,15 +179,11 @@ String getDirectionOfEdges(PVector from, PVector to)  {
 // Returns the index with the matching values as location from corners arraylist
 int getLocationOfCubie(Cubie[] cubies, PVector location)  {
   // println("Cubies length: " + cubies.length);
-  println("Location: " + location.x + " " + location.y + " " + location.z);
+  // println("Location: " + location.x + " " + location.y + " " + location.z);
   for(int i = 0; i < cubies.length; i++)  {
     Cubie c = cubies[i];
     // println(c.details());
-    if(location.x == c.x &&
-       location.y == c.y &&
-       location.z == c.z) {
-      return i;
-    }
+    if(location.x == c.x && location.y == c.y && location.z == c.z) return i;
   }
   return -1;
 }

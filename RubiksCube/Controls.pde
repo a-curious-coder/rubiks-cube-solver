@@ -1,7 +1,7 @@
 void keyPressed() {
   switch(key) {
   case 't':
-    cube.hAlgorithm.nextCorner = true;
+    cube.hAlgorithm.nextStep = true;
     break;
   case 'h':
     hud = true;
@@ -41,7 +41,7 @@ void keyPressed() {
     speed -= 0.0010;
     break;
   case 'i':
-    speed = 10;
+    speed = 10000;
     break;
   case '6':
     println("Testing moves X");

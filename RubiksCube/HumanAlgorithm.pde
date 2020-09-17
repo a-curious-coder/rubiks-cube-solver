@@ -2,14 +2,11 @@ class HumanAlgorithm {
 
   Cube cube;
   String faces = "RLUDFB";
-
-
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   int stage = 0;
   int completedCorners = 0;
   int completedEdges = 0;
-
-  boolean nextCorner = false;
+  boolean nextStep = false;
   boolean isLargerCube = false;
 
   HumanAlgorithm(Cube cube) {
@@ -22,7 +19,6 @@ class HumanAlgorithm {
     if (isLargerCube) {
       print("Larger cube solving coming soon...");
     }
-
     if (!isLargerCube) {
 
       switch(stage) {
@@ -35,6 +31,24 @@ class HumanAlgorithm {
       case 2:
         finishMiddleEdges();
         break;
+      case 3:
+        yellowCross();
+        break;
+      case 4:
+        fixYellowCrossEdges();
+        break;
+      case 5:
+        topCorners();
+        break;
+      case 6: 
+        finalRotations();
+        break;
+      case 7:
+        // print timer
+        // print number of moves
+        // pause after finished
+        // reset cube
+        // rotate cube?
       }
     }
   }
@@ -62,7 +76,7 @@ class HumanAlgorithm {
     if (turns.length() != 0)  return;
     positionWhiteCrossEdge(green);
     if (turns.length() == 0) {
-      println("Step 1 - White cross complete.");
+      println("Stage 1 - White cross complete.");
       stage++;
     }
   }
@@ -87,7 +101,7 @@ class HumanAlgorithm {
           turns += "" + faceToTurn + faceToTurn;
           // add faceToTurn to the turns String
           // Throws it to top of cube for later
-          print(faceToTurn + " " + faceToTurn + "\n");
+          // print(faceToTurn + " " + faceToTurn + "\n");
         } else {
           // print("must be correctly oriented\n");
         }
@@ -183,10 +197,10 @@ class HumanAlgorithm {
     for (int i = 0; i < faces.length(); i++) {
       // Locates the face of the cube that has the same colour as colour 'c' on the edge.
       if (getFaceColour(faces.charAt(i)) == c) {
-        print("The face with " + colToString(c) + " is located on the " + faces.charAt(i) + " face\n");
+        // print("The face with " + colToString(c) + " is located on the " + faces.charAt(i) + " face\n");
         // fromFace holds the face containing the same colour as c
         fromFace = faces.charAt(i);
-        println("Face we're looking for: " + colToString(getFaceColour(fromFace)));
+        // println("Face we're looking for: " + colToString(getFaceColour(fromFace)));
         break;
       }
     }
@@ -331,9 +345,8 @@ class HumanAlgorithm {
       positionBottomCorner(corners[completedCorners][0], corners[completedCorners][1]);
       if(turns.length() > 0)  return;
       completedCorners++;
-      nextCorner = !nextCorner;
     }
-    println("Step 2 - Bottom corners aligned complete.");
+    println("Stage 2 - Bottom corners aligned complete.");
     stage++;
   }
   
@@ -353,7 +366,7 @@ class HumanAlgorithm {
     }
     // If corner is on top row
     if(corner.y == -axis) {
-      println("Top row: " + colToString(c1) + " " + colToString(c2) + " " + colToString(white));
+      // println("Top row: " + colToString(c1) + " " + colToString(c2) + " " + colToString(white));
       
       String temp = getDirectionOfCorners(from, to);
       if(!temp.equals(""))  {
@@ -368,15 +381,15 @@ class HumanAlgorithm {
     }
     // If corner is on bottom row
     else if(corner.y == axis) {
-      println("Bottom row: " + colToString(c1) + " " + colToString(c2) + " " + colToString(white));
+      // println("Bottom row: " + colToString(c1) + " " + colToString(c2) + " " + colToString(white));
       
       to = new PVector(axis, axis, axis);
       from = new PVector(corner.x, corner.y, corner.z);
       // if corner is not bottom,right,front OR corner is incorrectly oriented
       if(!from.equals(to) || corner.colours[3] != white) {
         String temp = getDirectionOfCorners(from, to);
-        println(from.x + " " + from.y + " " + from.z);
-        println(to.x + " " + to.y + " " + to.z);
+        // println(from.x + " " + from.y + " " + from.z);
+        // println(to.x + " " + to.y + " " + to.z);
         turns += temp;
         turns += "RUR'";
         turns += reverseMoves(temp);
@@ -389,7 +402,7 @@ class HumanAlgorithm {
   Cubie findCorner(color[] cubieColours)  {
     for(Cubie c : corners)  {
       if(c.matchesColours(cubieColours))  {
-        println("Found corner");
+        // println("Found corner");
         return c;
       }
     }
@@ -401,13 +414,14 @@ class HumanAlgorithm {
   void finishMiddleEdges()  {
     color[][] middleEdges = {{blue, red}, {red, green}, {green, orange}, {orange, blue}};
     while(completedEdges < 4) {
-      println("Trying to orient " + colToString(middleEdges[completedEdges][0]) + " and " + colToString(middleEdges[completedEdges][1]) + " edge");
+      // println("Trying to orient " + colToString(middleEdges[completedEdges][0]) + " and " + colToString(middleEdges[completedEdges][1]) + " edge");
       positionMiddleEdge(middleEdges[completedEdges][0], middleEdges[completedEdges][1]);
       if(turns.length() > 0)  {
         return;
       }
       completedEdges++;
     }
+    println("Stage 3 - middle edges correctly positioned");
     stage++;
   }
 
@@ -469,7 +483,7 @@ class HumanAlgorithm {
       if(!incorrectlyPositioned)  {
         turnCubeToFacePiece(middleEdge, c1, 'Y');
         if(turns.length() != 0) return;
-
+        
         if(middleEdge.x == axis)  {
           turns += "URU'R'U'F'UF";
         } else {
@@ -479,13 +493,252 @@ class HumanAlgorithm {
     }
   }
 
+  // Step 4
   // position top cross (pattern)
-  
-  // finish top cross pattern
+  void yellowCross()  {
+    boolean[] topEdges = new boolean[4];
+    int edgeCount = 0;
+    //        Indexes     0    1    2   3
+    // Edges are ordered - Back, Front, Left, Right
+    for(Cubie c : edges)  {
+      if(c.y == -axis) {
+        if(c.x == middle && c.z == -axis) topEdges[0] = c.colours[2] == yellow ? true : false;
+        if(c.x == middle && c.z == axis) topEdges[1] = c.colours[2] == yellow ? true : false;
+        if(c.x == -axis && c.z == middle) topEdges[2] = c.colours[2] == yellow ? true : false;
+        if(c.x == axis && c.z == middle) topEdges[3] = c.colours[2] == yellow ? true : false;
+      }
+    }
 
+    for(boolean b : topEdges) {
+      edgeCount += b ? 1 : 0;
+    }
+
+    // If all edges have yellow facing up - cross is done.
+    if(edgeCount == topEdges.length)  {
+      stage++;
+      println("Stage 4 - Yellow cross complete");
+      return;
+    }
+
+    // If all edges on top of cube don't have any yellow facing up
+    if(edgeCount == 0)  {
+      turns += "FRUR'U'F'";
+      return;
+    }
+
+    // If there is a line across top face, perform moves
+    if(topEdges[0] && topEdges[1])  {
+      turns += "UFRUR'U'F''";
+      return;
+    } else if (topEdges[2] && topEdges[3]) {
+      turns += "FRUR'U'F'";
+      return;
+    }
+    // Objective here is to move the L to top-right corner of cube
+    if(topEdges[0] && topEdges[3])  {
+      turns += "U'";
+      // If L symbol is back and left or front and right
+    } else if(topEdges[1] && topEdges[2]) {
+      turns += "U";
+    } else if(topEdges[1] && topEdges[3]){
+      turns += "UU";
+    }
+    turns +="FRUR'U'RUR'U'F'";
+  }
+
+  // Step 5
+  // Ensure top cross pattern correlates with neighboured face colours
+  void fixYellowCrossEdges()  {
+    
+    // Position green face to the front.
+    if(getFaceColour('F') != green) {
+      positionFace(green, 'F', 'Y');
+      return;
+    }
+    boolean perfectMatch = true;
+    Cubie[] topEdges = new Cubie[4];
+    color[] edgeCols = new color[4];
+    // Order - Front, Right, Back, Left
+    for(Cubie c : edges)  {
+      if(c.y == -axis) {
+        if(c.x == middle && c.z == axis)  {edgeCols[0] = c.colours[4]; topEdges[0] = c;}
+        if(c.x == axis && c.z == middle)  {edgeCols[1] = c.colours[0]; topEdges[1] = c;}
+        if(c.x == middle && c.z == -axis) {edgeCols[2] = c.colours[5]; topEdges[2] = c;}
+        if(c.x == -axis && c.z == middle) {edgeCols[3] = c.colours[1]; topEdges[3] = c;}
+      }
+    }
+    if(edgeCols[0] != green)  {
+      turns += "U";
+      return;
+    }
+    // Iterate through each colour in edgeCols and check if they're in the correct order
+    for(int i = 0; i < edgeCols.length; i++) {
+      if(edgeCols[i] == blue) {
+        // if col 3
+        if(i == edgeCols.length-1) {
+          if(edgeCols[0] != red  || edgeCols[1] != green) {perfectMatch = false;}
+        }
+        // if col 2
+        if(i == edgeCols.length-2) {
+          if(edgeCols[3] != red || edgeCols[0] != green) {perfectMatch = false;}
+        }
+        // if col 1
+        if(i == edgeCols.length-3)  {
+          if(edgeCols[2] != red || edgeCols[3] != green) {perfectMatch = false;}
+        }
+        if( i == 0) {
+          if(edgeCols[1] != red || edgeCols[2] != green) {perfectMatch = false;}
+        }
+      }
+    }
+    if(perfectMatch)  {
+      // Ensure orientation of top edges correlates with face colours.
+      for(int j = 0; j < edgeCols.length; j++) {
+      Cubie c = topEdges[j];
+        if(edgeCols[j] == green)  {
+          if(c.x == -axis && c.z == middle)     { 
+            turns += "U'";
+          } else if(c.x == axis && c.z == middle) { 
+            turns += "U";
+          } else if(c.x == middle & c.z == -axis) { 
+            turns += "UU";
+          }
+          stage++;
+          println("Stage 5 - Yellow cross edges positioned correctly");
+          return;
+        }
+      }
+    }
+  if(edgeCols[1] == red && edgeCols[2] != blue)  {
+    turns += "URUR'URUUR'U";
+  } else if(edgeCols[1] == red && edgeCols[2] == blue)  {
+    turns += "UURUR'URUUR'UUBUB'UBUUB'U";
+  } else if(edgeCols[1] == blue && edgeCols[2] == red) {
+    turns += "U'BUB'UBUUB''U";
+  } else if(edgeCols[1] == orange && edgeCols[2] != blue) {
+    turns += "FUF'UFUUF'U";
+  } else if(edgeCols[1] == blue && edgeCols[2] == orange) {
+    turns += "BUB'UBUUB''U";
+  } else if(edgeCols[1] == red && edgeCols[2] == orange)  {
+    turns += "URUR'URUUR'U";
+  }
+  }
+  // Step 6
   // get corners in correct position
+  void topCorners()  {
+    // if(!nextStep) return;
+    int correctlyAllocated = 0;
+    // Frontleft, backleft, backright, frontright
+    Cubie[] topCorners = new Cubie[4];
+    PVector from = new PVector();
+    for(Cubie c : corners)  {
+      if(c.y == -axis)  {
+        if(c.x == -axis && c.z == axis)  topCorners[0] = c;
+        if(c.x == -axis && c.z == -axis)  topCorners[1] = c;
+        if(c.x == axis && c.z == -axis)  topCorners[2] = c;
+        if(c.x == axis && c.z == axis)  topCorners[3] = c;
+      }
+    }
+    // Check if any of the corners are correctly oriented
+    // Green face should be at front from last step
+    if(topCornerInCorrectLocation('L', 'U', 'F', topCorners[0]))  {
+      // println("Top corner frontleft is correctly allocated");
+      correctlyAllocated++;
+    }
 
+    if(topCornerInCorrectLocation('L', 'U', 'B', topCorners[1]))  {
+      // println("Top corner backleft is correctly allocated");
+      correctlyAllocated++;
+      from = new PVector(topCorners[1].x, topCorners[1].y, topCorners[1].z);
+    }
+
+    if(topCornerInCorrectLocation('R', 'U', 'B', topCorners[2]))  {
+      // println("Top corner backright is correctly allocated");
+      correctlyAllocated++;
+      from = new PVector(topCorners[2].x, topCorners[2].y, topCorners[2].z);
+    }
+
+    if(topCornerInCorrectLocation('R', 'U', 'F', topCorners[3]))  {
+      // println("Top corner frontright is correctly allocated");
+      correctlyAllocated++;
+      from = new PVector(topCorners[3].x, topCorners[3].y, topCorners[3].z);
+    }
+    // If none are correctly positioned, perform moves to get at least one in correct position
+    if(correctlyAllocated == 0) {
+      turns += "URU'L'UR'U'L";
+      return;
+    }
+    // delay(2500);
+    if(correctlyAllocated == 4) {
+      println("Stage 6 - Corners correctly relocated");
+      stage++;
+      return;
+    }
+    nextStep = !nextStep;
+    // println("Number of corners correctly allocated: " + correctlyAllocated);
+    // Vector of top, right, front corner (Where we want the correctly positioned cubie to go)
+    PVector to = new PVector(axis, -axis, axis);
+    String temp = getDirectionOfCorners(from, to);
+    turns += temp;
+    turns += "URU'L'UR'U'L";
+    turns += reverseMoves(temp);
+  }
+
+  boolean topCornerInCorrectLocation(char f1, char f2, char f3, Cubie corner)  {
+
+    color c1 = getFaceColour(f1);
+    color c2 = getFaceColour(f2);
+    color c3 = getFaceColour(f3);
+
+    // if getFace doesn't return a face with a colour on, it's not on this corner
+    // Aka it's not in the correct corner location
+    if(corner.getFace(c1) == ' ') {return false;}
+    if(corner.getFace(c2) == ' ') {return false;}
+    if(corner.getFace(c3) == ' ') {return false;}
+    return true;
+
+  }
+  // Step 7
   // final rotations (OLL)
-
+  int cubiesTurned = 0;
+  void finalRotations() {
+    if(getFaceColour('D') != white) {
+      positionFace(white, 'D', 'X');
+      return;
+    }
+    Cubie[] topCorners = new Cubie[4];
+    for(Cubie c : corners)  {
+      if(c.y == -axis)  {
+        if(c.x == -axis && c.z == axis)  topCorners[0] = c;
+        if(c.x == -axis && c.z == -axis)  topCorners[1] = c;
+        if(c.x == axis && c.z == -axis)  topCorners[2] = c;
+        if(c.x == axis && c.z == axis)  topCorners[3] = c;
+      }
+    }
+    // If top, right, front corner is correctly oriented
+    if(correctlyOriented(topCorners[3]))  {
+      // If all 4 top corners have been turned
+      if(cubiesTurned == 4) {
+        // FINISHED SOLVING - THIS TOOK TOO LONG
+        println("Stage 7 - Orient top corners\nCube solved.");
+        stage++;
+        return;
+      } else {
+        // Rotate U face to move different corner to axis,axis,axis
+        turns += "U";
+        cubiesTurned++;
+        return;
+      }
+    } else {
+      // Perform necessary algorithms to solve cube
+      turns += "R'D'RDR'D'RD";
+    }
   
+}
+
+// Checks if upward facing colour is yellow - correctly oriented
+boolean correctlyOriented(Cubie c) {
+  return (c.colours[2] == yellow);
+}
+
 }

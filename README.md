@@ -46,10 +46,10 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
   - [x] Solve first layer's edges (White cross)
   - [x] Solve the first layer's corners (White face)
   - [x] Solve second layer of the cube (F2L)
-  - [ ] Create a yellow cross on top of the cube
-  - [ ] Swap yellow edges to match their partnered colours
-  - [ ] Position yellow corners
-  - [ ] Orient last layer corners
+  - [x] Create a yellow cross on top of the cube
+  - [x] Swap yellow edges to match their partnered colours
+  - [x] Position yellow corners
+  - [x] Orient last layer corners
   </details>
 
 <h3>Mandatory</h3>
@@ -128,19 +128,29 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 </table>
 
 <h3>Notation</h3>
+
 <table align="center">
-  <tr>
+<tr>
+  <td></td>
+  <td>Front</td>
+  <td>Right</td>
+  <td>Up</td>
+  <td>Left</td>
+  <td>Back</td>
+  <td>Down</td>
+  <td colspan="3">Entire cube rotation</td>
+  <tr align="center">
   <td>Normal moves</td>
     <td>F</td><td>R</td><td>U</td><td>L</td><td>B</td><td>D</td><td>X</td><td>Y</td><td>Z</td>
   </tr>
-  <tr>
+  <tr align="center">
     <td>Prime moves</td>
     <td>F'</td><td>R'</td><td>U'</td><td>L'</td><td>B'</td><td>D'</td><td>X'</td><td>Y'</td><td>Z'</td>
   </tr>
-  <tr>
+  <tr align="center">
   <td>Double moves</td>
     <td>F2</td><td>R2</td><td>U2</td><td>L2</td><td>B2</td>
-    <td colspan = "4">D2</td>
+    <td>D2</td><td colspan="3"></td>
   </tr>
 </table>
 
@@ -158,8 +168,8 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 I've spent countless hours learning to solve Rubik's cubes of various sizes using human methods. During the learning process, I discovered that after solving the 3x3x3 cube is that you don't have to learn much more to solve cubes of larger sizes. I find the idea of emulating this puzzle on a computer for a computer to solve extremely interesting. I'm hoping by applying local search and SAT algorithms, this project will become a good stepping stone to integrating an algorithm that calculates  the most efficient solve (if not close to) for a cube in a scrambled state - I will be determining the general success of these solving algorithms off god's number.
 
 ---
-
 <h2> Stages of creation</h2> <a name="stages"></a>
+<details> <summary>Creation</summary>
 <!--Stages 1 and 2-->
 <table align = "center">
   <tr>
@@ -263,13 +273,16 @@ I rethought the process in which colours were applied to each face of each cubie
 Finally, minor additions include an FPS counter, speed control and the size of the cube.
    </td>
   </tr>
-
   <tr>
-  <td>Will add gifs for each stage in the cube solving process in near future!</td>
-  </tr>
 </table>
+</details>
+
+<details><summary>Human Algorithm solving process</summary>
+Gifs coming soon.
+</details>
 
 ---
+
 <a name="issues"></a>
 <h2>Issues faced during project creation</h2>
 <details>
@@ -278,7 +291,6 @@ Standard 3x3x3 cubes have a recognised notation for each move but as the cubes g
 
 <br></br>
 </details>
-
 
 <details>
 <summary><b>2. Computing power issue<a name="computingpowerissue"></a></summary></b> 
@@ -374,6 +386,10 @@ The intention here is to use these references as a guide or inspiration for feat
 11. [Part 1 (First Layer Edges)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-1-first-layer-edges/)
 12. [Part 2 (First Layer Corners)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step-2-first-layer-corners/)
 13. [Part 3 (F2L - Second Layer)](https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/step3-second-layer-f2l/)
+14. Part 4 [(Yellow Cross)]()
+15. Part 5 [(Swap yellow edges)]()
+16. Part 6 [(Position yellow corners)]()
+17. Part 7 [(Orient last layer corners)]()
 
 <h5>Other</h5>
 
