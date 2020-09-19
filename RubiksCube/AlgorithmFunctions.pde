@@ -9,22 +9,20 @@ color white = color(255);
 color yellow = color(255, 255, 0);
 color green = color(0, 255, 0);
 color blue  = color(0, 0, 255);
+color defaultRGB = color(0);
 
 Cubie[] upperCorners = new Cubie[4];
 Cubie[] lowerCorners = new Cubie[4];
 Cubie[] upperEdges = new Cubie[4];
 Cubie[] lowerEdges = new Cubie[4];
 
-// Get the direction of where the cube is going to rotate.
-// E.g. L to F
+// Get the direction of where the cube is going to rotate. - E.g. L to F
 String getDirection(char fromFace, char toFace) {
   // Checks to see if faces are valid for a X rotation
   int fromIndex = XRotation.indexOf(fromFace);
   int toIndex = XRotation.indexOf(toFace);
 
-  // If fromIndex and toIndex have valid faces
   if (fromIndex != -1 && toIndex != -1) {
-    // print("Need to make x rotation\n");
     return foundRotation(fromIndex, toIndex, 'X');
   }
 
@@ -32,9 +30,7 @@ String getDirection(char fromFace, char toFace) {
   fromIndex = YRotation.indexOf(fromFace);
   toIndex = YRotation.indexOf(toFace);
 
-  // If fromIndex and toIndex have valid faces
   if (fromIndex != -1 && toIndex !=-1) {
-    // print("Need to make y rotation\n");
     return foundRotation(fromIndex, toIndex, 'Y');
   }
   // Checks to see if faces are valid for a Z rotation
@@ -42,18 +38,16 @@ String getDirection(char fromFace, char toFace) {
   toIndex = ZRotation.indexOf(toFace);
 
   if (fromIndex != -1 && toIndex != -1) {
-    // print("Need to make z rotation\n");
     return foundRotation(fromIndex, toIndex, 'Z');
   }
   return "";
 }
 
-// Finds out whether the rotation should be clockwise / anticlockwise
+// Determines whether the rotation should be clockwise / anticlockwise or 2 rotations
 String foundRotation(int fromIndex, int toIndex, char turnCharacter) {
   // E.g. L, F  = 1, 0
   String finalString = "";
   // If there are 2 of the same move
-  // Clockwise / Anticlockwise doesn't matter - end up in same place.
   if (abs(fromIndex - toIndex) == 2) {
     return "" + turnCharacter + turnCharacter;
   }
@@ -118,28 +112,16 @@ String getDirectionOfCorners(PVector from, PVector to)  {
       if(c.x == axis && c.z == -axis) lowerCorners[3] = c;
     }
   }
-  // println("Upper corners");
-  // for(Cubie c : upperCorners) {
-    // println(c.details());
-  // }
-  // println("Lower corners");
-  // for(Cubie c : lowerCorners) {
-    // println(c.details());
-  // }
 
   int fromIndex = getLocationOfCubie(upperCorners, from);
   int toIndex = getLocationOfCubie(upperCorners, to);
 
-  if(fromIndex >= 0 && toIndex >= 0) {
-    return foundRotation(fromIndex, toIndex, 'U');
-  }
+  if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'U');
 
   fromIndex = getLocationOfCubie(lowerCorners, from);
   toIndex = getLocationOfCubie(lowerCorners, to);
 
-  if(fromIndex >= 0 && toIndex >= 0) {
-    return foundRotation(fromIndex, toIndex, 'D');
-  }
+  if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'D');
 
   return "";
 }
@@ -162,21 +144,16 @@ String getDirectionOfEdges(PVector from, PVector to)  {
 
   int fromIndex = getLocationOfCubie(upperEdges, from);
   int toIndex = getLocationOfCubie(upperEdges, to);
-
-  if(fromIndex >= 0 && toIndex >= 0)  {
-    return foundRotation(fromIndex, toIndex, 'U');
-  }
+  if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'U');
 
   fromIndex = getLocationOfCubie(lowerEdges, from);
   toIndex = getLocationOfCubie(lowerEdges, to);
-  if(fromIndex >= 0 && toIndex >= 0)  {
-    return foundRotation(fromIndex, toIndex, 'D');
-  }
+  if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'D');
 
   return "";
 }
 
-// Returns the index with the matching values as location from corners arraylist
+// Returns the index with the matching values same as location from corners arraylist
 int getLocationOfCubie(Cubie[] cubies, PVector location)  {
   // println("Cubies length: " + cubies.length);
   // println("Location: " + location.x + " " + location.y + " " + location.z);

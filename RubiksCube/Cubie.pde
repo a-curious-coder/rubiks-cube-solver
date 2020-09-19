@@ -1,12 +1,10 @@
 import java.util.Arrays;
 class Cubie {
-  PMatrix3D matrix;  // Contains all information for each cubie of what is where
+  PMatrix3D matrix;
   float x = 0;
   float y = 0;
   float z = 0;
   color[] colours = new color[6];
-                //    0         1      2        3         4       5
-                //   Right    Left     Up      Down     Front    Back
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   color defaultRGB = color(0);
   color orange = color(255, 140, 0);
@@ -15,9 +13,7 @@ class Cubie {
   color yellow = color(255, 255, 0);
   color green = color(0, 255, 0);
   color blue  = color(0, 0, 255);
-
   int nCols = 0;
-
   Face[] faces = new Face[6];
 
   // create new cubie with 6 faces
@@ -29,23 +25,21 @@ class Cubie {
     // Sets colour for each face of the cube dependant on their position on the cube and whether certain faces are visible
     setColours();
     // Sets each face to their required colours
-    faces[0] = new Face(new PVector(1, 0, 0), colours[0]); // Orange
-    faces[1] = new Face(new PVector(-1, 0, 0), colours[1]); // Red
-    faces[2] = new Face(new PVector(0, -1, 0), colours[2]); // Yellow
-    faces[3] = new Face(new PVector(0, 1, 0), colours[3]); // White
-    faces[4] = new Face(new PVector(0, 0, 1), colours[4]); // Green
-    faces[5] = new Face(new PVector(0, 0, -1), colours[5]); // Blue
+    faces[0] = new Face(new PVector(1, 0, 0), colours[0]); // Orange / Right
+    faces[1] = new Face(new PVector(-1, 0, 0), colours[1]); // Red   / Left
+    faces[2] = new Face(new PVector(0, -1, 0), colours[2]); // Yellow / Up
+    faces[3] = new Face(new PVector(0, 1, 0), colours[3]); // White  / Down
+    faces[4] = new Face(new PVector(0, 0, 1), colours[4]); // Green  / Front
+    faces[5] = new Face(new PVector(0, 0, -1), colours[5]); // Blue   / Back
   }
 
   Cubie(){};
 
-  // Shows the cubie on screen
   void show() {
     noFill();
     stroke(0);
     strokeWeight(0.2 / dim);
-    // Push and Pop Matrix functions means that positioning one box/Cubie does not affect others.
-    push();  // Saves transformation states
+    push();
       applyMatrix(matrix);
       box(1);
       int i = 0;
@@ -57,7 +51,6 @@ class Cubie {
     pop();
   }
 
-  // updates the position of cubie
   void update(float x, float y, float z) {
     matrix.reset();
     matrix.translate(x, y, z);
@@ -77,9 +70,7 @@ class Cubie {
     return copy;
   }
 
-  // Initialises the appropriate colours for each cubie in the cube.
   void setColours() {
-    // variable[i] = IF x == value THEN color(a) ELSE color(b)
     colours[0] = x ==  axis  ?  orange : defaultRGB;   // Orange
     colours[1] = x == -axis  ?  red    : defaultRGB;    // Red
     colours[2] = y == -axis  ?  yellow : defaultRGB;  // Yellow
@@ -97,10 +88,9 @@ class Cubie {
     }
   }
 
-  // For X, Y, Z rotations
+  // Responsible for changing where colours are on each cubie ready for repositioning on cube.
   void turn(char axisFace, int dir) {
-    //assume always clockwise
-    // print("--------- TURN FUNCTION ---------\n");
+
     color[] newColours = colours.clone();
     if (dir == 1) {
       turn(axisFace, -1); 
@@ -112,7 +102,7 @@ class Cubie {
       turn(axisFace, -1);
       return;
     }
-    // Swaps colours based on which axis the cube is rotating
+
     switch(axisFace) {
     case 'X':
       newColours[2] = colours[4]; // U becomes F
@@ -137,25 +127,19 @@ class Cubie {
     colours = newColours.clone();
   }
 
-  // Return char of face with color c
   char getFace(color c) {
-    // for every colour
     for (int i = 0; i < colours.length; i++) {
-      // if colour[i] is the same as c
       if (colours[i] == c) {
         String faces = "RLUDFB";
-        // print("The " + cols[i] + " face is " + faces.charAt(i) + "\n");
-        // return the char which should be in the same index in the string as it is in colours array
         return faces.charAt(i);
       }
     }
     return  ' ';
   }
 
+  // Returns the colour of this cubie's face
   color getFaceColour() {
-    // for every colour
     for (color c : colours) {
-      // if c is not the default color
       if (c != defaultRGB) {
         return c;
       }
@@ -163,18 +147,16 @@ class Cubie {
     return defaultRGB;
   }
 
-  // Checks if two colours are the same
+  // Checks if two colours match
   boolean matchesColours(color[] cols) {
     if (nCols != cols.length) {
       return false;
     }
-
     for (color c : cols) {
       boolean foundMatch = false;
       for (color b : colours) {
         if (b == c) {
           foundMatch = true;
-          // print(colToString(c) + " is the same as " + colToString(colours[j]) + "\n");
           break;
         }
       }
@@ -183,6 +165,7 @@ class Cubie {
     return true;
   }
 
+  // Cubie details - for debugging
   String details()  {
     return "\t" + x + "\t" + y + "\t" + z + "\t"
                     + colToString(colours[0]) + "\t"
@@ -194,16 +177,31 @@ class Cubie {
                     
   }
 
+  color getRight() {
+    return colours[0];
+  }
+  color getLeft()  {
+    return colours[1];
+  }
+  color getTop()  {
+    return colours[2];
+  }
+  color getDown()  {
+    return colours[3];
+  }
+  color getFront()  {
+    return colours[4];
+  }
+  color getBack()  {
+    return colours[5];
+  }
+
   @Override
   boolean equals(final Object other)  {
-    // Checks if other is not a Cubie
     if(!(other instanceof Cubie)) {
           return false;
         }
-    // Cast other into a cubie
     Cubie c = (Cubie) other;
-    // Returns true if Cubie c colours are equal to this.colours
-    // Compares colours and their orders
     return c.x == this.x && c.y == this.y && c.z == this.z && Arrays.equals(colours, c.colours);
   }
 

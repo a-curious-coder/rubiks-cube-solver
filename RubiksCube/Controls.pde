@@ -41,7 +41,7 @@ void keyPressed() {
     speed -= 0.0010;
     break;
   case 'i':
-    speed = 10000;
+    speed = 10;
     break;
   case '6':
     println("Testing moves X");
@@ -59,6 +59,9 @@ void keyPressed() {
     for(Cubie c : centers)  {
       println(c.details());
     }
+  case 'q':
+    println("Cube solved: " + cube.evaluateCube());
+    break;
   case 'o':
     speed = 0.01;
     break;
@@ -83,8 +86,6 @@ void keyPressed() {
     applyMove(key);
     break;
   }
-
-  //print(key + "\n");
 }
 
 // R L on X

@@ -8,6 +8,7 @@ class HumanAlgorithm {
   int completedEdges = 0;
   boolean nextStep = false;
   boolean isLargerCube = false;
+  boolean solved = false;
 
   HumanAlgorithm(Cube cube) {
     setColours();
@@ -44,11 +45,21 @@ class HumanAlgorithm {
         finalRotations();
         break;
       case 7:
-        // print timer
-        // print number of moves
-        // pause after finished
-        // reset cube
-        // rotate cube?
+        // TODO: Evaluate whether cube is actually solved or not.
+        if(cube.evaluateCube()) {
+          solved = true;
+          resetHumanAlgorithm();
+          println("Rubik's cube is solved in " + counter + " moves.");
+          counterReset = true;
+        } else {
+          println("Something went wrong during solve - try solving again.");
+        }
+        
+        // TODO: print timer
+        // TODO: print number of moves
+        // TODO: pause after finished
+        // TODO: rotate cube?
+        break;
       }
     }
   }
@@ -56,19 +67,13 @@ class HumanAlgorithm {
   // Step 1
   // Solves the white cross on the cube.
   void whiteCross() {
-    // If the D face does not have a white center
     if (!(getFaceColour('D') == white)) {
-      // Positions the white center piece to the Downward face
       positionFace(white, 'D', 'X');
-      println(turns);
       return;
-    } else {
-      // println("White center cubie is on D face");
     }
-    // if there are turns left to make, return to start this function again.
+
     if (turns.length() != 0)  return;
     positionWhiteCrossEdge(red);
-    // Checks if the turns are empty, if not the edge hasn't finished moving so return.
     if (turns.length() != 0)  return;
     positionWhiteCrossEdge(orange);
     if (turns.length() != 0)  return;
@@ -81,7 +86,6 @@ class HumanAlgorithm {
     }
   }
 
-  // Positions an edge with white and color c in the (hopefully) correct place.
   void positionWhiteCrossEdge (color c) {
     color[] colours = {c, white};
     Cubie edge = findCenterEdge(colours);
@@ -187,7 +191,6 @@ class HumanAlgorithm {
     }
   }
 
-  // Positions 'face' with colour 'c' toward 'dir'
   void positionFace (color c, char face, char dir) {
 
     String faces = "RLUDFB";
@@ -239,7 +242,6 @@ class HumanAlgorithm {
     turns += temp;
   }
 
-  // Returns the edge piece with the same colours as cubieColours
   Cubie findCenterEdge(color[] cubieColours) {
     for (int i = 0; i < edges.size(); i++) {
       if (edges.get(i).matchesColours(cubieColours)) {
@@ -250,7 +252,6 @@ class HumanAlgorithm {
     return null;
   }
 
-  // Returns the colours of the labelled faces
   color getFaceColour(char f) {
 
     int middle = dim / 2;
@@ -350,7 +351,6 @@ class HumanAlgorithm {
     stage++;
   }
   
-  // Positions corners at the bottom not affecting the cross from previous step
   void positionBottomCorner(color c1, color c2) {
     // c1 is left of c2 when white is in correct position on cube.
     color[] cornerCols = {c1, c2, white};
@@ -609,19 +609,19 @@ class HumanAlgorithm {
         }
       }
     }
-  if(edgeCols[1] == red && edgeCols[2] != blue)  {
-    turns += "URUR'URUUR'U";
-  } else if(edgeCols[1] == red && edgeCols[2] == blue)  {
-    turns += "UURUR'URUUR'UUBUB'UBUUB'U";
-  } else if(edgeCols[1] == blue && edgeCols[2] == red) {
-    turns += "U'BUB'UBUUB''U";
-  } else if(edgeCols[1] == orange && edgeCols[2] != blue) {
-    turns += "FUF'UFUUF'U";
-  } else if(edgeCols[1] == blue && edgeCols[2] == orange) {
-    turns += "BUB'UBUUB''U";
-  } else if(edgeCols[1] == red && edgeCols[2] == orange)  {
-    turns += "URUR'URUUR'U";
-  }
+    if(edgeCols[1] == red && edgeCols[2] != blue)  {
+      turns += "URUR'URUUR'U";
+    } else if(edgeCols[1] == red && edgeCols[2] == blue)  {
+      turns += "UURUR'URUUR'UUBUB'UBUUB'U";
+    } else if(edgeCols[1] == blue && edgeCols[2] == red) {
+      turns += "U'BUB'UBUUB''U";
+    } else if(edgeCols[1] == orange && edgeCols[2] != blue) {
+      turns += "FUF'UFUUF'U";
+    } else if(edgeCols[1] == blue && edgeCols[2] == orange) {
+      turns += "BUB'UBUUB''U";
+    } else if(edgeCols[1] == red && edgeCols[2] == orange)  {
+      turns += "URUR'URUUR'U";
+    }
   }
   // Step 6
   // get corners in correct position
@@ -734,11 +734,19 @@ class HumanAlgorithm {
       turns += "R'D'RDR'D'RD";
     }
   
-}
+  }
 
-// Checks if upward facing colour is yellow - correctly oriented
-boolean correctlyOriented(Cubie c) {
-  return (c.colours[2] == yellow);
-}
+  // Checks if upward facing colour is yellow - correctly oriented
+  boolean correctlyOriented(Cubie c) {
+    return (c.colours[2] == yellow);
+  }
+
+  void resetHumanAlgorithm()  {
+    cubiesTurned = 0;
+    completedCorners = 0;
+    completedEdges = 0;
+    stage = 0;
+    solve = !solve;      
+  }
 
 }
