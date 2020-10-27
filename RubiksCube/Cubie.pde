@@ -37,7 +37,8 @@ class Cubie {
 
   void show() {
     noFill();
-    stroke(0);
+    // stroke(1200);
+    noStroke();
     strokeWeight(0.2 / dim);
     push();
       applyMatrix(matrix);
@@ -203,6 +204,14 @@ class Cubie {
         }
     Cubie c = (Cubie) other;
     return c.x == this.x && c.y == this.y && c.z == this.z && Arrays.equals(colours, c.colours);
+  }
+
+  boolean sameColoursAs(final Object other) {
+    if(!(other instanceof Cubie)) {
+      return false;
+    }
+    Cubie c = (Cubie) other;
+    return Arrays.equals(colours, c.colours);
   }
 
 }

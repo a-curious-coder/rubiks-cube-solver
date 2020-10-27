@@ -4,6 +4,7 @@ class Cube {
   ArrayList<ArrayList<Cubie>> cubieLists;
   ArrayList<Cubie> rotatingCubies;
   HumanAlgorithm hAlgorithm;
+  LocalSearch lsAlgorithm;
   int len;
   char currentAxis;
   int currentDirection;
@@ -39,6 +40,54 @@ class Cube {
       }
     }
     hAlgorithm = new HumanAlgorithm(this);
+    lsAlgorithm = new LocalSearch(this);
+  }
+
+  Cube clone () {
+    Cube copy = new Cube();
+    for(int i = 0; i < cube.length; i++) {
+      copy.cube[i] = this.cube[i];
+    }
+    return copy;
+  }
+
+  Cube testMoves(String moves, Cube cube) {
+    int dir = 1;
+
+    for(int i = 0; i < moves.length(); i++) {
+      char move = moves.charAt(0);
+      moves = moves.substring(1, moves.length());
+      
+      if(moves.length() != 0 && moves.charAt(0) == '\'') {
+        moves = moves.substring(1, moves.length());
+        dir = -1;
+      } else if(moves.length() != 0 && moves.charAt(0) == '2') {
+        moves = moves.substring(2, moves.length());
+        dir = 2;
+      }
+
+      switch(move) {
+        case 'L':
+          cube.turn('X', axis, dir);
+          break;
+        case 'R':
+          cube.turn('X', -axis, dir);
+          break;
+        case 'U':
+          cube.turn('Y', -axis, dir);
+          break;
+        case 'D':
+          cube.turn('Y', axis, dir);
+          break;
+        case 'F':
+          cube.turn('Z', axis, dir);
+          break;
+        case 'B':
+          cube.turn('Z', -axis, dir);
+          break;
+      }
+    }
+    return cube;
   }
 
   // Shows cube to screen

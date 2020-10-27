@@ -1,17 +1,30 @@
 void keyPressed() {
+  keyPress = key;
+  if(choosing)  {
+    println("choosing");
+    switch(key) {
+      case 1: 
+        filler = color(255);
+        choosing = false;
+        break;
+    }
+  } else {
   switch(key) {
   case 't':
     cube.hAlgorithm.nextStep = true;
     break;
   case 'h':
-    hud = true;
+    hud = !hud;
     break;
   case 's':
     if(bigTroll()) break;
     cube.scrambleCube();
     break;
   case '0':
-    solve = true;
+    hSolve = true;
+    break;
+  case ']':
+    lsSolve = !lsSolve;
     break;
   case '1':
     cube.rScrambleCube();
@@ -73,7 +86,9 @@ void keyPressed() {
     resetCube();
     break;
   case 'e':  
-    dim--;
+    if(dim > 1) {
+      dim--;
+    }
     resetCube();
     break;
   default: 
@@ -86,6 +101,7 @@ void keyPressed() {
     applyMove(key);
     break;
   }
+  }
 }
 
 // R L on X
@@ -94,34 +110,22 @@ void keyPressed() {
 void makeAMove(String move) {
   switch(move) {
   case "R2":
-    // cube.turn('X', axis, 2);
-    cube.turn('X', axis, 1);
-    cube.turn('X', axis, 1);
+    cube.turn('X', axis, 2);
     break;
   case "L2":
-    // cube.turn('X', -axis, 2);
-    cube.turn('X', -axis, 1);
-    cube.turn('X', -axis, 1);
+    cube.turn('X', -axis, 2);
     break;
   case "D2":
-    // cube.turn('Y', axis, 2);
-    cube.turn('Y', axis, 1);
-    cube.turn('Y', axis, 1);
+    cube.turn('Y', axis, 2);
     break;
   case "U2":
-    // cube.turn('Y', -axis, 2);
-    cube.turn('Y', -axis, 1);
-    cube.turn('Y', -axis, 1);
+    cube.turn('Y', -axis, 2);
     break;
   case "F2":
-    // cube.turn('Z', axis, 2);
-    cube.turn('Z', axis, 1);
-    cube.turn('Z', axis, 1);
+    cube.turn('Z', axis, 2);
     break;
   case "B2":
-    // cube.turn('Z', -axis, 2);
-    cube.turn('Z', -axis, 1);
-    cube.turn('Z', -axis, 1);
+    cube.turn('Z', -axis, 2);
     break;
   case "R":
     cube.turn('X', axis, 1);

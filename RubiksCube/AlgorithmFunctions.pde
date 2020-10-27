@@ -53,14 +53,12 @@ String foundRotation(int fromIndex, int toIndex, char turnCharacter) {
   }
   
   if (fromIndex <= toIndex) {
-    // adds the turnCharacters as they came, clockwise rotations
     for (int i = fromIndex; i < toIndex; i++) { 
-      finalString += turnCharacter;
+      finalString += turnCharacter + "\'";
     }
   } else {
-    // Changes the moves to anticlockwise rotations
     for (int i = toIndex; i < fromIndex; i++) { 
-      finalString += turnCharacter + "\'";
+      finalString += turnCharacter;
     }
   }
   return finalString;
@@ -70,7 +68,7 @@ String getTurns(char fromFace, char toFace, int index) {
   int fromIndex = XRotation.indexOf(fromFace);
   int toIndex = XRotation.indexOf(toFace);
   if (fromIndex != -1 && toIndex !=-1) {
-    if (index ==0) {
+    if (index == 0) {
       return foundRotation(fromIndex, toIndex, 'L');
     } else {
       return foundRotation(fromIndex, toIndex, 'R');
@@ -101,6 +99,7 @@ String getDirectionOfCorners(PVector from, PVector to)  {
 
   for(Cubie c : corners)  {
     if(c.y == -axis)  {
+      // Back left, front left, front right, back right
       if(c.x == -axis && c.z == -axis) upperCorners[0] = c;
       if(c.x == -axis && c.z == axis) upperCorners[1] = c;
       if(c.x == axis && c.z == axis)  upperCorners[2] = c;
@@ -116,12 +115,12 @@ String getDirectionOfCorners(PVector from, PVector to)  {
   int fromIndex = getLocationOfCubie(upperCorners, from);
   int toIndex = getLocationOfCubie(upperCorners, to);
 
-  if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'U');
+  if(fromIndex >= 0 && toIndex >= 0)  {return foundRotation(fromIndex, toIndex, 'U');}
 
   fromIndex = getLocationOfCubie(lowerCorners, from);
   toIndex = getLocationOfCubie(lowerCorners, to);
 
-  if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'D');
+  if(fromIndex >= 0 && toIndex >= 0)  {return foundRotation(fromIndex, toIndex, 'D');}
 
   return "";
 }
@@ -153,6 +152,117 @@ String getDirectionOfEdges(PVector from, PVector to)  {
   return "";
 }
 
+color getFaceColour(char f) {
+
+    int middle = dim / 2;
+    int last = dim - 1;
+    int index = 0;
+    color colour = color(0);
+
+
+    switch(f) {
+    case 'U':
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.y == -axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      return colour;
+    case 'D':
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.y == axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
+    case 'R':
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.x == axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
+    case 'L':
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.x == -axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
+    case 'B':
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.z == -axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
+    case 'F':
+      for(Cubie c : centers)  {
+        // Finding center cubie located on U face
+        if(c.z == axis)  {
+          for(color col : c.colours)  {
+            // if colour is not black (only other colour can be the face's current colour)
+            colour = col != color(0) ? col : colour;
+          }
+        }
+      }
+      
+      return colour;
+    }
+    return color(0);
+  }
+
+void positionFace (color c, char face, char dir) {
+
+    String faces = "RLUDFB";
+    char fromFace = 'F';
+    // checks every face for match with colour c
+    // print("---- positionFace ----\n");
+    for (int i = 0; i < faces.length(); i++) {
+      // Locates the face of the cube that has the same colour as colour 'c' on the edge.
+      if (getFaceColour(faces.charAt(i)) == c) {
+        // print("The face with " + colToString(c) + " is located on the " + faces.charAt(i) + " face\n");
+        // fromFace holds the face containing the same colour as c
+        fromFace = faces.charAt(i);
+        // println("Face we're looking for: " + colToString(getFaceColour(fromFace)));
+        break;
+      }
+    }
+
+    String temp = getDirection(fromFace, face);
+    // if temp has 2 moves AND they're the same move then
+    if (temp.length() == 2 && temp.charAt(0) == temp.charAt(1)) {
+      // temp gets renewed with dir * 2
+      temp = "" + dir + dir;
+    }
+    // Adds the temp moves to turns
+    turns += temp;
+  }
+  
 // Returns the index with the matching values same as location from corners arraylist
 int getLocationOfCubie(Cubie[] cubies, PVector location)  {
   // println("Cubies length: " + cubies.length);

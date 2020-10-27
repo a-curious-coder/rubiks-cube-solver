@@ -17,11 +17,13 @@ class HumanAlgorithm {
   }
 
   void solveCube() {
+    if(lsSolve) {
+      println("Shouldn't be here (HumanAlgorithm)" + hSolve);
+    }
     if (isLargerCube) {
       print("Larger cube solving coming soon...");
     }
     if (!isLargerCube) {
-
       switch(stage) {
       case 0:
         whiteCross();
@@ -191,33 +193,6 @@ class HumanAlgorithm {
     }
   }
 
-  void positionFace (color c, char face, char dir) {
-
-    String faces = "RLUDFB";
-    char fromFace = 'F';
-    // checks every face for match with colour c
-    // print("---- positionFace ----\n");
-    for (int i = 0; i < faces.length(); i++) {
-      // Locates the face of the cube that has the same colour as colour 'c' on the edge.
-      if (getFaceColour(faces.charAt(i)) == c) {
-        // print("The face with " + colToString(c) + " is located on the " + faces.charAt(i) + " face\n");
-        // fromFace holds the face containing the same colour as c
-        fromFace = faces.charAt(i);
-        // println("Face we're looking for: " + colToString(getFaceColour(fromFace)));
-        break;
-      }
-    }
-
-    String temp = getDirection(fromFace, face);
-    // if temp has 2 moves AND they're the same move then
-    if (temp.length() == 2 && temp.charAt(0) == temp.charAt(1)) {
-      // temp gets renewed with dir * 2
-      temp = "" + dir + dir;
-    }
-    // Adds the temp moves to turns
-    turns += temp;
-  }
-
   // Replaces two of the same move with dir.
   String replaceDoubles(String temp, char dir) {
     // If temp has two moves and they're the same
@@ -252,93 +227,10 @@ class HumanAlgorithm {
     return null;
   }
 
-  color getFaceColour(char f) {
-
-    int middle = dim / 2;
-    int last = dim - 1;
-    int index = 0;
-    color colour = color(0);
-
-
-    switch(f) {
-    case 'U':
-      for(Cubie c : centers)  {
-        // Finding center cubie located on U face
-        if(c.y == -axis)  {
-          for(color col : c.colours)  {
-            // if colour is not black (only other colour can be the face's current colour)
-            colour = col != color(0) ? col : colour;
-          }
-        }
-      }
-      return colour;
-    case 'D':
-      for(Cubie c : centers)  {
-        // Finding center cubie located on U face
-        if(c.y == axis)  {
-          for(color col : c.colours)  {
-            // if colour is not black (only other colour can be the face's current colour)
-            colour = col != color(0) ? col : colour;
-          }
-        }
-      }
-      
-      return colour;
-    case 'R':
-      for(Cubie c : centers)  {
-        // Finding center cubie located on U face
-        if(c.x == axis)  {
-          for(color col : c.colours)  {
-            // if colour is not black (only other colour can be the face's current colour)
-            colour = col != color(0) ? col : colour;
-          }
-        }
-      }
-      
-      return colour;
-    case 'L':
-      for(Cubie c : centers)  {
-        // Finding center cubie located on U face
-        if(c.x == -axis)  {
-          for(color col : c.colours)  {
-            // if colour is not black (only other colour can be the face's current colour)
-            colour = col != color(0) ? col : colour;
-          }
-        }
-      }
-      
-      return colour;
-    case 'B':
-      for(Cubie c : centers)  {
-        // Finding center cubie located on U face
-        if(c.z == -axis)  {
-          for(color col : c.colours)  {
-            // if colour is not black (only other colour can be the face's current colour)
-            colour = col != color(0) ? col : colour;
-          }
-        }
-      }
-      
-      return colour;
-    case 'F':
-      for(Cubie c : centers)  {
-        // Finding center cubie located on U face
-        if(c.z == axis)  {
-          for(color col : c.colours)  {
-            // if colour is not black (only other colour can be the face's current colour)
-            colour = col != color(0) ? col : colour;
-          }
-        }
-      }
-      
-      return colour;
-    }
-    return color(0);
-  }
-
   // Step 2
   // Bottom corner function 
   void bottomCorners()  {
+    // if(completedCorners == 0) println("Entering stage 2");
     color[][] corners = {{red, green}, {green, orange}, {orange, blue}, {blue, red}};
     // if(!nextCorner) return;
       
@@ -393,6 +285,7 @@ class HumanAlgorithm {
         turns += temp;
         turns += "RUR'";
         turns += reverseMoves(temp);
+        // println(turns);
       }
     }
     
@@ -402,7 +295,6 @@ class HumanAlgorithm {
   Cubie findCorner(color[] cubieColours)  {
     for(Cubie c : corners)  {
       if(c.matchesColours(cubieColours))  {
-        // println("Found corner");
         return c;
       }
     }
@@ -421,7 +313,7 @@ class HumanAlgorithm {
       }
       completedEdges++;
     }
-    println("Stage 3 - middle edges correctly positioned");
+    println("Stage 3 - Middle edges correctly positioned");
     stage++;
   }
 
@@ -746,7 +638,7 @@ class HumanAlgorithm {
     completedCorners = 0;
     completedEdges = 0;
     stage = 0;
-    solve = !solve;      
+    hSolve = !hSolve;      
   }
 
 }

@@ -1,3 +1,6 @@
 {
-    "files.autoSave": "onWindowChange"
+    "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
+    "files.autoSave": "onWindowChange",
+    "python.pythonPath": "c:\\Windows\\py.exe"
 }

@@ -36,12 +36,15 @@ class Face {
 
   void show() {
     push();
-      noStroke();
+      // noStroke();
+      stroke(dim*dim*12);
       rectMode(CENTER);
       translate(0.5*normal.x, 0.5*normal.y, 0.5*normal.z);
       rotate(HALF_PI, normal.y, normal.x, normal.z);
       fill(c);
       rect(0,0,faceWidth, faceHeight, radius, radius, radius, radius);
+      // fill(0);
+      // text("i", 0, 0);
     pop();
   }
 

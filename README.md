@@ -15,7 +15,7 @@
 5. [Stages of creation.](#stages)
 6. [Issues faced during project creation.](#issues)
 7. [How to use the program (Under construction)](#howtouse)
-7. [References.](#references)
+8. [Log Book](#logbook)
 
 ---
 
@@ -361,6 +361,13 @@ The current issue right now is that the move functions is only functioning with 
 Gonna write this section later on in development as most of the current controls are defined with no reasoning really.
 
 ---
+<h2>Log Book</h2>
+I've decided to put my logbook into a separate pdf.
+PDF is located [here.](./LogBook/logbook.pdf)
+---
+
+---
+
 <h2> References <a name="references"></a></h2>
 
 The intention here is to use these references as a guide or inspiration for features, ideas or conventions to apply my own Rubik's Cube Solver. 
