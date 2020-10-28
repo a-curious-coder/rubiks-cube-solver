@@ -1,4 +1,5 @@
-\documentclass[10pt]{article} % Font and size
+\documentclass[12pt]{report} % Font and size
+    \usepackage{times}
 \usepackage[margin=0.75in]{geometry} % Margin size
 \usepackage[english]{babel} % Language
 \usepackage{graphicx} % Include images with this library
@@ -10,6 +11,7 @@
 \usepackage{multirow}
 
 \begin{document}
+\input{frontpage.tex}
 \centering
 \section*{Rubik's Cube Solver - Logbook}
 \begin{table}[!ht]
@@ -73,6 +75,16 @@
     Remove X,Y,Z rotations from counting as scramble/solve ,, \newline moves since they don't modify the cube's scramble state
     Start working on human solving algorithm after these jobs are complete.
     \\ \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{
+        |>{\centering\arraybackslash}p{0.1\linewidth}
+        |p{0.8\linewidth}|}
+    \hline
+    \textbf{Date} & \textbf{Description} \\ \hline
     % Entry 8
     09/09/2020  &
     Catered the turning functions for all cube sizes. \newline
@@ -84,16 +96,6 @@
     Fix cubie colour change problem that occurs for unknown reason  \newline
     Clean up code to be more conventional. Upon further research, I've realised I probably went a bit overkill with the comments
     \\ \hline
-    \end{tabular}
-\end{table}
-
-\begin{table}[!ht]
-    \centering
-    \begin{tabular}{
-        |>{\centering\arraybackslash}p{0.1\linewidth}
-        |p{0.8\linewidth}|}
-    \hline
-    \textbf{Date} & \textbf{Description} \\ \hline
     % Entry 9
     12/09/2020  &
     Updates to human algorithm function - Solves white cross on cube.   \newline
@@ -144,4 +146,17 @@
     \end{tabular}
 \end{table}
 
+\begin{table}
+    \centering
+    \begin{tabular}{
+        |>{\centering\arraybackslash}p{0.1\linewidth}
+        |p{0.8\linewidth}|}
+    \hline
+    \textbf{Date} & \textbf{Description} \\ \hline
+    28/10/2020  &
+    On the hunt for what's causing the cube to randomly change scramble states. I suspect it could be applying the "solution" it comes up with straight away then applying it again with animations? I'm unsure as of yet as further research is required.\newline
+    I'm also working on trying to clean up the code to make it more logical and easy to follow.
+    \\ \hline
+    \end{tabular}
+\end{table}
 \end{document}

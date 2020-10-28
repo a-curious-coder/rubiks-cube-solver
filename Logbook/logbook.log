@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.26)  27 OCT 2020 15:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.10.26)  28 OCT 2020 12:24
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -6,22 +6,25 @@ entering extended mode
 **/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.tex
 (/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.tex
 LaTeX2e <2020-10-01> patch level 1
-L3 programming layer <2020-10-05> xparse <2020-03-03> (/usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2020/04/10 v1.4m Standard LaTeX document class
-(/usr/local/texlive/2020/texmf-dist/tex/latex/base/size10.clo
-File: size10.clo 2020/04/10 v1.4m Standard LaTeX file (size option)
+L3 programming layer <2020-10-05> xparse <2020-03-03> (/usr/local/texlive/2020/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2020/04/10 v1.4m Standard LaTeX document class
+(/usr/local/texlive/2020/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2020/04/10 v1.4m Standard LaTeX file (size option)
 )
 \c@part=\count175
-\c@section=\count176
-\c@subsection=\count177
-\c@subsubsection=\count178
-\c@paragraph=\count179
-\c@subparagraph=\count180
-\c@figure=\count181
-\c@table=\count182
+\c@chapter=\count176
+\c@section=\count177
+\c@subsection=\count178
+\c@subsubsection=\count179
+\c@paragraph=\count180
+\c@subparagraph=\count181
+\c@figure=\count182
+\c@table=\count183
 \abovecaptionskip=\skip47
 \belowcaptionskip=\skip48
 \bibindent=\dimen138
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/times.sty
+Package: times 2020/03/25 PSNFSS-v9.3 (SPQR) 
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
  (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/keyval.sty
@@ -32,9 +35,9 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
  (/usr/local/texlive/2020/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2020/03/06 v1.0d TeX engine tests
 ))
-\Gm@cnth=\count183
-\Gm@cntv=\count184
-\c@Gm@tempcnt=\count185
+\Gm@cnth=\count184
+\Gm@cntv=\count185
+\c@Gm@tempcnt=\count186
 \Gm@bindingoffset=\dimen139
 \Gm@wd@mp=\dimen140
 \Gm@odd@mp=\dimen141
@@ -48,13 +51,13 @@ Package: iftex 2020/03/06 v1.0d TeX engine tests
 Package: babel 2020/10/06 3.50 The Babel package
  (/usr/local/texlive/2020/texmf-dist/tex/generic/babel/babel.def
 File: babel.def 2020/10/06 3.50 Babel common definitions
-\babel@savecnt=\count186
+\babel@savecnt=\count187
 \U@D=\dimen147
 \l@babelnohyphens=\language86
  (/usr/local/texlive/2020/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@readstream=\read2
 )
-\bbl@dirlevel=\count187
+\bbl@dirlevel=\count188
  (/usr/local/texlive/2020/texmf-dist/tex/generic/babel-english/english.ldf
 Language: english 2017/06/06 v3.3r English support from the babel system
 Package babel Info: \l@canadian = using hyphenrules for english
@@ -86,7 +89,7 @@ Package: xkeyval 2014/12/03 v2.7a package option processing (HA)
 \XKV@toks=\toks17
 \XKV@tempa@toks=\toks18
 )
-\XKV@depth=\count188
+\XKV@depth=\count189
 File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
 )) (/usr/local/texlive/2020/texmf-dist/tex/latex/adjustbox/adjcalc.sty
 Package: adjcalc 2012/05/16 v1.1 Provides advanced setlength with multiple back-ends (calc, etex, pgfmath)
@@ -114,11 +117,11 @@ File: tc-pdftex.def 2019/01/04 v2.2 Clipping driver for pdftex
 \adjbox@ptotalheight=\dimen161
  (/usr/local/texlive/2020/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
 Package: ifoddpage 2016/04/23 v1.1 Conditionals for odd/even page detection
-\c@checkoddpage=\count189
+\c@checkoddpage=\count190
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/varwidth/varwidth.sty
 Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
 \@vwid@box=\box48
-\sift@deathcycles=\count190
+\sift@deathcycles=\count191
 \@vwid@loff=\dimen162
 \@vwid@roff=\dimen163
 )) (/usr/local/texlive/2020/texmf-dist/tex/latex/caption/subcaption.sty
@@ -136,15 +139,15 @@ Package: caption3 2020/09/17 v2.1b caption3 kernel (AR)
 \caption@hangindent=\dimen170
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count191
-\c@continuedfloat=\count192
+\c@caption@flags=\count192
+\c@continuedfloat=\count193
 )
-\c@subfigure=\count193
-\c@subtable=\count194
+\c@subfigure=\count194
+\c@subtable=\count195
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/wrapfig/wrapfig.sty
 \wrapoverhang=\dimen171
 \WF@size=\dimen172
-\c@WF@wrappedlines=\count195
+\c@WF@wrappedlines=\count196
 \WF@box=\box49
 \WF@everypar=\toks19
 Package: wrapfig 2003/01/31  v 3.6
@@ -160,30 +163,34 @@ Package: array 2020/10/01 v2.5c Tabular extension package (FMi)
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/multirow/multirow.sty
 Package: multirow 2019/05/31 v2.5 Span multiple rows of a table
 \multirow@colwidth=\skip51
-\multirow@cntb=\count196
+\multirow@cntb=\count197
 \multirow@dima=\skip52
 \bigstrutjot=\dimen175
+)
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 13.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2020-09-24 L3 backend support: PDF output (pdfTeX)
-\l__kernel_color_stack_int=\count197
+\l__kernel_color_stack_int=\count198
 \l__pdf_internal_box=\box52
 ) (/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.aux)
 \openout1 = `logbook.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -204,12 +211,12 @@ LaTeX Font Info:    ... okay on input line 12.
 * \topmargin=-55.06749pt
 * \headheight=12.0pt
 * \headsep=25.0pt
-* \topskip=10.0pt
+* \topskip=12.0pt
 * \footskip=30.0pt
-* \marginparwidth=65.0pt
-* \marginparsep=11.0pt
+* \marginparwidth=44.0pt
+* \marginparsep=10.0pt
 * \columnsep=10.0pt
-* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
 * \hoffset=0.0pt
 * \voffset=0.0pt
 * \mag=1000
@@ -221,16 +228,16 @@ LaTeX Font Info:    ... okay on input line 12.
 
 (/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count198
+\scratchcounter=\count199
 \scratchdimen=\dimen176
 \scratchbox=\box53
-\nofMPsegments=\count199
-\nofMParguments=\count266
+\nofMPsegments=\count266
+\nofMParguments=\count267
 \everyMPshowfont=\toks21
-\MPscratchCnt=\count267
+\MPscratchCnt=\count268
 \MPscratchDim=\dimen177
-\MPnumerator=\count268
-\makeMPintoPDFobject=\count269
+\MPnumerator=\count269
+\makeMPintoPDFobject=\count270
 \everyMPtoPDFconversion=\toks22
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -241,31 +248,119 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
+ (/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/frontpage.tex
+<Uni.png, id=1, 1204.5pt x 1539.7525pt>
+File: Uni.png Graphic file (type png)
+<use Uni.png>
+Package pdftex.def Info: Uni.png  used on input line 18.
+(pdftex.def)             Requested size: 71.13188pt x 90.92448pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 17.
+(Font)              <14.4> on input line 18.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 17.
+(Font)              <7> on input line 18.
 
-Underfull \hbox (badness 10000) in paragraph at lines 62--67
 
- []
+LaTeX Font Warning: Font shape `OT1/ptm/m/scit' undefined
+(Font)              using `OT1/ptm/m/it' instead on input line 18.
 
 [1
 
-{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] (/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.aux) ) 
+{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map} </Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/Uni.png>])
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 19.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 19.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 19.
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 25--25
+ []|\OT1/ptm/m/n/12 10/08/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 29--29
+ []|\OT1/ptm/m/n/12 12/08/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 33--33
+ []|\OT1/ptm/m/n/12 14/08/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 37--37
+ []|\OT1/ptm/m/n/12 16/08/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 41--41
+ []|\OT1/ptm/m/n/12 17/08/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 55--55
+ []|\OT1/ptm/m/n/12 30/08/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 63--63
+ []|\OT1/ptm/m/n/12 04/09/2020| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--69
+
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 89--89
+ []|\OT1/ptm/m/n/12 09/09/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 100--100
+ []|\OT1/ptm/m/n/12 12/09/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 118--118
+ []|\OT1/ptm/m/n/12 13/09/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 124--124
+ []|\OT1/ptm/m/n/12 15/09/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 131--131
+ []|\OT1/ptm/m/n/12 17/09/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 141--141
+ []|\OT1/ptm/m/n/12 19/09/2020| 
+ []
+
+
+Overfull \hbox (4.07967pt too wide) in paragraph at lines 156--156
+ []|\OT1/ptm/m/n/12 28/10/2020| 
+ []
+
+[1] [2] [3] (/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.aux) ) 
 Here is how much of TeX's memory you used:
- 4935 strings out of 479917
- 80984 string characters out of 5882726
- 385567 words of memory out of 5000000
- 21475 multiletter control sequences out of 15000+600000
- 536001 words of font info for 32 fonts, out of 8000000 for 9000
+ 5047 strings out of 479917
+ 82631 string characters out of 5882726
+ 386303 words of memory out of 5000000
+ 21556 multiletter control sequences out of 15000+600000
+ 556909 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 80i,9n,128p,368b,261s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
-Output written on /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.pdf (2 pages, 49193 bytes).
+ 80i,9n,128p,368b,279s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Logbook/logbook.pdf (4 pages, 157983 bytes).
 PDF statistics:
- 23 PDF objects out of 1000 (max. 8388607)
- 15 compressed objects within 1 object stream
+ 33 PDF objects out of 1000 (max. 8388607)
+ 21 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
