@@ -1,11 +1,11 @@
 class HumanAlgorithm {
 
   Cube cube;
-  String faces = "RLUDFB";
-  String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   int stage = 0;
   int completedCorners = 0;
   int completedEdges = 0;
+  String faces = "RLUDFB";
+  String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   boolean nextStep = false;
   boolean isLargerCube = false;
   boolean solved = false;
@@ -15,7 +15,10 @@ class HumanAlgorithm {
     this.cube = cube;
     isLargerCube = dim > 3 ? isLargerCube = true : false;
   }
-
+  
+  /**
+  * Responsible for solving the cube and applying the appropriate stage
+  */
   void solveCube() {
     if(lsSolve) {
       println("Shouldn't be here (HumanAlgorithm)" + hSolve);
@@ -66,8 +69,10 @@ class HumanAlgorithm {
     }
   }
 
-  // Step 1
-  // Solves the white cross on the cube.
+  /**
+  * Step 1
+  * Solves the white cross on the cube
+  */
   void whiteCross() {
     if (!(getFaceColour('D') == white)) {
       positionFace(white, 'D', 'X');
@@ -88,28 +93,28 @@ class HumanAlgorithm {
     }
   }
 
+  /**
+  * Positions/Aligns the white edges to the appropriate centers
+  *
+  * @param  c The center colour we need to align the white edge to. The white edge should already be aligned with the white center
+  */
   void positionWhiteCrossEdge (color c) {
     color[] colours = {c, white};
     Cubie edge = findCenterEdge(colours);
 
-    // CHECK IF EDGE IS AT BOTTOM ROW
+    // IF EDGE IS IN BOTTOM ROW
     if (edge.y == 1) {
-      // print("\n----------------\n\n");
-      // print("The " + colToString(c) + " and " + colToString(white) + " edge is at the bottom row\n");
       // if the white face of the edge is facing DOWN, the same direction as the center white cubie
       if (edge.getFace(white) == 'D') {
         // The white face is facing the correct way
         // if the edge's other colour is not facing the same way as it's center cubie with same colour
         if (getFaceColour(edge.getFace(c)) != c) {
-          // print(colToString(c) + " is not correctly oriented.\n");
           char faceToTurn = edge.getFace(c);
           // it needs to be repositioned
           turns += "" + faceToTurn + faceToTurn;
           // add faceToTurn to the turns String
           // Throws it to top of cube for later
           // print(faceToTurn + " " + faceToTurn + "\n");
-        } else {
-          // print("must be correctly oriented\n");
         }
         return; // ignore this edge for now
       }
@@ -117,12 +122,10 @@ class HumanAlgorithm {
       char edgeFace = edge.getFace(white);
       // Get direction of 'F' face from edgeFace, store in temp
       String temp = getDirection(edgeFace, 'F');
-      // print("\ntemp :" + temp);
       // if there are two moves and they're the same
       if (temp.length() == 2 && temp.charAt(0) == temp.charAt(1)) {
         // rotate the entire cube instead of adding moves
         temp = "YY";
-        // print("\ntemp " + temp + "\n");
       }
 
       // Add temp moves to turns - edge should be at Down Front edge.
@@ -132,7 +135,7 @@ class HumanAlgorithm {
       return;
     } 
 
-    // CHECK IF EDGE IS AT MIDDLE ROW
+    // IF EDGE IS IN MIDDLE ROW
     if (edge.y == 0) {
       // print("\n----------------\n\n");
       // print("The " + colToString(c) + " and " + colToString(white) + " edge is at the middle row\n");
@@ -153,7 +156,7 @@ class HumanAlgorithm {
       }
     }
 
-    // CHECK IF EDGE IS AT TOP ROW
+    // IF EDGE IS IN TOP ROW
     if (edge.y == -1) {
       // print("\n----------------\n\n");
       // print("The " + colToString(c) + " and " + colToString(white) + " edge is at the top row\n\n");
@@ -194,6 +197,13 @@ class HumanAlgorithm {
   }
 
   // Replaces two of the same move with dir.
+  /**
+  * Replaces two of the same move with a 'single' double move
+  *
+  * @param  temp  The string of moves
+  * @param  dir   The direction of the move
+  * @return       The newly made double move. E.g. D, D turns into D2
+  */
   String replaceDoubles(String temp, char dir) {
     // If temp has two moves and they're the same
     if (temp.length() == 2 && temp.charAt(0) == temp.charAt(1)) {
@@ -203,10 +213,17 @@ class HumanAlgorithm {
     return temp;
   }
 
+  /**
+  * Turn the cube to position the edge piece on the F face
+  *
+  * @param  edge  The edge we want at the front of the cube
+  * @param  c     The colour that's on the edge we want at the front
+  * @param  dir   The direction we need to be going to get the edge to be on the F face
+  */
   void turnCubeToFacePiece(Cubie edge, color c, char dir) {
     // edgeFace is the face that the colour c is located on the edge
     char edgeFace = edge.getFace(c);
-    // temp stores direction from dgeFace to 'F' face and stores to temp
+    // temp stores direction from edgeFace to 'F' face and stores to temp
     String temp = getDirection(edgeFace, 'F');
     // If temp has two moves and they're the same
     if (temp.length() == 2 && temp.charAt(0) == temp.charAt(1)) {
@@ -217,6 +234,12 @@ class HumanAlgorithm {
     turns += temp;
   }
 
+  /** TODO: Rewrite comment
+  * Finds the center edge
+  *
+  * @param  cubieColours  The colours of the edge cubie
+  * @return               The edge to...
+  */
   Cubie findCenterEdge(color[] cubieColours) {
     for (int i = 0; i < edges.size(); i++) {
       if (edges.get(i).matchesColours(cubieColours)) {
@@ -227,8 +250,10 @@ class HumanAlgorithm {
     return null;
   }
 
-  // Step 2
-  // Bottom corner function 
+  /**
+  * Step 2
+  * Position bottom corners of the cube
+  */
   void bottomCorners()  {
     // if(completedCorners == 0) println("Entering stage 2");
     color[][] corners = {{red, green}, {green, orange}, {orange, blue}, {blue, red}};
@@ -243,6 +268,12 @@ class HumanAlgorithm {
     stage++;
   }
   
+  /**
+  * positions the corner piece we've found to the bottom.
+  *
+  * @param  c1
+  * @param  c2
+  */
   void positionBottomCorner(color c1, color c2) {
     // c1 is left of c2 when white is in correct position on cube.
     color[] cornerCols = {c1, c2, white};

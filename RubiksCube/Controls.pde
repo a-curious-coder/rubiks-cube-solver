@@ -11,14 +11,15 @@ void keyPressed() {
   } else {
   switch(key) {
   case 't':
-    cube.hAlgorithm.nextStep = true;
+    FastCube f = new FastCube(cube);
     break;
   case 'h':
     hud = !hud;
     break;
   case 's':
     if(bigTroll()) break;
-    cube.scrambleCube();
+    // cube.scrambleCube();
+    cube.hardcodedScrambleCube();
     break;
   case '0':
     hSolve = true;

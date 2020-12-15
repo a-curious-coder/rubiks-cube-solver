@@ -3,13 +3,21 @@ class Face {
   float faceWidth = 0.95;
   float faceHeight = 0.95;
   PVector normal;
-  color c;
+  int c;
 
   // Creates new face with a default position and colour
-  Face(PVector normal, color c) {
+  Face(PVector normal, int c) {
     this.normal = normal;
     this.c = c;
   }
+
+  // Clone face constructor
+  Face(Face f)  {
+    this.normal = f.normal.copy();
+    this.c = f.c;
+  }
+
+  Face(){};
 
   void turn(char axis, float angle) {
     PVector v = new PVector();

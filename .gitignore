@@ -3,8 +3,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=processing
 
 ### Processing ###
-.DS_Store
-.autosave
+*.DS_Store
+*.autosave
 applet
 application.linux-arm64
 application.linux-armv6hf

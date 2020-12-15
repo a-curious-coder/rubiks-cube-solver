@@ -1,11 +1,12 @@
 import java.util.Arrays;
 class Cubie {
-  PMatrix3D matrix;
+
+  int nCols = 0;
   float x = 0;
   float y = 0;
   float z = 0;
+  String[] colourNames = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   color[] colours = new color[6];
-  String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   color defaultRGB = color(0);
   color orange = color(255, 140, 0);
   color red = color(255, 0, 0);
@@ -13,7 +14,7 @@ class Cubie {
   color yellow = color(255, 255, 0);
   color green = color(0, 255, 0);
   color blue  = color(0, 0, 255);
-  int nCols = 0;
+  PMatrix3D matrix;
   Face[] faces = new Face[6];
 
   // create new cubie with 6 faces
@@ -31,6 +32,23 @@ class Cubie {
     faces[3] = new Face(new PVector(0, 1, 0), colours[3]); // White  / Down
     faces[4] = new Face(new PVector(0, 0, 1), colours[4]); // Green  / Front
     faces[5] = new Face(new PVector(0, 0, -1), colours[5]); // Blue   / Back
+  }
+
+  // Cloning Cubie constructor
+  Cubie(Cubie c)  {
+    this.matrix = c.matrix;
+    this.x = c.x;
+    this.y = c.y;
+    this.z = c.z;
+    this.colours = c.colours;
+    for(int i = 0; i < faces.length; i++) {
+      // println("Before: " + colToString(c.colours[i]));
+      this.faces[i] = new Face(c.faces[i]);
+      // println("After: " + colToString(this.colours[i]));
+      // this.faces[i] = new Face(new PVector(x, y, z), c.colours[i]);
+      if(c.colours[i] != this.colours[i]) println("THEY ACTUALLY DON'T MATCH THO FAM");
+    }
+    // for(Face face : this.faces)  println("\t\t" + colToString(face.c));
   }
 
   Cubie(){};
@@ -78,7 +96,9 @@ class Cubie {
     colours[3] = y ==  axis  ?  white  : defaultRGB;     // White
     colours[4] = z ==  axis  ?  green  : defaultRGB;   // Green
     colours[5] = z == -axis  ?  blue   : defaultRGB;    // Blue
-    for (color c : colours) {nCols += c != defaultRGB ? 1 : 0;}
+    for (color c : colours) {
+      nCols += c != defaultRGB ? 1 : 0;
+      }
   }
 
   // Responsible for turning the faces of the cubies
@@ -149,11 +169,9 @@ class Cubie {
   }
 
   // Checks if two colours match
-  boolean matchesColours(color[] cols) {
-    if (nCols != cols.length) {
-      return false;
-    }
-    for (color c : cols) {
+  boolean matchesColours(color[] colourNames) {
+    if (nCols != colourNames.length) return false;
+    for (color c : colourNames) {
       boolean foundMatch = false;
       for (color b : colours) {
         if (b == c) {
@@ -161,40 +179,52 @@ class Cubie {
           break;
         }
       }
-      if (!foundMatch) {return false;}
+      if (!foundMatch)  return false;
     }
     return true;
   }
 
   // Cubie details - for debugging
   String details()  {
-    return "\t" + x + "\t" + y + "\t" + z + "\t"
-                    + colToString(colours[0]) + "\t"
-                    + colToString(colours[1]) + "\t"
-                    + colToString(colours[2]) + "\t"
-                    + colToString(colours[3]) + "\t"
-                    + colToString(colours[4]) + "\t"
-                    + colToString(colours[5]);
-                    
+    return x + "\t" + y + "\t" + z + "\n"
+                    + "\tFace [0]\t" + colToString(colours[0]) + "\n"
+                    + "\tFace [1]\t" + colToString(colours[1]) + "\n"
+                    + "\tFace [2]\t" + colToString(colours[2]) + "\n"
+                    + "\tFace [3]\t" + colToString(colours[3]) + "\n"
+                    + "\tFace [4]\t" + colToString(colours[4]) + "\n"
+                    + "\tFace [5]\t" + colToString(colours[5]);
   }
 
   color getRight() {
     return colours[0];
   }
+
   color getLeft()  {
     return colours[1];
   }
+
   color getTop()  {
     return colours[2];
   }
+
   color getDown()  {
     return colours[3];
   }
+
   color getFront()  {
     return colours[4];
   }
+
   color getBack()  {
     return colours[5];
+  }
+
+  color[] getEachColour() {
+    return this.colours;
+  }
+
+  String[] getEachColourName() {
+    return this.colourNames;
   }
 
   @Override

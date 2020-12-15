@@ -1,5 +1,5 @@
 {
-    "editor.fontFamily": "Fira Code",
+    "editor.fontFamily": "Iosevka",
     "editor.fontLigatures": true,
     "files.autoSave": "onWindowChange",
     "python.pythonPath": "c:\\Windows\\py.exe"

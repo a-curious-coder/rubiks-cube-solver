@@ -1,192 +1,123 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+
 class LocalSearch   {
 	
 	Cube cube;
+	Cube complete;
+	Cube copy;
 	int stage = 0;
-	float[] faceScores = new float[6];
-	ArrayList<Float> allScores = new ArrayList();
 	char closestSolved = 'a';
-	ArrayList<String> algorithms = new ArrayList();
-	boolean generateAlgorithms = false;
-	
+	float pSmallestScore = 1000;
+	float[] faceScores = new float[6];
+	boolean generateAlgorithms = true;
 	boolean whiteFaceSolved = false;
-	boolean[] middleLayersSolved = new boolean[dim - 2];
 	boolean yellowFaceSolved = false;
+	boolean[] middleLayersSolved = new boolean[dim - 2];
+	ArrayList<Float> allScores = new ArrayList();
+	ArrayList<String> algorithms = new ArrayList();
 	
 	LocalSearch(Cube cube)  {
 		this.cube = cube;
 	}
 	
-	void solveCube()    {
-		// println("Local search");
+	/**
+	* Responsible for managing the stage of the solving process
+	*/
+	void solve()    {
+		// println("[*]\tLocal search");
 		switch(stage)   { //<>//
 			// Generate / Prepare algorithms for use.
 			case 0:
 			initialiseAlgorithms();
-			// println("Stage " + stage);
+			// println("[*]\tStage " + stage);
 			// Finds the face that's closest to being solved...
-			// closestSolved = checkIfSolved(cube);
+			// closestSolved = cubeSolved(cube);
 			stage++;
 			break;
 			case 1:
-			// println("Stage " + stage + " : "+ colToString(white));
-			// Attempted to solve the face chosen in the previous stage.
-			// Score corners on white face //<>//
-			// println("White face score : " + scoreFace(cube, white));
-			// paused = true;
-			solveCube(cube);
-			// checkCube(cube);
+			solveWhiteFace();
 			break;
+			case 2:
+			print("Evaluate cube");
+			paused = true;
 			case 10:
-			println("Solved apparently");
+			println("[*]\tWhole cube is solved apparently");
 			lsSolve = false;
 			break;
 		}
 	}
 	
-	void checkCube(Cube cube)    {
-		// Score edges on white face
-		ArrayList<Boolean> correctCubies = new ArrayList();
-		boolean cubeComplete = true;
-		// for every cubie
-		for (int i = 0; i < cube.len; i++)    {  
-			Cubie c = cube.getCubie(i);
-			boolean foundMatch = false;
-			for (int j = 0; j < completeCube.len; j++) {
-				Cubie referenceCubie = completeCube.getCubie(j);
-				if (foundMatch)  continue;
-				// if position matches
-				if (c.x == referenceCubie.x && c.y == referenceCubie.y && c.z == referenceCubie.z)   {
-					print("Correctly positioned");
-					// if colours match
-					if (c.colours == referenceCubie.colours) {
-						println(" and correctly oriented");
-						correctCubies.add(true);
-						foundMatch = true;
-					} else {
-						println(" but not correctly oriented.\n" + referenceCubie.details() + "\n" + c.details());
-						correctCubies.add(false);
-					}
-				}
-			}
-			if (!foundMatch) println("Incorrectly positioned");
-		}
-		for (boolean b : correctCubies)  {
-			cubeComplete = b == false ? false : true;
-		}
-		
-		if (cubeComplete)    println("Cube completed.");
-		// println("pausing");
-		// delay(20000);
-	}
-	
-	
-	void solveCube(Cube cube)   {
-		
-		// is it correctly positioned
-		// is it correctly oriented
-		
-		// Score corners on white face //<>//
-		if (!(getFaceColour('D') == white))  {
-			positionFace(white, 'D', 'X');
-			return;
-		}
-		if (!(getFaceColour('F') == green))  {
-			positionFace(green, 'F', 'Y');
-			return;
-		}
-		
-		
-		turns += bestScoringCombination();
-		
-		if (scoreFace(cube, white) == 0)  {
-			println("White face solved");
-			delay(2000);
-		} else if (scoreFace(cube, white) < 5)  {
-			println("close...with a score of : " + scoreFace(cube, white));
-			if (turns.length() == 0)   paused = true;
-		}   else    {
-			println("White face : " + scoreFace(cube, white));
-		}
-		
-		char whiteFace = 'R';
-		String faces = "LUDBF";
-		for (int i = 0; i < faces.length(); i++) {
-			if (getFaceColour(faces.charAt(i)) == white) whiteFace = faces.charAt(i);
-		}
-		
-		if (scoreFace(cube, whiteFace) == 0)  {
-			println(colToString(white) + " face solved.");
-			delay(2000);
-			stage++;
-			return;
-		}
-		// Check if any of the edges on the top face are in the correct position but not the correct orientation...
-	}
-	
+	/**
+	* Initialises list of algorithms
+	* could be hardcoded or generated - dictated by a boolean
+	*/
 	void initialiseAlgorithms() {
 		if (generateAlgorithms)  {
 			generateAlgorithms();
-			println("Generated Algorithms : " + algorithms.size());
+			println("[*]\tGenerated Algorithms : " + algorithms.size());
 			return;
 		} else {
-			println("Hardcoding Mode");
+			println("[*]\tHardcoding Mode");
 			hardcodeAlgorithms();
-			regenAlgorithms();
-			println("Hardedcoded Algorithms : " + algorithms.size());
+			// regenAlgorithms();
+			println("[*]\tHardedcoded Algorithms : " + algorithms.size());
 		}
 	}
-	
+
+	/**
+	* Generates algorithms based on the 12 possible moves.
+	*/
 	void generateAlgorithms()    {
-		String[] allMoves = {"F", "B", "L", "R", "U", "D", "F\'", "B\'", "L\'", "R\'", "U\'", "D\'"};
-		ArrayList<String> depth1 = new ArrayList();
-		ArrayList<String> depth2 = new ArrayList();
-		ArrayList<String> depth3 = new ArrayList();
-		ArrayList<String> depth4 = new ArrayList();
-		ArrayList<String> depth5 = new ArrayList();
 		algorithms.clear();
-		
-		
-		for (int i = 0; i < allMoves.length; i++) {
-			depth1.add(allMoves[i]);
-			for (int j = 0; j < allMoves.length; j++)    {
-				depth2.add(allMoves[i] + allMoves[j]);
-				for (int k = 0; k < allMoves.length; k++)    {
-					depth3.add(allMoves[i] + allMoves[j] + allMoves[k]);
-					for (int l = 0; l < allMoves.length; l++)    {
-						depth4.add(allMoves[i] + allMoves[j] + allMoves[k] + allMoves[l]);
-						for (int h = 0; h < allMoves.length; h++)    {
-							depth5.add(allMoves[i] + allMoves[j] + allMoves[k] + allMoves[l] + allMoves[h]);
-						}
-					}
+		int depth = 7;
+		List<String> eachMove = Arrays.asList("F", "B", "L", "R", "U", "D", "F\'", "B\'", "L\'", "R\'", "U\'", "D\'");
+
+		// Prints each move from the eachMove list
+		print("[*]\tEach possible move: ");
+		for(String initem : eachMove)	{
+			if(eachMove.indexOf(initem) == eachMove.size()-1)	{
+				print(initem + ".");
+				println();
+			} else {
+				print(initem + ", ");
+			}
+		}
+
+		List<String> outlist = new ArrayList();
+		for(int i = depth; i >= 1; i--)	{
+			algorithms.addAll(output(i, eachMove));
+		}
+		println("[*]\tGenerated algorithms to a depth of 5\t"+ algorithms.size() + " algorithms\n[*]");
+	}
+
+	/**
+	* Generates the combinations for generateAlgorithms
+	*
+	* @param	count		
+	* @param	eachMove	
+	* @return	result		
+	*/
+	List<String> output(int count, List<String> eachMove) {
+		ArrayList<String> result = new ArrayList();
+		if(count == 1) {
+			result.addAll(eachMove);
+		} else {
+			List<String> res = output(count-1, eachMove);
+			for(String item : res) {
+				for(String prefix : eachMove) {
+					result.add(prefix + item);
 				}
 			}
 		}
-		println("Generating algorithms to a depth of 5");
-		for (String s : depth1)  {
-			algorithms.add(s);
-		}
-		for (String s : depth2)  {
-			algorithms.add(s);
-		}
-		for (String s : depth3)  {
-			algorithms.add(s);
-		}
-		for (String s : depth4)  {
-			algorithms.add(s);
-		}
-		for (String s : depth5)  {
-			algorithms.add(s);
-		}
-		// for(String s : algorithms)  {
-		//     println(s);
-		// }
-		println(algorithms.size());
-		println("finished");
-		// delay(20000);
-		
-		
+		return result;
 	}
 	
+	/**
+	* A place where I manually add algorithms to array of algorithms.
+	* Helps when debugging
+	*/
 	void hardcodeAlgorithms()   {
 		// Swaps opposing corners
 		// algorithms.add("RRF'RRDDRRFRR");
@@ -212,23 +143,23 @@ class LocalSearch   {
 		algorithms.add("F'UL'U'");
 		algorithms.add("DLD'L'");
 		algorithms.add("D'R'DR");
-		// algorithms.add("U R U' R' U' F' U F");
-		// algorithms.add("U' L' U L U F U' F'");
-		// algorithms.add("F R U R' U' F'");
-		// algorithms.add("R U R' U R U U R'");
-		// algorithms.add("U R U' L' U R' U' L");
-		// algorithms.add("R' D' R D");
+		algorithms.add("R'L'B'B'UD'L'R'U'FU'F'");
+		algorithms.add("U R U' R' U' F' U F");
+		algorithms.add("U' L' U L U F U' F'");
+		algorithms.add("F R U R' U' F'");
+		algorithms.add("R U R' U R U U R'");
+		algorithms.add("U R U' L' U R' U' L");
+		algorithms.add("R' D' R D");
 	}
 	
+	/**
+	* Takes algorithms and applies them from all 24 positions - better optimises their application to cube.
+	*/
 	void regenAlgorithms()  {
-		// println("GENERATING YOUR SHITTY ALGORITHMS");
-		// println("algorithms size: " + algorithms.size());
-		
+
 		int numAlgorithms = algorithms.size();
-		println("numAlgorithms : " + numAlgorithms);
 		for (int i = 0; i < numAlgorithms; i++)  {
 			try{
-				println("Iteration : " + (i + 1));
 				algorithms.add("X" + algorithms.get(i));
 				algorithms.add("XX" + algorithms.get(i));
 				algorithms.add("XXX" + algorithms.get(i));
@@ -271,15 +202,151 @@ class LocalSearch   {
 			}
 		}
 	}
-	
-	String bestScoringCombination()   {
-		Cube copy = cube.clone();
-		allScores = new ArrayList();
-		// println("algorithms size: " + algorithms.size());
-		int index = 0;
+
+	/**
+	* Boolean function that checks if cube is solved
+	*
+	* @param cube	The Rubik's Cube we want evaluated
+	* @return 	If cube is solved, return true, else return false
+	*/
+	boolean cubeSolved(Cube cube)    {
+		// Score edges on white face
+		ArrayList<Boolean> correctCubies = new ArrayList();
+		boolean cubeComplete = true;
+		// For every cubie
+		for (int i = 0; i < cube.len; i++)    {  
+			Cubie c = cube.getCubie(i);
+			boolean foundMatch = false;
+			for (int j = 0; j < completeCube.len; j++) {
+				Cubie referenceCubie = completeCube.getCubie(j);
+				if (foundMatch)  continue;
+				// if position matches
+				if (c.x == referenceCubie.x && c.y == referenceCubie.y && c.z == referenceCubie.z)   {
+					print("Correctly positioned");
+					// if colours match
+					if (c.colours == referenceCubie.colours) {
+						println("[*]\t and correctly oriented");
+						correctCubies.add(true);
+						foundMatch = true;
+					} else {
+						println("[*]\t but not correctly oriented.\n" + referenceCubie.details() + "\n" + c.details());
+						correctCubies.add(false);
+					}
+				}
+			}
+			if (!foundMatch) println("[*]\tIncorrectly positioned");
+		}
+		for (boolean b : correctCubies)  {
+			cubeComplete = b == false ? false : true;
+		}
 		
+		if (cubeComplete)    println("[*]\tCube completed.");
+		return cubeComplete;
+	}
+	
+	/**
+	* Attempts to solve the white face of the cube
+	* Will increase stage number when white face is done.
+	*/ 
+	void solveWhiteFace()	{
+		if (!(getFaceColour('D') == white))  {
+			positionFace(white, 'D', 'X');
+			return;
+		}
+		if (!(getFaceColour('F') == green))  {
+			positionFace(green, 'F', 'Y');
+			return;
+		}
+		
+		// Check how solved the white face is before generating moves.
+		if (scoreFace(cube, white) == 0)  {
+			// TODO: If white face is solved, keep it oriented on D face and use algorithms that do NOT affect the D face's current solve.
+			println("[*]\tWhite face solved.");
+			whiteFaceSolved = true;
+			stage++;
+			return;
+		} else {
+			println("[*]\t White face score: " + scoreFace(cube, white));
+		}
+		
+		if (!whiteFaceSolved) turns += bestWhiteFaceAlgorithm();
+		
+		// Assume white face is on down face
+		char whiteFace = 'D';
+		String faces = "RLUBF";
+		for (int i = 0; i < faces.length(); i++) {
+			// If face colour is white, assign the face to variable whiteFace
+			if (getFaceColour(faces.charAt(i)) == white)	{
+				whiteFace = faces.charAt(i);
+			}
+		}
+		// Check if any of the edges on the top face are in the correct position but not the correct orientation...
+	}
+	
+	/**
+	* Best algorithm for white face
+	*
+	* @return	bestAlgo	The algorithm that's closest to solving white face
+	*/
+	String bestWhiteFaceAlgorithm()	{
+		//  Create copy of cube in its current state
+		Cube copy = new Cube(cube);
+		float score;
+		// Initialise arraylist to hold every score for every algorithm
+		allScores = new ArrayList();
+		boolean optimalSolutionFound = false;
+		// Tests every algorithm from list of algorithms  
+		for(String algorithm : algorithms)	{
+			copy = new Cube(cube);
+			score = 0;
+			// Tests algorithm on copy of this cube.
+			Cube cubeAfterAlgorithm = copy.testAlgorithm(algorithm);
+			// Scores the cube's white face.
+			score = scoreFace(cubeAfterAlgorithm, white);
+			if(score == 0)	{
+				allScores.clear();
+				return algorithm;
+			}
+			allScores.add(score);
+		}
+
+		// Stores the smallest score unique to this specific cube scramble
+		float smallestScore = allScores.get(0);
+		// For loop that retrieves the smallest score from the list of scores
+		for (float f : allScores)  {
+			if (f < smallestScore)   {
+				smallestScore = f;
+			}
+		}
+
+		// If the smallest score for this particular scramble puts the cube in a worse state than it's in currently...
+		// if(smallestScore > pSmallestScore)	{
+		// 	println("[*]\tPrevious score: " + pSmallestScore + "\tThis smallest score: " + smallestScore);
+		// 	println("[*]\tCould not find a better solution via the algorithms available");
+		// 	// paused = true;
+		// } else {
+		// 	pSmallestScore = smallestScore;
+		// }
+
+		// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
+		String bestAlgo = algorithms.get(allScores.indexOf(smallestScore));
+		println("[*]\tBest Algorithm toward solving the White face");
+		println("[*]\t" + bestAlgo + "\n[*]\tScore : " + smallestScore);
+		return bestAlgo;
+	}
+
+	/**
+	* Returns the algorithm better suited to pushing the Rubik's cube closer to a solved state
+	*/ 
+	String bestAlgorithm()   {
+		//  Create copy of cube in its current state
+		Cube copy = new Cube(cube);
+		allScores = new ArrayList();
+
+		// Score the copy cube after an algorithm is applied to it
 		for (String moves : algorithms)   {
-			allScores.add(scoreCube(copy.testMoves(moves, copy)));
+			float combination = scoreCube(copy.testAlgorithm(moves));
+			allScores.add(combination);
 		}
 		
 		float smallestScore = allScores.get(0);
@@ -288,24 +355,23 @@ class LocalSearch   {
 				smallestScore = f;
 			}
 		}
-		println("Best score : \t\"" + algorithms.get(allScores.indexOf(smallestScore)) + "\"\t score : " + smallestScore);
-		// Return the algorithm that gets the cube closest to a solve.
-		return algorithms.get(allScores.indexOf(smallestScore));
-	}
-	
-	int indexOf(int[] arr, int value) {
-		int index = - 1;
-		for (int i = 0; i < arr.length; i++) {
-			if (arr[i] == value) {
-				index = i;
-				break;
-			}
+		pSmallestScore = smallestScore;
+		if(smallestScore > pSmallestScore)	{
+			println("[*]\tPrevious score: " + pSmallestScore + "\tThis smallest score: " + smallestScore);
+			println("[*]\tCould not find a better solution via the algorithms available");
+			paused = true;
 		}
-		return index;
+
+		// Best algorithm retrieved in reference to lowest scoring algorithm index in arraylist is returned to apply to the actual cube
+		String bestAlgo = "\"" + algorithms.get(allScores.indexOf(smallestScore)) + "\"";
+		println("[*]\tBest Scoring Algorithm : \t" + bestAlgo + "\t Score : " + smallestScore);
+		// String debugAlgo = "FFFFFFF";
+		return bestAlgo;
 	}
 	
-	/* Checks if cube is solved
-	*  Scores each face of the cube to check if the cube is solved.
+	/** 
+	* Checks if cube is solved
+	* Scores each face of the cube to check if the cube is solved.
 	*/
 	boolean cubeSolved()  {
 		
@@ -328,6 +394,12 @@ class LocalSearch   {
 		return true;
 	}
 	
+	/**
+	* Scores the cube which represents how solved it is
+	*	
+	* @param	cube The cube that's going to be evaluated and scored
+	* @return		 The score representingm how solved the cube is
+	*/
 	float scoreCube(Cube cube)    {
 		
 		if (cubeSolved())  {
@@ -345,8 +417,9 @@ class LocalSearch   {
 	
 	/*
 	* Calculates a score for a face using different parameters
-	* @param    cube    Rubik's cube for reference
-	* @param    c       colour of the face we want to score
+	*
+	* @param    cube Complete Rubik's Cube for reference
+	* @param    c    Colour of the face we want to score
 	*/
 	float scoreFace(Cube cube, color c) {
 		String faces =  "RLUDFB";
@@ -358,21 +431,23 @@ class LocalSearch   {
 				break;
 			}
 		}
-		println("White face is on " + face);
 		return scoreFace(cube, face);
 	}
 	
 	/**
 	* Evaluates a 'score' for the given face which represents how 'solved' that face is.
 	* The closer the score it to 0, the better.
-	* @param    face    the face being evaluated
 	* TODO: Cater for even numbered cubes with no center.
+	*
+	* @param    face The face being evaluated
+	* @return		 The score that's been evaluated for the face			
 	*/
 	float scoreFace(Cube cube, char face)    {
 		int faceNum = 0;
 		float score = 0;
 		color faceColour = getFaceColour(face);
 		String thisFaceColour = colToString(faceColour);
+
 		// Collection of all cubies on the specified face.
 		ArrayList<Cubie> currentFace = new ArrayList();
 		
@@ -436,55 +511,60 @@ class LocalSearch   {
 			faceNum = 1;
 			break;
 		} 
-		
 		return score;
 	}
-	// TODO: Evaluate location of cubie
-	// TODO: Evaluate orientation of cubie
+
+	/**
+	* Goes through list of cubies to score and finds the correspondingly located cubie from the 'completeCube'
+	* Scores cubie based on	matching colours, orientation.
+	*
+	* @param	c			The cubie we're evaluating
+	* @param	faceColour	The colour of the face we're wanting the cubie to align with
+	* @return	float		The score of the cube. If it's correct, return 0
+	*/
 	float scoreCubie(Cubie c, color faceColour)    {
 		Cubie referenceCubie = new Cubie();
 		float cubieScore = 0;
 		boolean foundCubie = false;
+		int counter = 0;
 		for (int i = 0; i < completeCube.len; i++)    {
 			referenceCubie = completeCube.getCubie(i);
-			// Looks for cubie in the same position as referenceCubie.
-			if (foundCubie)	continue;
-			
-			if (referenceCubie.x == c.x && referenceCubie.y == c.y && referenceCubie.z == c.z)	{
-				
-				boolean sameColours = true;
-				for (color c1 : referenceCubie.colours)	{
-					foundCubie = false;
-					for (color c2 : c.colours)	{
-						if (c1 == c2)	{
-							foundCubie = true;
-						}
-					}
-					if (!foundCubie)	{
-						sameColours = false;
-						break;
-					}
-				}
-				
-				if (sameColours)	{
-					if (!referenceCubie.sameColoursAs(c))	{
-						cubieScore += 0.5;
-					}
-				} else {
-					// Checks if the cubie belongs on the face of the cube.
-					for (color col : c.colours)	{
-					//	println("\tComparing " + colToString(col) + " with " + colToString(faceColour));
-					if	(col == faceColour)	{
-							cubieScore += 0.25;
-							foundCubie = true;
-						}
-					}
-				}
+			color[] cubieColours = new color[6];
+			color[] referenceColours = new color[6];
+			for(int j = 0; j < 6;j++)	{
+				cubieColours[j] = c.colours[j];
+				referenceColours[j] = referenceCubie.colours[j];
 			}
-			// println("Comparing " + rC.details() + " with " + c.details());
-			
+			// If the colours are the same AND the location is wrong OR
+			// If the location is wrong
+			if ((Arrays.equals(cubieColours, referenceColours) && (referenceCubie.x != c.x || referenceCubie.y != c.y || referenceCubie.z != c.z)) || referenceCubie.x != c.x || referenceCubie.y != c.y || referenceCubie.z != c.z)	{
+				continue;
+			}
+
+			// Found a cubie in the same location, check if colours are same.
+			boolean sameColours = true;
+			// For every colour on the cubie
+			// If colours are the same check if orientation is the same.
+			// If orientation is the same too, return 0
+			if(Arrays.equals(cubieColours, referenceColours))	{
+				// print("They have the same colours and are oriented correctly.");
+				return 0;
+			} else if (Arrays.equals(sort(cubieColours), sort(referenceCubie.colours)))	{
+				// print("They share the same colours, not in the correct orientation.");
+				return 0.5;
+			}
 		}
-		if (!foundCubie)cubieScore = 1;
-		return cubieScore;
+		return 1;
+	}
+
+	int indexOf(int[] arr, int value) {
+		int index = - 1;
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == value) {
+				index = i;
+				break;
+			}
+		}
+		return index;
 	}
 }

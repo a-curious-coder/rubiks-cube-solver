@@ -3,7 +3,8 @@
 ---
 ![Rubik's Banner](Images/Banner2.png)
 
-<p align = "center">[Live Demo Coming Soon]()</p>
+<p align = "center">[Live Demo Coming Soon]</p>
+
 ---
 
 <h3> Table of contents</h3>
@@ -15,7 +16,8 @@
 5. [Stages of creation.](#stages)
 6. [Issues faced during project creation.](#issues)
 7. [How to use the program (Under construction)](#howtouse)
-8. [Log Book](#logbook)
+8. [Creating a 'Faster' cube](#fastercube)
+9. [Log Book](#logbook)
 
 ---
 
@@ -42,7 +44,8 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 - [ ] Adapt the code to cater for larger cubes - currently facing issues
 - [x] Save computing power by only storing visible cubies
 - [x] Adding [X, Y, Z](https://ruwix.com/the-rubiks-cube/notation/advanced/) rotations to cube.
-- [ ] Implement a human algorithm to solve the cube <details><summary>Steps</summary>
+- [x] Implement a human algorithm to solve the cube 
+<details><summary>Steps</summary>
   - [x] Solve first layer's edges (White cross)
   - [x] Solve the first layer's corners (White face)
   - [x] Solve second layer of the cube (F2L)
@@ -55,7 +58,7 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 <h3>Mandatory</h3>
 
 
-- [ ] Use **local search** or **constraint solvers** to solve well-specified problems
+- [ ] Use **search algorithm** and/or **constraint solvers** to solve well-specified problems
 - [ ] Evaluate 'empirically' the effectiveness of a solution method for a problem - (This step will be the hardest I believe)
   - Computing power needed
   - Number of steps required to solve the cube
@@ -65,12 +68,13 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 <h3>Optional</h3>
 
 - [x] Allow user to create custom cube sizes
-- [ ] Add a 2D visualisation of the cube
+- [x] Add a 2D visualisation of the cube
 - [ ] Allow user to create a custom cube scramble
 - [x] Provide output of scramble/solve steps to console for the user
-- [ ] Solve the cube from its scrambled state in 20 moves or less - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
+- [ ] (Unreal expectations right here) Solve the cube from its scrambled state in 20 moves or less - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
 
 ---
+
 <h2>Terminology and Notation</h2> <a name="notation"></a>
 <h3>Terminology</h3>
 <table align = "center">
@@ -357,14 +361,30 @@ The current issue right now is that the move functions is only functioning with 
 
 ---
 
-<h2> How to use the program </h2>
-Gonna write this section later on in development as most of the current controls are defined with no reasoning really.
+<h2> How to use the program <a name="howtouse"></a></h2>
+Gonna write this section later on...
 
 ---
-<h2>Log Book</h2>
-I've decided to put my logbook into a separate pdf.
-PDF is located [here.](./LogBook/logbook.pdf)
+
+<h2>Log Book<a name="logbook"></a></h2>
+I'll be logging my progress as best as I can in my logbook linked below!
+
+[Logbook](/Logbook/logbook.pdf)
+
+[Bonus for you: Here's the current state of my dissertation](/Dissertation/main.pdf)
+
 ---
+
+<h2> Creating a faster cube<a name="fastercube"></a></h2>
+When developing my selection algorithm, I quickly discovered that cloning my cube object, which is made of cubie and face objects, was extremely computationally expensive. This meant when I had a bunch of algorithms to test, the program had to create a new Rubik's cube for each algorithm it wanted to test. This wasn't so bad for algorithms up to a length of 4 moves but for anything that was 5 or more, it was an issue.
+</br ></br >
+After doing research online, I discovered that there are different and cheaper ways of representing the cube object in its scrambled state. The following are the main ideas I had found.
+
+
+>1. A three-dimensional array of chars, 6x3x3. The color of a face is indexed like cube[SIDE][ROW][COL]. This is intuitive, but slow.
+>2. A single array of 54 chars. This is faster than the first structure, and the row and stride are calculated manually (trivial). It’s still slow.
+>3. 6 64-bit integers. This method is essentially a bitboard, for those familiar with the chess domain, and is significantly faster than methods one and two. Twisting can be done using bitwise operations, and face comparisons can be done using masks and 64-bit integer comparison.
+>4. An array of corner cubies and a separate array of edge cubies. The elements of each array contain a cubie index (0–11 for edges; 0–7 for corners) and an orientation (0 or 1 for edges; 0, 1, or 2 for corners).
 
 ---
 

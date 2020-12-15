@@ -1,0 +1,87 @@
+\documentclass[12pt]{report} % Font and size
+    \usepackage{times}
+\usepackage[margin=0.75in]{geometry} % Margin size
+\usepackage[english]{babel} % Language
+\usepackage{graphicx} % Include images with this library
+\usepackage[export]{adjustbox}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{glossaries}
+\setlength{\columnsep}{1cm}
+\usepackage{biblatex}
+\addbibresource{sample.bib}
+\renewcommand{\thesection}{\arabic{section}}
+% Requirements
+% 10,000 - 20,000 words
+
+% Creating title page
+    % Title
+\title{
+    \centerline{\includegraphics[width = 25mm]{Images/Uni.png}}
+    \vspace{1.5cm}
+    \textsc{\LARGE University of Reading}\\[0.25cm]
+    \textsc{\Large Department of Computer Science}\\[1cm]
+    \textsc{\large Computer Science Undergraduate Report - }
+    \textsc{\large Rubik's Cube Solver}\\[0.75cm]
+}
+    % Author
+\author{
+    \large
+    \textsc{Callum Claton David McLennan}\\[0.25cm]
+    \textsc{\normalsize \textit{Supervisor:} Martin Lester}\\[1cm]
+    A report submitted in partial fulfilment of the requirements of\\the University of Reading for the degree of\\
+    Bachelor of Science in \textit{Computer Science}
+    \date{\today}
+}
+% End of title
+
+\begin{document}
+\pagenumbering{roman}
+\maketitle
+\newpage
+% Declaration
+\section*{Declaration}
+\vspace{1cm}
+I, Callum, Claton, David, McLennan, of the Department of Computer Science, University of Reading, confirm that all the sentences, figures, tables, equations, code snippets, artworks, and illustrations in this report are original and have not been taken from any other person’s work, except where the works of others have been explicitly acknowledged, quoted, and referenced. I understand that if failing to do so will be considered a case of plagiarism. Plagiarism is a form of academic misconduct and will be penalised accordingly.
+\vspace{1cm}
+\begin{flushright}Callum David Claton McLennan \\ \date{\today}\end{flushright}
+\newpage
+% Abstract
+\section*{Abstract}
+random words that attract the reader
+% Guidance on abstract writing: An abstract is a summary of a report in a single paragraph up to a maximum of 250 words. An abstract should be self-contained, and it should not refer to sections, figures, tables, equations, or references. An abstract typically consists of sentences describing the following four parts: (1) introduction (background and purpose of the project), (2) methods, (3) results and analysis, and (4) conclusions. The distribution of these four parts of the abstract should reflect the relative proportion of these parts in the report itself. An abstract starts with a few sentences describing the project’s general field, comprehensive background and context, the main purpose of the project; and the problem statement. A few sentences describe the methods, experiments, and implementation of the project. A few sentences describe the main results achieved and their significance. The final part of the abstract describes the conclusions and the results implications to the relevant field.
+
+% Acknowledgements section - optional
+\input{terminology.tex}
+% Contents
+\tableofcontents
+% \listoffigures
+% \listoftables
+\input{terminology}
+\newpage
+% ---------------------------------------------------------------------------
+% Report begins
+% ---------------------------------------------------------------------------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+% Introduction
+\input{introduction}
+% Literature review
+\section{Literature review}
+
+\newpage
+% Methodology
+\section{Methodology}
+
+\newpage
+% Results and analysis
+\section{Results and analysis}
+
+\newpage
+% Conclusions and future work
+\section{Conclusions and future work}
+
+\printbibliography
+\end{document}
