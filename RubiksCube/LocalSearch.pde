@@ -5,16 +5,23 @@ import java.util.Arrays;
 class LocalSearch   {
 	
 	Cube cube;
+	FastCube fCube;
 	Cube complete;
-	Cube copy;
 	int stage = 0;
 	char closestSolved = 'a';
 	float pSmallestScore = 1000;
+	String pAlgorithm = "";
 	float[] faceScores = new float[6];
+	int depth = 6;
+	// Depth 5   271,452
+	// Depth 6   3,257,436
+	// Depth 7   39,089,244
+	// Depth 8   469,070,940
+	// Depth 9   5,628,851,292
 	boolean generateAlgorithms = true;
 	boolean whiteFaceSolved = false;
-	boolean yellowFaceSolved = false;
-	boolean[] middleLayersSolved = new boolean[dim - 2];
+	boolean redFaceSolved = false;
+	boolean stage1 = true;
 	ArrayList<Float> allScores = new ArrayList();
 	ArrayList<String> algorithms = new ArrayList();
 	
@@ -30,25 +37,47 @@ class LocalSearch   {
 		switch(stage)   { //<>//
 			// Generate / Prepare algorithms for use.
 			case 0:
-			initialiseAlgorithms();
-			// println("[*]\tStage " + stage);
-			// Finds the face that's closest to being solved...
-			// closestSolved = cubeSolved(cube);
-			stage++;
-			break;
+				println("Stage 0");
+				initialiseAlgorithms();
+				stage++;
+				threadRunning = false;
+				break;
 			case 1:
-			solveWhiteFace();
-			break;
+				println("Stage 1");
+				// solveWhiteFace();
+				if(stage1)	{
+					println("[*]\tBest algorithm\tG1 score\tTime taken (seconds)\t Edges score");
+					stage1 = false;
+				}
+				getG1();
+				threadRunning = false;
+				break;
 			case 2:
-			print("Evaluate cube");
-			paused = true;
+				// solveMiddleLayer();
+				generateG1Algorithms();
+				stage++;
+				// paused = true;
+				break;
+			case 3:
+				solveCubeG1();
+				break;
 			case 10:
-			println("[*]\tWhole cube is solved apparently");
-			lsSolve = false;
-			break;
+				println("[*]\tWhole cube is solved apparently");
+				lsSolve = false;
+				threadRunning = false;
+				break;
 		}
 	}
-	
+	// Score U/D faces that have U/D Stickers	Blue/Green
+
+	boolean G1UD(FastCube f)	{
+		// Green / Blue
+		float w = f.scoreUD("white");
+		float y = f.scoreUD("yellow");
+		float m = f.scoreMiddleEdges();
+		return (w + y + m) == 0 ? true : false;
+	}
+
 	/**
 	* Initialises list of algorithms
 	* could be hardcoded or generated - dictated by a boolean
@@ -56,7 +85,6 @@ class LocalSearch   {
 	void initialiseAlgorithms() {
 		if (generateAlgorithms)  {
 			generateAlgorithms();
-			println("[*]\tGenerated Algorithms : " + algorithms.size());
 			return;
 		} else {
 			println("[*]\tHardcoding Mode");
@@ -64,32 +92,47 @@ class LocalSearch   {
 			// regenAlgorithms();
 			println("[*]\tHardedcoded Algorithms : " + algorithms.size());
 		}
+		
 	}
 
 	/**
 	* Generates algorithms based on the 12 possible moves.
 	*/
 	void generateAlgorithms()    {
+		long start = System.currentTimeMillis();
 		algorithms.clear();
-		int depth = 7;
+		int depth = this.depth;
 		List<String> eachMove = Arrays.asList("F", "B", "L", "R", "U", "D", "F\'", "B\'", "L\'", "R\'", "U\'", "D\'");
 
-		// Prints each move from the eachMove list
-		print("[*]\tEach possible move: ");
-		for(String initem : eachMove)	{
-			if(eachMove.indexOf(initem) == eachMove.size()-1)	{
-				print(initem + ".");
-				println();
-			} else {
-				print(initem + ", ");
-			}
+		// algorithms.add("R'L'B'B'UD'L'R'U'FU'F'");
+		for(int i = 1; i <= depth; i++)	{
+			algorithms.addAll(output(i, eachMove));
+			println("Added all algorithms at depth: " + i);
 		}
 
-		List<String> outlist = new ArrayList();
-		for(int i = depth; i >= 1; i--)	{
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+		println("[*]\tGenerated algorithms.\n");
+		println("Depth\tNumber of algorithms\tDuration");
+		println(depth + "\t" + algorithms.size() + "\t\t" + duration + "s");
+	}
+
+	void generateG1Algorithms()	{
+		long start = System.currentTimeMillis();
+		algorithms.clear();
+		int depth = this.depth;
+		List<String> eachMove = Arrays.asList("F", "B", "L2", "R2", "U2", "D2", "F\'", "B\'");
+
+		for(int i = 1; i <= depth; i++)	{
 			algorithms.addAll(output(i, eachMove));
+			println("G1 algorithms at depth: " + i);
 		}
-		println("[*]\tGenerated algorithms to a depth of 5\t"+ algorithms.size() + " algorithms\n[*]");
+
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+		println("[*]\tGenerated G1 algorithms.\n");
+		println("Depth\tAlgorithms\tDuration");
+		println(depth + "\t" + algorithms.size() + "\t\t" + duration);
 	}
 
 	/**
@@ -105,9 +148,14 @@ class LocalSearch   {
 			result.addAll(eachMove);
 		} else {
 			List<String> res = output(count-1, eachMove);
+			int counter = 0;
 			for(String item : res) {
 				for(String prefix : eachMove) {
+					if(counter != 0 && counter % 10000000 == 0)	{
+						println("100,000,000 generated");
+					}
 					result.add(prefix + item);
+					counter++;
 				}
 			}
 		}
@@ -243,34 +291,162 @@ class LocalSearch   {
 		if (cubeComplete)    println("[*]\tCube completed.");
 		return cubeComplete;
 	}
-	
+
+	void getG1()	{
+		if (!orientCube())	return;
+		fCube = new FastCube(cube);
+
+		if (G1UD(fCube))  {
+			fCube.printCube();
+			stage++;
+			return;
+		}
+			// println("[*]\t\t\t" + (fCube.scoreUD("white")+fCube.scoreUD("yellow") + fCube.scoreMiddleEdges()));
+
+		turns += bestG1Algorithm();
+		// println("[*]\tApplying:\t" + turns);
+	}
+
+	String bestG1Algorithm()	{
+		//  Create copy of cube in its current state
+		FastCube copyCube = new FastCube(cube);
+		FastCube copy = new FastCube(copyCube);
+		// Initialise arraylist to hold every score for every algorithm
+		allScores = new ArrayList();
+		float score = 0;
+		// Tests every algorithm from list of algorithms  
+		long start = System.currentTimeMillis();
+		// println(algorithms.size() + " algorithms to test");
+		for(String algorithm : algorithms)	{
+			score = 0;
+			copy = new FastCube(copyCube);
+			// Test algorithm on copy of the cube
+			copy.testAlgorithm(algorithm);
+			// copy.printCube();
+			score = (copy.scoreUD("white") + copy.scoreUD("yellow"));
+			allScores.add(score);
+			if(copy.scoreCube(copy) == 0)	{
+				return algorithm;
+			}
+		}
+		println("Printing both cubes");
+		copy.printCube();
+		FastCube x = new FastCube(copyCube);
+		x.printCube();
+		// Stores the smallest score unique to this specific cube scramble
+		float smallestScore = allScores.get(0);
+		// For loop that retrieves the smallest score from the list of scores
+		for (float f : allScores)  {
+			if (f < smallestScore)   {
+				smallestScore = f;
+			}
+		}
+
+		if(pSmallestScore < smallestScore)	{
+			pSmallestScore = smallestScore;
+		} else if(pSmallestScore == smallestScore)	{
+			// TODO: Choose the score +1 of the previous smallest
+			// smallestScore = allScores.get(int(random(allScores.size())));
+		}	else	{
+			pSmallestScore = smallestScore;
+		}
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+		// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
+		String bestAlgo = algorithms.get(allScores.indexOf(smallestScore));
+		if(bestAlgo == pAlgorithm)	{
+			bestAlgo = algorithms.get(allScores.indexOf(smallestScore+1));
+		}
+		pAlgorithm = bestAlgo;
+		copy = new FastCube(cube);
+		println("[*]\t" + bestAlgo + "\t\t" + smallestScore + "\t\t\t" + duration + "s" + "\t" + copy.testAlgorithm(bestAlgo).scoreMiddleEdges());
+		// println("[*]\t" + bestAlgo + "\tWhite face score : " + smallestScore + "\tDetermined in " + duration + " seconds.");
+		return bestAlgo;
+	}
+
+	String bestG1SolveAlg()	{
+		FastCube copy = new FastCube(cube);
+		
+		allScores = new ArrayList();
+		float score = 0;
+		// Tests every algorithm from list of algorithms  
+		long start = System.currentTimeMillis();
+		// println(algorithms.size() + " algorithms to test");
+		for(String algorithm : algorithms)	{
+			score = 0;
+			copy = new FastCube(cube);
+			// Test algorithm on copy of the cube
+			copy = copy.testAlgorithm(algorithm);
+			if((copy.scoreUD("white") + copy.scoreUD("yellow") + copy.scoreMiddleEdges()) != 0)	{
+				continue;
+			}
+			score = copy.scoreCube(copy);
+			allScores.add(score);
+		}
+		// Stores the smallest score unique to this specific cube scramble
+		float smallestScore = allScores.get(0);
+		// For loop that retrieves the smallest score from the list of scores
+		for (float f : allScores)  {
+			if (f < smallestScore)   {
+				smallestScore = f;
+			}
+		}
+		
+		if(pSmallestScore < smallestScore)	{
+			pSmallestScore = smallestScore;
+		} else if(pSmallestScore == smallestScore)	{
+			// TODO: Choose the score +1 of the previous smallest
+			// smallestScore = allScores.get(int(random(allScores.size())));
+		}	else	{
+			pSmallestScore = smallestScore;
+		}
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+		// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
+		String bestAlgo = algorithms.get(allScores.indexOf(smallestScore));
+		println("[*]\tBest algorithm\tG1 score\tTime taken (seconds)\t Edges score");
+		println("[*]\t" + bestAlgo + "\t\t" + smallestScore + "\t\t\t" + duration + "s" + "\t");
+		// println("[*]\t" + bestAlgo + "\tWhite face score : " + smallestScore + "\tDetermined in " + duration + " seconds.");
+		return bestAlgo;
+	}
+
+	void solveCubeG1()	{
+		if (!orientCube())	return;
+		fCube = new FastCube(cube);
+
+		if (fCube.scoreCube(fCube) == 0)	{
+			println("Solved");
+			paused = true;
+		} else {
+			println("[*]\t Cube score: " + fCube.scoreCube(fCube));
+		}
+
+		turns += bestG1SolveAlg();
+	}
+
 	/**
 	* Attempts to solve the white face of the cube
 	* Will increase stage number when white face is done.
 	*/ 
 	void solveWhiteFace()	{
-		if (!(getFaceColour('D') == white))  {
-			positionFace(white, 'D', 'X');
-			return;
-		}
-		if (!(getFaceColour('F') == green))  {
-			positionFace(green, 'F', 'Y');
-			return;
-		}
+		if (!orientCube())	return;
+		fCube = new FastCube(cube);
 		
 		// Check how solved the white face is before generating moves.
-		if (scoreFace(cube, white) == 0)  {
+		if (fCube.scoreFace("white") == 0)  {
 			// TODO: If white face is solved, keep it oriented on D face and use algorithms that do NOT affect the D face's current solve.
-			println("[*]\tWhite face solved.");
+			println("[*]\tWhite face solved\tScore: " + fCube.scoreFace("white"));
+			fCube.printCube();
 			whiteFaceSolved = true;
 			stage++;
 			return;
 		} else {
-			println("[*]\t White face score: " + scoreFace(cube, white));
+			println("[*]\t White face score: " + fCube.scoreFace("white"));
 		}
+		turns += bestWhiteFaceAlgorithm();
+		// println("[*]\tApplying:\t" + turns);
 		
-		if (!whiteFaceSolved) turns += bestWhiteFaceAlgorithm();
-		
+		// paused = true;
 		// Assume white face is on down face
 		char whiteFace = 'D';
 		String faces = "RLUBF";
@@ -283,6 +459,50 @@ class LocalSearch   {
 		// Check if any of the edges on the top face are in the correct position but not the correct orientation...
 	}
 	
+	void solveMiddleLayer()	{
+		orientCube();
+		fCube = new FastCube(cube);
+		// Check how solved the white face is before generating moves.
+		if (fCube.scoreFace("red") == 0)  {
+			// TODO: If white face is solved, keep it oriented on D face and use algorithms that do NOT affect the D face's current solve.
+			println("[*]\tFirst two layers solved.");
+			redFaceSolved = true;
+			stage++;
+			return;
+		} else {
+			println("[*]\t Red face score: " + fCube.scoreFace("red"));
+			println("[*]\t\t White score: " + fCube.scoreFace("white"));
+		}
+
+		if (!redFaceSolved) turns += bestMiddleLayerAlgorithm();
+		// println("[*]\tApplying:\t"+turns);
+		// Assume red face is on left face
+		char redFace = 'L';
+		String faces = "RLUBF";
+		for (int i = 0; i < faces.length(); i++) {
+			// If face colour is white, assign the face to variable whiteFace
+			if (getFaceColour(faces.charAt(i)) == red)	{
+				redFace = faces.charAt(i);
+			}
+		}
+	}
+
+	/**
+	* Orients cube to same position every time
+	* White face on D face and Green face on F face
+	*/
+	boolean orientCube()	{
+		if (!(getFaceColour('D') == white))  {
+			positionFace(white, 'D', 'X');
+			return false;
+		}
+		if (!(getFaceColour('F') == green))  {
+			positionFace(green, 'F', 'Y');
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	* Best algorithm for white face
 	*
@@ -290,26 +510,22 @@ class LocalSearch   {
 	*/
 	String bestWhiteFaceAlgorithm()	{
 		//  Create copy of cube in its current state
-		Cube copy = new Cube(cube);
-		float score;
+		FastCube copy = new FastCube(cube);
 		// Initialise arraylist to hold every score for every algorithm
 		allScores = new ArrayList();
-		boolean optimalSolutionFound = false;
+		
+		float score;
 		// Tests every algorithm from list of algorithms  
+		long start = System.currentTimeMillis();
+		// println(algorithms.size() + " algorithms to test");
 		for(String algorithm : algorithms)	{
-			copy = new Cube(cube);
 			score = 0;
-			// Tests algorithm on copy of this cube.
-			Cube cubeAfterAlgorithm = copy.testAlgorithm(algorithm);
-			// Scores the cube's white face.
-			score = scoreFace(cubeAfterAlgorithm, white);
-			if(score == 0)	{
-				allScores.clear();
-				return algorithm;
-			}
+			copy = new FastCube(cube);
+			// Test algorithm on copy of the cube
+			copy = copy.testAlgorithm(algorithm);
+			score = copy.scoreFace("white");
 			allScores.add(score);
 		}
-
 		// Stores the smallest score unique to this specific cube scramble
 		float smallestScore = allScores.get(0);
 		// For loop that retrieves the smallest score from the list of scores
@@ -319,49 +535,146 @@ class LocalSearch   {
 			}
 		}
 
-		// If the smallest score for this particular scramble puts the cube in a worse state than it's in currently...
-		// if(smallestScore > pSmallestScore)	{
-		// 	println("[*]\tPrevious score: " + pSmallestScore + "\tThis smallest score: " + smallestScore);
-		// 	println("[*]\tCould not find a better solution via the algorithms available");
-		// 	// paused = true;
-		// } else {
-		// 	pSmallestScore = smallestScore;
-		// }
-
+		if(pSmallestScore < smallestScore)	{
+			pSmallestScore = smallestScore;
+		} else if(pSmallestScore == smallestScore)	{
+			// TODO: Choose the score +1 of the previous smallest
+			smallestScore = allScores.get(int(random(allScores.size())));
+		}	else	{
+			pSmallestScore = smallestScore;
+		}
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
 		// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
 		String bestAlgo = algorithms.get(allScores.indexOf(smallestScore));
-		println("[*]\tBest Algorithm toward solving the White face");
-		println("[*]\t" + bestAlgo + "\n[*]\tScore : " + smallestScore);
+		println("[*]\tBest algorithm\tWhite face score\tTime taken (seconds)");
+		println("[*]\t" + bestAlgo + "\t\t" + smallestScore + "\t\t\t" + duration + "s");
+		// println("[*]\t" + bestAlgo + "\tWhite face score : " + smallestScore + "\tDetermined in " + duration + " seconds.");
 		return bestAlgo;
 	}
 
+	String bestMiddleLayerAlgorithm()	{
+		//  Create copy of cube in its current state
+		FastCube copy = new FastCube(cube);
+		// Initialise arraylist to hold every score for every algorithm
+		allScores = new ArrayList();
+		
+		float score;
+		float whiteFaceScore;
+		// Tests every algorithm from list of algorithms  
+		long start = System.currentTimeMillis();
+		println(algorithms.size() + " algorithms to test");
+		for(String algorithm : algorithms)	{
+			copy = new FastCube(cube);
+			copy.testAlgorithm(moves);
+			whiteFaceScore = copy.scoreFace("white");
+			if(whiteFaceScore == 0)	{
+				copy = copy.testAlgorithm(algorithm);
+				score = copy.scoreFace(copy.red, "red");
+				allScores.add(score);
+				println("Algorithm : " + algorithm + "\t Score: " + score);
+				if(score == 0)	{
+					allScores.clear();
+					return algorithm;
+				}
+			}
+		}
+
+		if(allScores.size() == 0)	{
+			println("No algorithms found...");
+			paused = true;
+			return "";
+		}
+		// Stores the smallest score unique to this specific cube scramble
+		float smallestScore = allScores.get(0);
+		// For loop that retrieves the smallest score from the list of scores
+		for (float f : allScores)  {
+			if (f < smallestScore)   {
+				smallestScore = f;
+			}
+		}
+		if(pSmallestScore > smallestScore)	pSmallestScore = smallestScore;
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+		// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
+		String bestAlgo = algorithms.get(allScores.indexOf(smallestScore));
+		println("[*]\t" + bestAlgo + "\tRed face score : " + smallestScore + "\tDetermined in " + duration + " seconds.");
+		return bestAlgo;
+	}
 	/**
 	* Returns the algorithm better suited to pushing the Rubik's cube closer to a solved state
 	*/ 
+	// String bestAlgorithm()   {
+	// 	//  Create copy of cube in its current state
+	// 	Cube copy = new Cube(cube);
+	// 	allScores = new ArrayList();
+
+	// 	// Score the copy cube after an algorithm is applied to it
+	// 	for (String moves : algorithms)   {
+	// 		float combination = scoreCube(copy.testAlgorithm(moves));
+	// 		allScores.add(combination);
+	// 	}
+		
+	// 	float smallestScore = allScores.get(0);
+	// 	for (float f : allScores)  {
+	// 		if (f < smallestScore)   {
+	// 			smallestScore = f;
+	// 		}
+	// 	}
+	// 	pSmallestScore = smallestScore;
+	// 	if(smallestScore > pSmallestScore)	{
+	// 		println("[*]\tPrevious score: " + pSmallestScore + "\tThis smallest score: " + smallestScore);
+	// 		println("[*]\tCould not find a better solution via the algorithms available");
+	// 		paused = true;
+	// 	}
+
+	// 	// Best algorithm retrieved in reference to lowest scoring algorithm index in arraylist is returned to apply to the actual cube
+	// 	String bestAlgo = "\"" + algorithms.get(allScores.indexOf(smallestScore)) + "\"";
+	// 	println("[*]\tBest Scoring Algorithm : \t" + bestAlgo + "\t Score : " + smallestScore);
+	// 	// String debugAlgo = "FFFFFFF";
+	// 	return bestAlgo;
+	// }
+
 	String bestAlgorithm()   {
 		//  Create copy of cube in its current state
-		Cube copy = new Cube(cube);
+		FastCube copy = new FastCube(cube);
 		allScores = new ArrayList();
-
+	
 		// Score the copy cube after an algorithm is applied to it
 		for (String moves : algorithms)   {
-			float combination = scoreCube(copy.testAlgorithm(moves));
-			allScores.add(combination);
+			if(whiteFaceSolved)	{
+				copy.testAlgorithm(moves);
+				float whiteFaceScore = copy.scoreFace("white");
+				if(whiteFaceScore != 0)	continue;
+				float combination = copy.scoreCube(copy.testAlgorithm(moves));
+				allScores.add(combination);
+			} else {
+				float combination = copy.scoreCube(copy.testAlgorithm(moves));
+				allScores.add(combination);
+			}
 		}
-		
+
+		if(allScores.size() == 0)	{
+			println("No algorithms could be found for this cube.");
+			return "";
+		}
+
 		float smallestScore = allScores.get(0);
 		for (float f : allScores)  {
 			if (f < smallestScore)   {
 				smallestScore = f;
 			}
 		}
-		pSmallestScore = smallestScore;
+
+		
 		if(smallestScore > pSmallestScore)	{
 			println("[*]\tPrevious score: " + pSmallestScore + "\tThis smallest score: " + smallestScore);
 			println("[*]\tCould not find a better solution via the algorithms available");
 			paused = true;
+		} else	{
+			pSmallestScore = smallestScore;
 		}
-
+		
 		// Best algorithm retrieved in reference to lowest scoring algorithm index in arraylist is returned to apply to the actual cube
 		String bestAlgo = "\"" + algorithms.get(allScores.indexOf(smallestScore)) + "\"";
 		println("[*]\tBest Scoring Algorithm : \t" + bestAlgo + "\t Score : " + smallestScore);

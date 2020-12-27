@@ -10,16 +10,26 @@ void keyPressed() {
     }
   } else {
   switch(key) {
+  case 'a':
+    fCube = new FastCube(cube);
+    break;
   case 't':
-    FastCube f = new FastCube(cube);
+    // String[] moves = {"R\'", "U\'", "R\'", "L\'", "U\'"};
+    // for(String m : moves) {
+    //   fCube.move(m);
+      fCube.printCube();
+    // }
+    println("Score for Yellow\t" + fCube.scoreUD("yellow"));
+    println("Score for white\t" + fCube.scoreUD("white"));
+    
     break;
   case 'h':
     hud = !hud;
     break;
   case 's':
     if(bigTroll()) break;
-    // cube.scrambleCube();
-    cube.hardcodedScrambleCube();
+    cube.scrambleCube();
+    // cube.hardcodedScrambleCube();
     break;
   case '0':
     hSolve = true;

@@ -839,17 +839,6 @@ INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/main.toc
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/main.toc
 OUTPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/main.toc
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
-INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/terminology.tex
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/introduction.tex
@@ -863,6 +852,9 @@ INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/introduction.tex
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/introduction.tex
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/introduction.tex
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/main.aux
 INPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/main.run.xml
 OUTPUT /Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/Dissertation/main.run.xml

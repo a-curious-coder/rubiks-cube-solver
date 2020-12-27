@@ -23,6 +23,7 @@ boolean hud;
 boolean counterReset;
 boolean display2D;
 boolean choosing;
+boolean threadRunning = false;
 ArrayList<Cubie> corners;
 ArrayList<Cubie> edges;
 ArrayList<Cubie> centers;
@@ -36,6 +37,7 @@ ArrayList<Cubie> right = new ArrayList();
 ArrayList<Cubie> top = new ArrayList();
 ArrayList<Cubie> down = new ArrayList();
 PImage background;
+FastCube fCube;
 Cube cube;
 Cube completeCube;
 Move currentMove;
@@ -74,6 +76,7 @@ void setup() {
 	allMoves = new ArrayList<Move>();
 	fMoves = new ArrayList<String>();
 	cube = new Cube();
+	fCube = new FastCube();
 	completeCube = new Cube();
 	// initTextBox();
 	
@@ -137,7 +140,11 @@ void draw() {
 					counter = 0;
 					counterReset = false;
 				}
-				cube.lsAlgorithm.solve();
+				// cube.lsAlgorithm.solve();
+				if(!threadRunning)	{
+					threadRunning = true;
+					thread("startSearchAlgorithm");
+				}
 			}
 		}
 		cube.update();
@@ -175,11 +182,16 @@ void draw() {
 		text("FPS : \t" + fps, x, y);
 		y += 20;
 		text("Speed : \t" + nf(speed, 1, 1), x, y);
-		y += 20;
-		text("Cube : \t" + dim + "x" + dim + "x" + dim, x, y);
+		// y += 20;
+		// text("Cube : \t" + dim + "x" + dim + "x" + dim, x, y);
 		if(lsSolve)	{
 			y+= 20; 
-			text("Current score of cube: " + pSmallestScore, x, y);
+			text("Current score of cube: " + cube.lsAlgorithm.pSmallestScore, x, y);
+		}
+		
+		if(paused)	{
+			y += 20;
+			text("Paused", x, y);
 		}
 		// y += 20;
 		// float nCombinations = dim == 2 ? fact(7) * pow(3, 6) : 1;
@@ -197,6 +209,10 @@ void draw() {
 	}
 }
 
+void startSearchAlgorithm()	{
+	cube.lsAlgorithm.solve();
+	return;
+}
 /**
 * Sets the camera view for the program
 */
@@ -355,7 +371,7 @@ void InitialiseMoves() {
 	for (float i = - axis; i <= axis; i++) {
 		if (i != 0) {
 			// assigns all x axis movements (R, L)
-			allMoves.add(new Move('X', i, 2));   // R2  L2
+			// allMoves.add(new Move('X', i, 2));   // R2  L2
 			allMoves.add(new Move('X', i, 1));   // R   L
 			allMoves.add(new Move('X', i, - 1));  // R'  L'
 			

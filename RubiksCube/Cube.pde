@@ -170,7 +170,7 @@ class Cube {
 		}
 		// TODO: Temporary fix here... 
 		// Unsure why the D face won't behave accordingly to it's given direction. Needs inverting.
-		if(axisFace == 'Y' && index == 1.0)	{
+		if(axisFace == 'Y' && index == 1.0 && dir != 2)	{
 			dir = -dir;
 		}
 		currentAxis = axisFace;
@@ -748,25 +748,33 @@ class Cube {
 
 	String getFace(String s)	{
 		int cIndex;
+		ArrayList<Cubie> cubies = new ArrayList();
 		// Find index for the colours of a specific face.
 		switch(s)	{
+			case "orange":
+				cIndex = 0;
+				cubies = getList('X', axis, 0);
+				// print("cubies size: " + cubies.size());
+			break;
 			case "red":
 				cIndex = 1;
-				break;
+				cubies = getList('X', -axis, 0);
+			break;
 			case "yellow":
 				cIndex = 2;
+				cubies = getList('Y', -axis, 0);
 				break;
 			case "white":
 				cIndex = 3;
+				cubies = getList('Y', axis, 0);
 				break;
 			case "green":
 				cIndex = 4;
+				cubies = getList('Z', axis, 0);
 				break;
 			case "blue":
 				cIndex = 5;
-				break;
-			case "orange":
-				cIndex = 0;
+				cubies = getList('Z', -axis, 0);
 				break;
 			default:
 				cIndex = 0;
@@ -775,10 +783,11 @@ class Cube {
 		String face = "";
 		for(Cubie c : cubies)	{
 			if(c.colours[cIndex] != color(0))	{
+				// print(colourToChar(c.colours[cIndex]) + ", ");
 				face += colourToChar(c.colours[cIndex]);
 			}
 		}
-		println(s + "\n" + face);
+		// println("1\t" + face);
 		return face;
 	}
 
