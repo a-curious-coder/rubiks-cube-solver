@@ -10,9 +10,12 @@ class LocalSearch   {
 	int stage = 0;
 	char closestSolved = 'a';
 	float pSmallestScore = 1000;
+	float cubeScore;
 	String pAlgorithm = "";
 	float[] faceScores = new float[6];
 	int depth = 6;
+	int globalCounter = 0;
+
 	// Depth 5   271,452
 	// Depth 6   3,257,436
 	// Depth 7   39,089,244
@@ -24,37 +27,41 @@ class LocalSearch   {
 	boolean stage1 = true;
 	ArrayList<Float> allScores = new ArrayList();
 	ArrayList<String> algorithms = new ArrayList();
+	List<String> eachMove = Arrays.asList("F", "B", "L", "R", "U", "D", "F\'", "B\'", "L\'", "R\'", "U\'", "D\'", "F2", "B2", "L2", "R2", "U2", "D2");
+	String previousAlgo;
 	
 	LocalSearch(Cube cube)  {
 		this.cube = cube;
 	}
 	
-	/**
-	* Responsible for managing the stage of the solving process
-	*/
 	void solve()    {
-		// println("[*]\tLocal search");
 		switch(stage)   { //<>//
 			// Generate / Prepare algorithms for use.
 			case 0:
-				println("Stage 0");
 				initialiseAlgorithms();
 				stage++;
 				threadRunning = false;
 				break;
 			case 1:
-				println("Stage 1");
-				// solveWhiteFace();
 				if(stage1)	{
+					fCube = new FastCube(cube);
+					fCube.printCube();
 					println("[*]\tBest algorithm\tG1 score\tTime taken (seconds)\t Edges score");
 					stage1 = false;
 				}
+				
+				println("Before");
+				long start = System.currentTimeMillis();
 				getG1();
+				long end = System.currentTimeMillis();
+				float duration = (end - start) / 1000F;
+				println("End: " + duration);
+
 				threadRunning = false;
 				break;
 			case 2:
 				// solveMiddleLayer();
-				generateG1Algorithms();
+				// generateG1Algorithms();
 				stage++;
 				// paused = true;
 				break;
@@ -102,12 +109,15 @@ class LocalSearch   {
 		long start = System.currentTimeMillis();
 		algorithms.clear();
 		int depth = this.depth;
-		List<String> eachMove = Arrays.asList("F", "B", "L", "R", "U", "D", "F\'", "B\'", "L\'", "R\'", "U\'", "D\'");
 
 		// algorithms.add("R'L'B'B'UD'L'R'U'FU'F'");
 		for(int i = 1; i <= depth; i++)	{
+			if(i % 2 == 0)	{
 			algorithms.addAll(output(i, eachMove));
-			println("Added all algorithms at depth: " + i);
+			println("Added all algorithms at depth: " + i + "\n" + algorithms.size() + " of them.");
+			} else {
+				println("Skipping " + i);
+			}
 		}
 
 		long end = System.currentTimeMillis();
@@ -136,30 +146,127 @@ class LocalSearch   {
 	}
 
 	/**
-	* Generates the combinations for generateAlgorithms
+	* Search algorithm
 	*
-	* @param	count		
-	* @param	eachMove	
-	* @return	result		
+	* @param	f	Computationally lighter representation of Cube we're solving
+	* @param	d	Represents the length of the moves we're testing.
+	* @param 	eachMove	List of each unique move
+	*/
+	void Treesearch(FastCube f, int d)	{
+		if ((f.scoreUD("white") + f.scoreUD("yellow")) == 0)	{
+			// Apply sequence of moves to main cube object.
+			cube.testAlgorithm(previousAlgo);
+			// Prints cube state after sequence of moves applied.
+			f.printCube();
+			println("Desired state reached!");
+			return;
+		} else if(d > 0)	{
+			if(d != 1) {
+				for(String prefix : eachMove) {
+					Treesearch(f.testAlgorithm(prefix), d-1);
+				}
+			}
+		}
+	}
+
+	/**
+	* Generates the permutations for generateAlgorithms function (This just stores the algorithms to an arraylist)
+	*
+	* @param	count		The length of each algorithm permutation we're generating for the List
+	* @param	eachMove	Each possible move that can be applied to a Rubik's Cube (18 of them)
+	* @return	result		List of algorithms
 	*/
 	List<String> output(int count, List<String> eachMove) {
 		ArrayList<String> result = new ArrayList();
+		// float depthTotal = pow(count, eachMove.size());
+		// println("Depth " + count + " : " + (int)depthTotal);
+		char[] xAxis = {'R', 'L'};
+		char[] yAxis = {'U', 'D'};
+		char[] zAxis = {'F', 'B'};
+
 		if(count == 1) {
 			result.addAll(eachMove);
 		} else {
 			List<String> res = output(count-1, eachMove);
 			int counter = 0;
+			boolean pointlessMove = false;
+
 			for(String item : res) {
+				// pointlessMove = false;
 				for(String prefix : eachMove) {
-					if(counter != 0 && counter % 10000000 == 0)	{
-						println("100,000,000 generated");
-					}
-					result.add(prefix + item);
 					counter++;
+					if(movePointless(item, prefix)) continue;
+					result.add(prefix + item);
+					println(result.get(result.size()-1));
+					if(counter % 10000000 == 0)	{
+						println("10 mil");
+					}
 				}
 			}
 		}
 		return result;
+	}
+	
+	/**
+	* Checks if next move appended to 'prefix' is valid
+	* Rules:
+	* If next move is the invert of this move - 2 if statements
+	* If this move and last move are the same, skip - 2 if statements
+	* 
+	*/
+	boolean movePointless(String item, String prefix)	{
+		boolean pointlessMove = false;
+		// If move is clockwise and prefix has 1 or more moves
+		if(item.length() == 1 && prefix.length() >= 1)	{
+			// If the previous move is counterclockwise version of this move
+			if(prefix.charAt(prefix.length()-1) == '\'' && 
+				prefix.charAt(prefix.length()-2) == item.charAt(item.length()-1))	{
+				pointlessMove = true;
+				return pointlessMove;
+			} else if(item.charAt(item.length()-1) == prefix.charAt(prefix.length()-2))	{
+				
+			}	else if(item.charAt(item.length()-1) == prefix.charAt(prefix.length()-1))	{
+				pointlessMove = true;
+				return pointlessMove;
+			}
+		// If this move is counterclockwise or double
+		} else if(item.length() > 1 && prefix.length() > 1)	{
+			// If move is counterclockwise and prefix has clockwise variant of this move
+			if(item.charAt(item.length()-1) == '\'' &&
+				item.charAt(item.length()-2) == prefix.charAt(prefix.length()-1))	{
+				pointlessMove = true;
+				return pointlessMove;
+			}
+			// If previous move is same as this move
+			if(item.charAt(item.length()-2) == prefix.charAt(prefix.length()-2) &&
+				item.charAt(item.length()-1) == prefix.charAt(prefix.length()-1))	{
+				pointlessMove = true;
+				return pointlessMove;
+			}
+			// If previous 3 clockwise moves are the same as this move, pointless.
+				if(prefix.charAt(prefix.length()-1) == prefix.charAt(prefix.length()-2) && 
+					prefix.charAt(prefix.length()-2) == prefix.charAt(prefix.length()-3) && 
+					prefix.charAt(prefix.length()-3) == item.charAt(item.length()-1))	{
+					pointlessMove = true;
+					return pointlessMove;
+					// If previous 2 prime moves are same face as this double move
+					// If the previous 2 moves are the same face as this double move
+				} 
+				else if(prefix.charAt(prefix.length()-1) == '\'' && prefix.charAt(prefix.length()-3) == '\'' && 
+				(prefix.charAt(prefix.length()-2) == prefix.charAt(prefix.length()-4) || 
+				prefix.charAt(prefix.length()-1) == prefix.charAt(prefix.length()-2)) && 
+				prefix.charAt(prefix.length()-2) == item.charAt(item.length()-2) && item.charAt(item.length()-1) == '2')	{
+					pointlessMove = true;
+					return pointlessMove;
+				}  else if (prefix.charAt(prefix.length()-2) == item.charAt(item.length()-2))	{
+					pointlessMove = true;
+					return pointlessMove;
+				}
+				// else if (item.charAt(item.length()-1) == prefix.charAt(prefix.length()-3))	{
+				// TODO: Verify that no two moves are concurrently made that are on same axis
+				// }
+		}
+		return pointlessMove;
 	}
 	
 	/**
@@ -311,55 +418,84 @@ class LocalSearch   {
 		//  Create copy of cube in its current state
 		FastCube copyCube = new FastCube(cube);
 		FastCube copy = new FastCube(copyCube);
+		cubeScore = copy.scoreCube(copy);
 		// Initialise arraylist to hold every score for every algorithm
 		allScores = new ArrayList();
 		float score = 0;
 		// Tests every algorithm from list of algorithms  
 		long start = System.currentTimeMillis();
-		// println(algorithms.size() + " algorithms to test");
+		int counter = 0;
+		int algoSize = algorithms.size()/20;
 		for(String algorithm : algorithms)	{
+			counter++;
+			percentTilNextMove = (((float)100000*counter/100000)/(float)algorithms.size()*(float)100);
 			score = 0;
 			copy = new FastCube(copyCube);
-			// Test algorithm on copy of the cube
+
 			copy.testAlgorithm(algorithm);
-			// copy.printCube();
 			score = (copy.scoreUD("white") + copy.scoreUD("yellow"));
-			allScores.add(score);
-			if(copy.scoreCube(copy) == 0)	{
+			
+			if(copy.scoreCube(copy) == 0 || score == 0)	{
 				return algorithm;
+			} else {
+				allScores.add(score);
 			}
 		}
-		println("Printing both cubes");
-		copy.printCube();
-		FastCube x = new FastCube(copyCube);
-		x.printCube();
+
 		// Stores the smallest score unique to this specific cube scramble
 		float smallestScore = allScores.get(0);
+		float smallestScoreIndex = 0;
 		// For loop that retrieves the smallest score from the list of scores
 		for (float f : allScores)  {
 			if (f < smallestScore)   {
 				smallestScore = f;
+				smallestScoreIndex = allScores.indexOf(f);
 			}
 		}
 
-		if(pSmallestScore < smallestScore)	{
-			pSmallestScore = smallestScore;
-		} else if(pSmallestScore == smallestScore)	{
-			// TODO: Choose the score +1 of the previous smallest
-			// smallestScore = allScores.get(int(random(allScores.size())));
-		}	else	{
-			pSmallestScore = smallestScore;
+		ArrayList<Float> lowScores = new ArrayList();
+		ArrayList<Integer> lowScoreIndexes = new ArrayList();
+		for(float f : allScores)	{
+			if(f == smallestScore)	{
+				lowScores.add(f);
+				lowScoreIndexes.add(allScores.indexOf(f));
+			}
 		}
+		
+		int len = 10;
+		String bestAlgo = "";
+		for(Integer f : lowScoreIndexes)	{
+			if(algorithms.get(f).length() < len)	{
+				// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
+				bestAlgo = algorithms.get(f);
+			}
+		}
+
+		// copy = new FastCube(copyCube);
+		// copy.testAlgorithm(bestAlgo);
+		// copy.printCube();
+		// println("G1 Score: " + copy.scoreUD("white") + "\t" + copy.scoreUD("yellow"));
+		// if(lowScores.size() == 1)	{
+		// 	println("There's " + lowScores.size() + " algorithm with the score of " + smallestScore);
+		// } else	{
+		// 	println("There are " + lowScores.size() + " algorithms with the score of " + smallestScore);
+		// }
+		
+		// println("Smallest score at: " + (int)smallestScoreIndex + " / " + allScores.size());
+		pSmallestScore = smallestScore;
 		long end = System.currentTimeMillis();
 		float duration = (end - start) / 1000F;
-		// Best algorithm retrieved in reference to lowest scoring algorithms' index in arraylist is returned and will be applied to the main cube
-		String bestAlgo = algorithms.get(allScores.indexOf(smallestScore));
-		if(bestAlgo == pAlgorithm)	{
-			bestAlgo = algorithms.get(allScores.indexOf(smallestScore+1));
+		if(bestAlgo.length() < 7)	{
+			println("[*]\t" + bestAlgo + "\t\t" + smallestScore + "\t\t\t" + duration + "s" + "\t");
+		} else if (bestAlgo.length() > 7 && bestAlgo.length() < 8){
+			println("[*]\t" + bestAlgo + "\t\t" + smallestScore + "\t\t" + duration + "s" + "\t");
+		} else {
+			println("[*]\t" + bestAlgo + "\t" + smallestScore + "\t\t" + duration + "s" + "\t");
+		}
+		if(pAlgorithm == bestAlgo)	{
+
 		}
 		pAlgorithm = bestAlgo;
-		copy = new FastCube(cube);
-		println("[*]\t" + bestAlgo + "\t\t" + smallestScore + "\t\t\t" + duration + "s" + "\t" + copy.testAlgorithm(bestAlgo).scoreMiddleEdges());
 		// println("[*]\t" + bestAlgo + "\tWhite face score : " + smallestScore + "\tDetermined in " + duration + " seconds.");
 		return bestAlgo;
 	}

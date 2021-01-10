@@ -51,14 +51,13 @@ String foundRotation(int fromIndex, int toIndex, char turnCharacter) {
   if (abs(fromIndex - toIndex) == 2) {
     return "" + turnCharacter + turnCharacter;
   }
-  
   if (fromIndex <= toIndex) {
     for (int i = fromIndex; i < toIndex; i++) { 
       finalString += turnCharacter + "\'";
     }
   } else {
     for (int i = toIndex; i < fromIndex; i++) { 
-      finalString += turnCharacter;
+      finalString += fromIndex == 3 && toIndex == 2 ? turnCharacter + "\'" : turnCharacter;
     }
   }
   return finalString;
@@ -119,9 +118,9 @@ String getDirectionOfCorners(PVector from, PVector to)  {
 
   fromIndex = getLocationOfCubie(lowerCorners, from);
   toIndex = getLocationOfCubie(lowerCorners, to);
-
+  print("fromIndex: " + fromIndex + "toIndex: " + toIndex);
   if(fromIndex >= 0 && toIndex >= 0)  {return foundRotation(fromIndex, toIndex, 'D');}
-
+  
   return "";
 }
 

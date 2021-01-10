@@ -215,6 +215,9 @@ class Cubie {
     return colours[4];
   }
 
+  PVector getPosition() {
+    return new PVector(x, y, z);
+  }
   color getBack()  {
     return colours[5];
   }

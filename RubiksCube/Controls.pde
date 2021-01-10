@@ -11,16 +11,17 @@ void keyPressed() {
   } else {
   switch(key) {
   case 'a':
-    fCube = new FastCube(cube);
+    cube.iSmallSolver();
+    twoxtwosolve = true;
     break;
   case 't':
+    println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
     // String[] moves = {"R\'", "U\'", "R\'", "L\'", "U\'"};
-    // for(String m : moves) {
-    //   fCube.move(m);
+    String[] moves = {"R2"};
+    for(String m : moves) {
+      fCube.move(m);
       fCube.printCube();
-    // }
-    println("Score for Yellow\t" + fCube.scoreUD("yellow"));
-    println("Score for white\t" + fCube.scoreUD("white"));
+    }
     
     break;
   case 'h':
@@ -108,7 +109,7 @@ void keyPressed() {
       print("animating\n");
       return;
     }
-    println("Key pressed: " + key);
+    // println("Key pressed: " + key);
     applyMove(key);
     break;
   }

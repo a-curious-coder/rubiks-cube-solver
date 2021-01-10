@@ -3,6 +3,7 @@ class Cube {
 	char currentAxis;
 	int len;
 	int currentDirection;
+	int dimensions;
 	float rotationAngle;
 	float rotatingIndex;
 	boolean rotatingCubie = false;
@@ -14,8 +15,10 @@ class Cube {
 	ArrayList<ArrayList<Cubie>> cubieLists;
 	HumanAlgorithm hAlgorithm;
 	LocalSearch lsAlgorithm;
+	solve2x2 twoxtwoSolver;
 	
 	Cube() {
+		dimensions = dim;
 		// Instantiates the number of cubies within the cube based on the cubes size. (Eliminates storing inner cubies)
 		cubies = dim == 1 ? new Cubie[1] : new Cubie[(int)(pow(dim, 3) - pow(dim - 2, 3))];
 		cubieLists = new ArrayList();
@@ -34,12 +37,10 @@ class Cube {
 					PMatrix3D matrix = new PMatrix3D();
 					matrix.translate(x - axis, y - axis, z - axis);
 					cubies[index] = new Cubie(matrix, x - axis, y - axis, z - axis);
-					
 					index++;
 				}
 			}
 		}
-
 		hAlgorithm = new HumanAlgorithm(this);
 		lsAlgorithm = new LocalSearch(this);
 	}
@@ -82,8 +83,11 @@ class Cube {
 	}
 	
 
+	void iSmallSolver()	{
+		twoxtwoSolver = new solve2x2(this);
+	}
 	/**
-	* Shows the cube on screen
+	* Shows the cube on ~reen
 	*/
 	void show() {
 		int angleMultiplier = currentDirection;
@@ -170,9 +174,7 @@ class Cube {
 		}
 		// TODO: Temporary fix here... 
 		// Unsure why the D face won't behave accordingly to it's given direction. Needs inverting.
-		if(axisFace == 'Y' && index == 1.0 && dir != 2)	{
-			dir = -dir;
-		}
+		if(axisFace == 'Y' && index == axis && dir != 2)	dir = -dir;
 		currentAxis = axisFace;
 		currentDirection = dir;
 		rotatingIndex = index;
@@ -210,7 +212,7 @@ class Cube {
 	* @param	dir			The direction the face is turning
 	*/
 	void finaliseTurn(char axisFace, float index, int dir) {
-		animating = false;
+		animating = false; 
 		if (axisFace == 'X' && index > - axis && dir != 2)  dir = -currentDirection;
 		if (axisFace == 'Z' && index == - axis && dir != 2) dir = -currentDirection;
 		
@@ -378,7 +380,8 @@ class Cube {
 		counter = 0;
 		Move copy = new Move();
 		
-		String[] hardMoves = {"F", "U", "F'", "U", "R", "L", "D", "U'", "B", "B", "L", "R"};
+		// String[] hardMoves = {"F", "U", "F'", "U", "R", "L", "D", "U'", "B", "B", "L", "R"};
+		String[] hardMoves = {"B2", "D2", "R", "U2", "F'", "F'", "U'", "F'", "U", "F", "D2", "R", "R'", "U'", "R'", "D", "B", "D" , "R\'", "B2"};
 		numberOfMoves = hardMoves.length;
 	
 		for (String m : hardMoves) {
@@ -687,6 +690,14 @@ class Cube {
 	*/
 	Cubie getCubie(int i) {
 		return cubies[i];
+	}
+
+	Cubie[] getCubies()	{
+		Cubie[] allCubies = new Cubie[(int)(pow(dim, 3) - pow(dim - 2, 3))];
+		for(int i = 0; i < cubies.length; i++)	{
+			allCubies[i] = cubies[i];
+		}
+		return allCubies;
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 class Face {
-  float radius = 0.1;
+  float radius = 0.06;
   float faceWidth = 0.95;
   float faceHeight = 0.95;
   PVector normal;
@@ -45,7 +45,7 @@ class Face {
   void show() {
     push();
       // noStroke();
-      stroke(dim*dim*12);
+      stroke(0);
       rectMode(CENTER);
       translate(0.5*normal.x, 0.5*normal.y, 0.5*normal.z);
       rotate(HALF_PI, normal.y, normal.x, normal.z);

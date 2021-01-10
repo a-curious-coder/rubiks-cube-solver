@@ -4,7 +4,7 @@ PeasyCam cam;
 char keyPress = 'a';
 int displayWidth = 600;
 int displayHeight = 600;
-int dim = 3;
+int dim = 2;
 int counter;
 int moveCounter;
 int numberOfMoves;
@@ -12,18 +12,24 @@ float middle;
 float axis;
 float speed;
 float pSmallestScore;
+float percentTilNextMove;
 String moves = "";
 String turns = "";
 boolean paused;
 boolean scramble;
 boolean hSolve;
 boolean lsSolve;
+boolean twoxtwosolve;
+boolean smallIsSolved;
+boolean smallSolver;
 boolean reverse;
 boolean hud;
 boolean counterReset;
 boolean display2D;
 boolean choosing;
 boolean threadRunning = false;
+boolean clickedOnce = false;
+boolean headers;
 ArrayList<Cubie> corners;
 ArrayList<Cubie> edges;
 ArrayList<Cubie> centers;
@@ -42,6 +48,7 @@ Cube cube;
 Cube completeCube;
 Move currentMove;
 color filler = color(255,192,203);
+Button verifyCubeState;
 // TextBox t = new TextBox();
 
 /**
@@ -54,6 +61,7 @@ void setup() {
 	setupCamera();
 	// background = loadImage("C:\\Users\\callu\\Desktop\\Processing\\rubiks-cube-solver\\RubiksCube\\bg.png");
 	// background.resize(displayHeight, displayWidth);
+	headers = false;
 	counter = 0;
 	moveCounter = 0;
 	numberOfMoves = 20;
@@ -63,11 +71,13 @@ void setup() {
 	scramble = false;
 	hSolve = false;
 	lsSolve = false;
+	twoxtwosolve = false;
+	smallIsSolved =
 	reverse = false;
 	paused = false;
 	hud = false;
 	counterReset = false;
-	display2D = true;
+	display2D = false;
 	choosing = false;
 	corners = new ArrayList<Cubie>();
 	edges = new ArrayList<Cubie>();
@@ -78,6 +88,7 @@ void setup() {
 	cube = new Cube();
 	fCube = new FastCube();
 	completeCube = new Cube();
+	verifyCubeState = new Button();
 	// initTextBox();
 	
 	smooth(8);
@@ -97,29 +108,32 @@ void draw() {
 	
 	updateCam();
 	if (!paused)  {
-		checkColours();
 		if (!cube.animating) {
 			printScrambleInfo();
 			if (counter <= sequence.size() - 1)	{
 				Move move = sequence.get(counter);
 				if(counter == 0)	{
-					print("[*]\tDEBUG: " + move + ", ");
+					if(sequence.size() == 1 && !headers)	{
+						headers = true;
+						if(move.index <= axis)	{
+							println("Move\tAxis\tIndex\tDir");
+							println(move + "\t" + move.currentAxis + "\t" + move.index + "\t" + move.dir);
+						}
+					}
 				} else {
-					print(move + ", ");
+					println(move + "\t" + move.currentAxis + "\t" + move.index + "\t" + move.dir);
 				}
 				
 				if (move.index > axis)  {
 					cube.turnWholeCube(move.currentAxis, move.dir);
 				} else {
-					// Finalises the actual turn of the moves.
-					// println("Move: " + move.currentAxis + ", " + move.index + " " + move.dir);
 					cube.turn(move.currentAxis, move.index, move.dir);
 				}
 				counter++;
 			} else if(sequence.size() > 0 && counter == sequence.size()) {
-				println("\n[*]\tMoves finished");
 				sequence.clear();
 				counter = 0;
+				headers = false;
 			}
 		}
 
@@ -147,6 +161,13 @@ void draw() {
 				}
 			}
 		}
+
+		if(twoxtwosolve)	{
+			if(!threadRunning)	{
+				thread("solveSmallCube");
+				threadRunning = true;
+			}
+		}
 		cube.update();
 	}
 	scale(50);
@@ -164,12 +185,9 @@ void draw() {
 	// If we've solved the cube via the human algorithm...
 	if (cube.hAlgorithm.solved)  formatMoves();
 	updateLists();
-	
 	// HUD - contains relevant information
 	if (!hud)  {
 		cam.beginHUD();
-		String ctr = "Moves : \t" + str(counter);
-		String fps = nf(frameRate, 1, 1);
 		float tSize = 12;
 		float x = 0;
 		float y = tSize;
@@ -177,29 +195,73 @@ void draw() {
 		fill(0);
 		x += 20;
 		y += 20;
+		String ctr = "Moves : \t" + str(counter);
 		text(ctr, x, y);
 		y += 20;
-		text("FPS : \t" + fps, x, y);
+		String fps = "FPS : " + nf(frameRate, 1, 1);
+		text(fps, x, y);
 		y += 20;
-		text("Speed : \t" + nf(speed, 1, 1), x, y);
+		text("Speed : \t" + nf((speed*10), 1, 2), x, y);
 		// y += 20;
 		// text("Cube : \t" + dim + "x" + dim + "x" + dim, x, y);
 		if(lsSolve)	{
-			y+= 20; 
-			text("Current score of cube: " + cube.lsAlgorithm.pSmallestScore, x, y);
+			y += 20; 
+			text("Current score of cube: " + (int)cube.lsAlgorithm.cubeScore + " / " + (dim*dim*6), x, y);
+			y += 20;
+			text("Heuristic Search Algorithm Active", x ,y);
+			y += 20;
+			text(nfc(percentTilNextMove, 2) + "%", x, y);
+			x += 45;
+			text(" complete 'til next algorithm",x ,y);
 		}
-		
+		if(hSolve)	{
+			y += 20;
+			text("Human Algorithm Active", x, y);
+		}
+		if(twoxtwosolve)	{
+			y+= 20;
+			text("2x2x2 Solver Active" , x, y);
+		}
 		if(paused)	{
 			y += 20;
 			text("Paused", x, y);
 		}
+		y+= 30;
+		if(verifyCubeState.rectX == 0)	{
+			verifyCubeState.rectX = (int)x;
+			verifyCubeState.rectY = (int)y;
+			verifyCubeState.rectWidth = 100;
+			verifyCubeState.rectHeight = 30;
+			verifyCubeState.text = "Verify Cube";
+		}
+		// verifyCubeState.render();
+		// verifyCubeState.update(mouseX, mouseY);
+		// if(verifyCubeState.mouseClicked() && dim == 3)	{
+		// 	if(verifyCube())	{
+		// 		println("Cube state is valid");
+		// 	} else {
+		// 		println("Cube state is invalid");
+		// 		paused = true;
+		// 	}
+		// }
+		y += 20;
 		// y += 20;
 		// float nCombinations = dim == 2 ? fact(7) * pow(3, 6) : 1;
 		// nCombinations = dim == 3 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
 		// text("Total number of combinations:\t" + nfc(nCombinations, 0), x, y);
 		// y += 20;
-		text(moves, x, displayHeight-y);
-		y += 20;
+		if(twoxtwosolve) y-= 20;
+		if(moves != "")	{
+			float mw = textWidth(moves);
+			fill(255);
+			x -= 5;
+			rect(x, displayHeight-y, mw+10, 100);
+			x += 5;
+			y -= 15;
+			fill(0);
+			text(moves, x, displayHeight-y);
+			y += 20;
+		}
 		// text(mouseX + ", " + mouseY, x, y);
 		// y += 20;
 		// text(keyPress, x, y);
@@ -211,6 +273,11 @@ void draw() {
 
 void startSearchAlgorithm()	{
 	cube.lsAlgorithm.solve();
+	return;
+}
+
+void solveSmallCube()	{
+	cube.twoxtwoSolver.solveCube();
 	return;
 }
 /**
@@ -371,7 +438,7 @@ void InitialiseMoves() {
 	for (float i = - axis; i <= axis; i++) {
 		if (i != 0) {
 			// assigns all x axis movements (R, L)
-			// allMoves.add(new Move('X', i, 2));   // R2  L2
+			allMoves.add(new Move('X', i, 2));   // R2  L2
 			allMoves.add(new Move('X', i, 1));   // R   L
 			allMoves.add(new Move('X', i, - 1));  // R'  L'
 			
@@ -408,13 +475,12 @@ void InitialiseMoves() {
 * Checks for valid quantities of each colour of the cube
 * E.g. 3x3x3 cube would have 9 of each colour. No more, no less.
 */
-void checkColours() {
+boolean verifyCube() {
+	boolean cubeValid = true;
 	// Quantity of each colour on the cube. 
-	// Should NOT be more or less than this number.
 	int nColours = dim * dim;
-
-	color[] colours = new color[6 * dim * dim * dim];
-	color[] cubeColours = {
+	color[] cubeColours = new color[6 * dim * dim * dim];
+	color[] colours = {
 		color(255, 140, 0),
   		color(255, 0, 0),
 		color(255),
@@ -424,14 +490,25 @@ void checkColours() {
 	};
 	String[] colourNames = cube.getEachColourName();
 	float[] index = { - this.axis, this.axis};
-	// STEP 1: Collect the colours on every single cubie from the cube
+
+	float[][] colCombos = { {4,2} , {4,0} , {4,3} , {4,1} ,
+							{1,2} , {2,0} , {3,1} , {3,0} ,
+							{5,2} , {5,0} , {5,3} , {5,1} };
+	int thisEdge = 0;
+	boolean cubieFace1 = true;
+	boolean cubieFace2 = true;
+	color cubieFace1Colour = color(0);
+	color cubieFace2Colour = color(0);
+	boolean invalidEdge = true;
+
+	// STEP 1: Collect the colours of every single cubie from the cube
 	int counter = 0;
 	// For every cubie in cube
 	for (int j = 0; j < cube.len; j++) {
 		// For every face on cubie (Only ever 6 faces)
 		for (int i = 0; i < 6; i++) {
 			// Store every colour of every cubie to colours array
-			colours[counter] = cube.getCubie(j).colours[i];
+			cubeColours[counter] = cube.getCubie(j).colours[i];
 			counter++;
 		}
 	}
@@ -439,55 +516,41 @@ void checkColours() {
 	// STEP 2: Check if the centers have valid colours in the correct quantities, definitely a concern for larger cubes.
 	// TODO: Cater checking centers for all cube sizes.
 	// Checks centers
+	boolean colFound = false;
+	color[] centerColours = new color[6 * (dim-2) * (dim-2)];
+	int centerCounter = 0;
 	for (Cubie c : centers)  {
-		boolean colFound = true;
-		color[] cubieColours = new color[6];
-		float[] cubieAxis = {c.x, c.y, c.z};
-		// print("Center " + centers.indexOf(c) + "\t");
-		
-		// For each axis
-		for (float axis : cubieAxis) {
-			// for every center along the current axis
-			for (float axisIndex : index)  {
-				// Check if no colours are found for a center.
-				if (!colFound)  {
-					// println("One of the centers are invalid");
-					paused = true;
-					continue;
-				}
-				if (axis == axisIndex) {
-					colFound = false;
-					for (color cCol : cubeColours) {
-						for (color cubieColour : c.colours)  {
-							if (cubieColour == cCol)  {
-								// println(colToString(cCol));
-								colFound = true;
-								break;
-							}
-						}
-					}
+		colFound = false;
+		// For RGBWYB
+		// For every colour on this center cubie
+		for (color centerColour : c.colours)  {
+			// If the colour is black OR colour has been found, skip this loop.
+			if(centerColour == color(0) || colFound) continue;
+			for(color eachColour : colours)	{
+				if (centerColour == eachColour)  {
+					centerColours[centerCounter] = centerColour;
+					centerCounter++;
+					colFound = true;
 				}
 			}
 		}
+		// If no center colour found...
+		if(!colFound)	cubeValid = false;
 	}
-	
+	// If center colour is repeated...
+	for(int i = 0; i < centerColours.length-1; i++)	{
+		if(!cubeValid) continue;
+		for(int j = 0; j < centerColours.length; j++)	{
+			if(i == j)	continue;
+			if(centerColours[i] == centerColours[j])	{
+				cubeValid = false;
+				println("Sort out your centers.");
+			}
+		}
+	}
+	if(!cubeValid) return cubeValid;
 	// Check if edges are valid
-	for (Cubie c : edges)  {
-		// println("Checking edge " + edges.indexOf(c));
-		// for(color cCol : c.colours) {
-		//   print("\t" + colToString(cCol));
-		// }
-		// println("");
-		float[][] colCombos = { {4,2} , {4,0} , {4,3} , {4,1} ,
-			{1,2} , {2,0} , {3,1} , {3,0} ,
-			{5,2} , {5,0} , {5,3} , {5,1} };
-		int thisEdge = 0;
-		boolean cubieFace1 = true;
-		boolean cubieFace2 = true;
-		color cubieFace1Colour = color(0);
-		color cubieFace2Colour = color(0);
-		boolean invalidEdge = true;
-		
+	for (Cubie c : edges)  {		
 		if (c.y == -this.axis && c.z == this.axis) thisEdge = 0;
 		if (c.x == this.axis && c.z == this.axis)  thisEdge = 1;
 		if (c.y == this.axis && c.z == this.axis)  thisEdge = 2;
@@ -502,7 +565,6 @@ void checkColours() {
 		if (c.x == this.axis && c.z == -this.axis) thisEdge = 9;
 		if (c.y == this.axis && c.z == -this.axis) thisEdge = 10;
 		if (c.x == -this.axis && c.z == -this.axis)thisEdge = 11;
-		
 		// For every edge
 		// TODO: Get it to check which faces of each edge are visible then check those faces of the edge for colours. 
 		// If colours are anything but red, orange, blue, green, white or yellow -> it's shit.
@@ -511,7 +573,7 @@ void checkColours() {
 		// if(c.colours[(int)colCombos[thisEdge][0]] == color(0) || c.colours[(int)colCombos[thisEdge][1]] == color(0))  continue;
 		
 		// For every colour that can be on a cubie
-		for (color cCol : cubeColours)  {
+		for (color cCol : colours)  {
 			if (c.colours[(int)colCombos[thisEdge][0]] == cCol) {
 				cubieFace1Colour = c.colours[(int)colCombos[thisEdge][0]];
 				cubieFace1 = true;
@@ -521,26 +583,25 @@ void checkColours() {
 				cubieFace2 = true;
 			}
 			// Checks if valid colours have been found for the edge pieces
-			
 		}
-		if (cubieFace1 && cubieFace2) invalidEdge = false;
-		if (cubieFace1Colour == color(0) || cubieFace2Colour == color(0))  invalidEdge = true;
+		if (cubieFace1 && cubieFace2)	{	
+			invalidEdge = false;
+		}	else if (cubieFace1Colour == color(0) || cubieFace2Colour == color(0))	{
+			invalidEdge = true;
+		}
 		// if cubieface1 and 2 have colours and they're the same
 		if ((cubieFace1 && cubieFace2) && (cubieFace1Colour == cubieFace2Colour))  {
 			invalidEdge = true;
-			println("apparently " + colToString(cubieFace1Colour) + " is the same as "  + colToString(cubieFace2Colour));
+			println("Apparently " + colToString(cubieFace1Colour) + " is the same as "  + colToString(cubieFace2Colour));
 		}
 		if (invalidEdge) {
-			paused = true;
+			cubeValid = false;
 			println("This cubie edge shouldn't exist");
 			println("Edge " + edges.indexOf(c) + "\nDetails : " + c.details());
-			return;
-		} else {
-			// println("Colour 1: " + cubieFace1 + "\tColour 2: " + cubieFace2);
-			// println("Edge " + edges.indexOf(c) + "\t" + colToString(cubieFace1Colour) + "\t" + colToString(cubieFace2Colour));
-			paused = false;
 		}
 	}
+
+	return cubeValid;
 	
 	// for (color c : colours) {
 	//   red += c == cube.getCubie(0).red ? 1 : 0;
@@ -752,8 +813,8 @@ void drawSide(ArrayList<Cubie> cubies, int face, float xPos, float yPos, float p
 	
 	noStroke();
 	int cubieNo = 0;
+	boolean clickedOnce = false;
 	for (int  i = 0; i < cubies.size(); i++) {
-		
 		if (i % dim == 0)  {
 			xPos = resetXPos;
 			yPos = yPos + nextCube;
@@ -762,11 +823,14 @@ void drawSide(ArrayList<Cubie> cubies, int face, float xPos, float yPos, float p
 		boolean hit = pointCubie(px, py, xPos, yPos, cubieSize);
 		if (hit) {
 			fill(filler);
-			if (mousePressed && (mouseButton == LEFT)) {
+			if (mousePressed && (mouseButton == LEFT) && !clickedOnce) {
+				clickedOnce = true;
 				cubies.get(i).colours[face] = filler;
-				print("DEBUG" + cubies.get(i).details());
+				// print("DEBUG" + cubies.get(i).details());
 				cube.update();
 				cube.show();
+			} else if(!mousePressed)	{
+				clickedOnce = false;
 			}
 		} else {
 			fill(cubies.get(i).colours[face]);
@@ -806,7 +870,7 @@ void drawPallette(float x, float y, float panelWidth, float panelHeight) {
 	float py = mouseY;
 	float cubieSize = palletteWidth * 0.8;
 	float radius = cubieSize / 5;
-	
+
 	fill(205);
 	rect(ox, oy, palletteWidth, palletteHeight, radius, radius, radius, radius);
 	x += palletteWidth / 10;
@@ -815,9 +879,12 @@ void drawPallette(float x, float y, float panelWidth, float panelHeight) {
 		boolean hit = pointCubie(px, py, x - cubieSize, y, cubieSize);
 		if (hit) {
 			fill(255,255,255, 125);
-			if (mousePressed && (mouseButton == LEFT)) {
+			if (mousePressed && (mouseButton == LEFT) && !clickedOnce) {
+				clickedOnce = true;
 				println("Colour " + colToString(c));
 				filler = c;
+			} else if(!mousePressed)	{
+				clickedOnce = false;
 			}
 		} else {
 			fill(c);
@@ -892,7 +959,7 @@ ArrayList<Cubie> getOrderedList(ArrayList<Cubie> cubies, int index, char cubeAxi
 	}
 	
 	if (dim < 3) {
-		println("Fuck all we can do here");
+		// println("Fuck all we can do here");
 		return cubies;
 	}
 	

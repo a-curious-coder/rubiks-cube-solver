@@ -299,8 +299,8 @@ class HumanAlgorithm {
 
       // If colour on top,right,front is white then
       turns += corner.colours[4] == white ? "F'U'F" : "";
-      turns += corner.colours[4] == c1 ? "RUR'" : ""; // red
-      turns += corner.colours[4] == c2 ? "F'UUFUF'U'F" : ""; // green
+      turns += corner.colours[0] == white ? "RUR'" : "";
+      turns += corner.colours[4] == c2 ? "F'UUFUF'U'F" : "";
     }
     // If corner is on bottom row
     else if(corner.y == axis) {
@@ -308,15 +308,16 @@ class HumanAlgorithm {
       
       to = new PVector(axis, axis, axis);
       from = new PVector(corner.x, corner.y, corner.z);
+      // 
       // if corner is not bottom,right,front OR corner is incorrectly oriented
       if(!from.equals(to) || corner.colours[3] != white) {
         String temp = getDirectionOfCorners(from, to);
-        // println(from.x + " " + from.y + " " + from.z);
-        // println(to.x + " " + to.y + " " + to.z);
+        println(from.x + " " + from.y + " " + from.z);
+        println(to.x + " " + to.y + " " + to.z);
         turns += temp;
         turns += "RUR'";
         turns += reverseMoves(temp);
-        // println(turns);
+        println(turns);
       }
     }
     
