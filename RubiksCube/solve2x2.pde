@@ -21,7 +21,7 @@ class solve2x2  {
     /**
     * Solve the cube
     */
-    void solveCube()    {
+    void solve()    {
         if(cube.dimensions == 2)    {
             println("Solving cube");
             // Start timer
@@ -292,7 +292,7 @@ class solve2x2  {
     */
     void iOrientations()  {
         for(int i = 0; i < 8; i++)  {
-            // Analyses UFL, UFR - if front and top colours aren't black.
+        // Analyses UFL, UFR - if front and top colours aren't black.
             if(cube.getCubie(i).colours[4] != color(0) &&
                 cube.getCubie(i).colours[2] != color(0))    {
                 // If U face on cubie has white/yellow
@@ -336,7 +336,7 @@ class solve2x2  {
                     continue;
                 }
             }
-            // Analyses UBR, UBL - if top and back colours aren't black.
+        // Analyses UBR, UBL - if top and back colours aren't black.
             if(cube.getCubie(i).colours[5] != color(0) &&
                 cube.getCubie(i).colours[2] != color(0))    {
                     // If U face of cubie is white/yellow
@@ -380,7 +380,7 @@ class solve2x2  {
                     continue;
                 }
             }
-            // Analyses DFR, DFL - if top and down colours aren't black.
+        // Analyses DFR, DFL - if top and down colours aren't black.
             if(cube.getCubie(i).colours[4] != color(0) &&
                 cube.getCubie(i).colours[3] != color(0))    {
                 // If D face is white/yellow
@@ -427,7 +427,7 @@ class solve2x2  {
                     continue;
                 }  
             }
-            // Analyses DBR, DBL - if top and down colours aren't black.
+        // Analyses DBR, DBL - if top and down colours aren't black.
             if(cube.getCubie(i).colours[5] != color(0) &&
                 cube.getCubie(i).colours[3] != color(0))    {
                 if( cube.getCubie(i).colours[3] == cube.getCubie(i).white ||

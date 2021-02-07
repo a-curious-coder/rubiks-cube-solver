@@ -51,7 +51,6 @@ class FastCube  {
 
     /**
     * Clone constructor
-    *
     * @param    c   The cube we're copying to this Fastcube object
     */
     FastCube(Cube c)    {
@@ -66,11 +65,9 @@ class FastCube  {
 
     /**
     * Clone constructor
-    *
     * @param    f   The fastcube object we're cloning
     */
     FastCube(FastCube f)    {
-
         this.orange = cloneFace(f.orange);
         this.red = cloneFace(f.red);
         this.green = cloneFace(f.green);
@@ -79,6 +76,11 @@ class FastCube  {
         this.white = cloneFace(f.white);
     }
 
+    /**
+    * Returns an array representing a cloned face
+    * @param thisFace   The face we're wanting to clone
+    * @return face      This is the cloned face.
+    */
     Integer[] cloneFace(Integer[] thisFace) {
         Integer[] face = new Integer[8];
         for(int i = 0; i < thisFace.length; i++)    {
@@ -252,6 +254,7 @@ class FastCube  {
     * Prints the entire cube
     *
     * @param    f           The face of the cube represented by a long
+    * @param    whichFace   Better refines the style of printing.
     * @param    y           If the cube is the top or bottom face (Needs extra spacing)
     * @return   s           The top row of colours we're storing and returning for printing to console.
     */
@@ -589,6 +592,7 @@ class FastCube  {
         }
     }
 
+    // Initialises cubies
     void initCubies()    {
         Integer[][] newCorners = {{this.green[0], this.red[6], this.white[0]}, 
                         {this.green[2], this.red[4], this.yellow[0]},
@@ -623,6 +627,11 @@ class FastCube  {
         }
     }
 
+    /*
+    * Scores the cube to dictate how solved it is
+    * @param    f   The cube we're scoring
+    * @return   float   Overall score of the cube - 0 = solved
+    */
     float scoreCube(FastCube f)   {
         FastCube complete = new FastCube();
         if(this.equals(complete))   {
@@ -637,33 +646,6 @@ class FastCube  {
 
         return o+r+b+g+w+y;
     }
-    
-    float scoreMiddleEdges()    {
-        // 0, 2, 8, 10
-        // GR, GO, BR, BO
-        FastCube c = new FastCube();
-        float score = 0;
-        Integer[] orangeFace =  {c.orange[0], c.orange[1], c.orange[2],
-                                c.orange[3],             c.orange[4], 
-                                c.orange[5], c.orange[6], c.orange[7]};
-        Integer[] redFace =     {c.red[0], c.red[1], c.red[2],
-                                c.red[3],            c.red[4], 
-                                c.red[5], c.red[6], c.red[7]};
-        score = 4;
-        for(int i = 3; i < 5; i++)  {
-            if(this.red[i] == 0 ||this.red[i] == 1)  {
-                score -= 1;
-            }
-        }
-        for(int i = 3; i < 5; i++)  {
-            if(this.orange[i] == 0 ||this.orange[i] == 1)  {
-                score -= 1;
-            }
-        }
-
-        return score;
-    }
-
 
     float scoreUD(String face)   {
         float score = 0;
@@ -858,6 +840,34 @@ class FastCube  {
         return true;
     }
 
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // Potentially obsolete / useless functions
+    float scoreMiddleEdges()    {
+        // 0, 2, 8, 10
+        // GR, GO, BR, BO
+        FastCube c = new FastCube();
+        float score = 0;
+        Integer[] orangeFace =  {c.orange[0], c.orange[1], c.orange[2],
+                                c.orange[3],             c.orange[4], 
+                                c.orange[5], c.orange[6], c.orange[7]};
+        Integer[] redFace =     {c.red[0], c.red[1], c.red[2],
+                                c.red[3],            c.red[4], 
+                                c.red[5], c.red[6], c.red[7]};
+        score = 4;
+        for(int i = 3; i < 5; i++)  {
+            if(this.red[i] == 0 ||this.red[i] == 1)  {
+                score -= 1;
+            }
+        }
+        for(int i = 3; i < 5; i++)  {
+            if(this.orange[i] == 0 ||this.orange[i] == 1)  {
+                score -= 1;
+            }
+        }
+
+        return score;
+    }
     
 }
 

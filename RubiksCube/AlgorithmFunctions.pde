@@ -1,6 +1,6 @@
 String XRotation = "FDBU";
-String YRotation = "FLBR";//'F', 'R', 'B', 'R'};
-String ZRotation = "LDRB";//{'L', 'D', 'R', 'B'};
+String YRotation = "FLBR";
+String ZRotation = "LDRB";
 
 color[] colours = new color[6];
 color orange = color(255, 140, 0);
@@ -53,7 +53,7 @@ String foundRotation(int fromIndex, int toIndex, char turnCharacter) {
   }
   if (fromIndex <= toIndex) {
     for (int i = fromIndex; i < toIndex; i++) { 
-      finalString += turnCharacter + "\'";
+      finalString += turnCharacter + "";
     }
   } else {
     for (int i = toIndex; i < fromIndex; i++) { 
@@ -118,11 +118,11 @@ String getDirectionOfCorners(PVector from, PVector to)  {
 
   fromIndex = getLocationOfCubie(lowerCorners, from);
   toIndex = getLocationOfCubie(lowerCorners, to);
-  print("fromIndex: " + fromIndex + "toIndex: " + toIndex);
+  // print("fromIndex: " + fromIndex + "toIndex: " + toIndex);
   if(fromIndex >= 0 && toIndex >= 0)  {return foundRotation(fromIndex, toIndex, 'D');}
   
   return "";
-}
+  }
 
 String getDirectionOfEdges(PVector from, PVector to)  {
 
@@ -149,7 +149,7 @@ String getDirectionOfEdges(PVector from, PVector to)  {
   if(fromIndex >= 0 && toIndex >= 0)  return foundRotation(fromIndex, toIndex, 'D');
 
   return "";
-}
+  }
 
 color getFaceColour(char f) {
 
@@ -272,7 +272,7 @@ int getLocationOfCubie(Cubie[] cubies, PVector location)  {
     if(location.x == c.x && location.y == c.y && location.z == c.z) return i;
   }
   return -1;
-}
+  }
 
 String reverseMoves(String moves) {
   String reverse = "";
@@ -286,7 +286,7 @@ String reverseMoves(String moves) {
     }
   }
   return reverse;
-}
+  }
 
 void setColours() {
   // variable[i] = IF x == value THEN color(a) ELSE color(b)
@@ -296,7 +296,7 @@ void setColours() {
   colours[3] = white;  // White
   colours[4] = green;  // Green
   colours[5] = blue;  // Blue
-}
+  }
 
 String colToString(color c) {
   String col = "-----";
@@ -307,4 +307,4 @@ String colToString(color c) {
     col = c == green ? "Green" : col;
     col = c == blue ? "Blue" : col;
   return col;
-}
+  }

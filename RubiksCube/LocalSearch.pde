@@ -6,6 +6,7 @@ class LocalSearch   {
 	
 	Cube cube;
 	FastCube fCube;
+	Cube2 fastCube;
 	Cube complete;
 	int stage = 0;
 	char closestSolved = 'a';
@@ -32,6 +33,8 @@ class LocalSearch   {
 	
 	LocalSearch(Cube cube)  {
 		this.cube = cube;
+		fastCube = new Cube2(cube);
+		fastCube.state();
 	}
 	
 	void solve()    {
@@ -52,7 +55,8 @@ class LocalSearch   {
 				
 				println("Before");
 				long start = System.currentTimeMillis();
-				getG1();
+				solveWhiteFace();
+				// getG1();
 				long end = System.currentTimeMillis();
 				float duration = (end - start) / 1000F;
 				println("End: " + duration);
@@ -169,6 +173,33 @@ class LocalSearch   {
 		}
 	}
 
+// Region: Cube 2
+	/**
+	* Search algorithm
+	*
+	* @param	f	Computationally lighter representation of Cube we're solving
+	* @param	d	Represents the length of the moves we're testing.
+	* @param 	eachMove	List of each unique move
+	*/
+	// void Treesearch(Cube2 f, int d)	{
+	// 	if ((f.scoreUD("white") + f.scoreUD("yellow")) == 0)	{
+	// 		// Apply sequence of moves to main cube object.
+	// 		cube.testAlgorithm(previousAlgo);
+	// 		// Prints cube state after sequence of moves applied.
+	// 		f.printCube();
+	// 		println("Desired state reached!");
+	// 		return;
+	// 	} else if(d > 0)	{
+	// 		if(d != 1) {
+	// 			for(String prefix : eachMove) {
+	// 				Treesearch(f.testAlgorithm(prefix), d-1);
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+// End Region: Cube 2
+
 	/**
 	* Generates the permutations for generateAlgorithms function (This just stores the algorithms to an arraylist)
 	*
@@ -197,7 +228,7 @@ class LocalSearch   {
 					counter++;
 					if(movePointless(item, prefix)) continue;
 					result.add(prefix + item);
-					println(result.get(result.size()-1));
+					// println(result.get(result.size()-1));
 					if(counter % 10000000 == 0)	{
 						println("10 mil");
 					}
@@ -223,7 +254,7 @@ class LocalSearch   {
 				prefix.charAt(prefix.length()-2) == item.charAt(item.length()-1))	{
 				pointlessMove = true;
 				return pointlessMove;
-			} else if(item.charAt(item.length()-1) == prefix.charAt(prefix.length()-2))	{
+			// } else if(item.charAt(item.length()-1) == prefix.charAt(prefix.length()-2))	{
 				
 			}	else if(item.charAt(item.length()-1) == prefix.charAt(prefix.length()-1))	{
 				pointlessMove = true;
@@ -244,27 +275,31 @@ class LocalSearch   {
 				return pointlessMove;
 			}
 			// If previous 3 clockwise moves are the same as this move, pointless.
-				if(prefix.charAt(prefix.length()-1) == prefix.charAt(prefix.length()-2) && 
-					prefix.charAt(prefix.length()-2) == prefix.charAt(prefix.length()-3) && 
-					prefix.charAt(prefix.length()-3) == item.charAt(item.length()-1))	{
-					pointlessMove = true;
-					return pointlessMove;
-					// If previous 2 prime moves are same face as this double move
-					// If the previous 2 moves are the same face as this double move
-				} 
-				else if(prefix.charAt(prefix.length()-1) == '\'' && prefix.charAt(prefix.length()-3) == '\'' && 
+			if(prefix.charAt(prefix.length()-1) == prefix.charAt(prefix.length()-2) && 
+				prefix.charAt(prefix.length()-2) == prefix.charAt(prefix.length()-3) && 
+				prefix.charAt(prefix.length()-3) == item.charAt(item.length()-1))	{
+				pointlessMove = true;
+				return pointlessMove;
+				// If previous 2 prime moves are same face as this double move
+				// If the previous 2 moves are the same face as this double move
+			}   else if (prefix.charAt(prefix.length()-2) == item.charAt(item.length()-2))	{
+				pointlessMove = true;
+				return pointlessMove;
+			}
+
+			if(prefix.length() > 3)	{
+				if(prefix.charAt(prefix.length()-1) == '\'' && 
+				prefix.charAt(prefix.length()-3) == '\'' && 
 				(prefix.charAt(prefix.length()-2) == prefix.charAt(prefix.length()-4) || 
 				prefix.charAt(prefix.length()-1) == prefix.charAt(prefix.length()-2)) && 
 				prefix.charAt(prefix.length()-2) == item.charAt(item.length()-2) && item.charAt(item.length()-1) == '2')	{
 					pointlessMove = true;
 					return pointlessMove;
-				}  else if (prefix.charAt(prefix.length()-2) == item.charAt(item.length()-2))	{
-					pointlessMove = true;
-					return pointlessMove;
 				}
-				// else if (item.charAt(item.length()-1) == prefix.charAt(prefix.length()-3))	{
-				// TODO: Verify that no two moves are concurrently made that are on same axis
-				// }
+			}
+			// else if (item.charAt(item.length()-1) == prefix.charAt(prefix.length()-3))	{
+			// TODO: Verify that no two moves are concurrently made that are on same axis
+			// }
 		}
 		return pointlessMove;
 	}

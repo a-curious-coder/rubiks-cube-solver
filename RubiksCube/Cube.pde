@@ -16,6 +16,7 @@ class Cube {
 	HumanAlgorithm hAlgorithm;
 	LocalSearch lsAlgorithm;
 	solve2x2 twoxtwoSolver;
+	solver ksolve;
 	
 	Cube() {
 		dimensions = dim;
@@ -82,6 +83,9 @@ class Cube {
 		}
 	}
 	
+	void iksolve()	{
+		ksolve = new solver(this);
+	}
 
 	void iSmallSolver()	{
 		twoxtwoSolver = new solve2x2(this);
@@ -328,45 +332,38 @@ class Cube {
 		}
 	}
 	
-	/**
-	* Scrambles the cube
-	*/
+	// Scrambles the cube
 	void scrambleCube() {
+		scrambling = true;
 		scramble = true;
 		sequence.clear();
-		moves = "";
 		fMoves.clear();
-		counter = 0;
-		Move copy = new Move();
-		boolean isDifferent = true;
+		moves = "";
+		Move m = new Move();
+		Move prev = new Move();
 		
 		for (int i = 0; i < numberOfMoves; i++) {
-			int r = int(random(allMoves.size()));
-			Move m = allMoves.get(r).copy();
-			
-			if (m.currentAxis == copy.currentAxis) {
-				do{
-					r = int(random(allMoves.size()));
-					if (allMoves.get(r).currentAxis != copy.currentAxis && allMoves.get(r).index != copy.index) {
-						m = allMoves.get(r).copy();
-						isDifferent = false;
-					}
-				} while(isDifferent);
+			// Compare two moves, stricter scramble boolean
+			while (compare(m, prev, true)) {
+				int r = int(random(allMoves.size()));
+				m = allMoves.get(r).copy();
 			}
-			
-			if (m.index > axis || m.index < - axis) i--;
-			if (m.dir == 2)  i++;
-			copy = new Move(m.currentAxis, m.index, m.dir);
+			// Save prev move for next iteration
+			prev = new Move(m.currentAxis, m.index, m.dir);
 			sequence.add(m);
-		}
-		
-		print("Scramble prepared\n");
-		for (Move m : sequence) { 
 			fMoves.add(m.toString()); 
 		}
 		formatMoves();
 	}
 	
+	/**
+	* Compares two moves following a strictness boolean.
+	*
+	*/
+	boolean compare(Move m, Move n, boolean strict)	{
+		if(strict)	return m.currentAxis == n.currentAxis;
+		return m.currentAxis == n.currentAxis && m.index == n.index;
+	}
 	/**
 	* Scrambles the cube with my specified combination of moves
 	* Used for debugging as I know the end result of the moves
@@ -380,8 +377,9 @@ class Cube {
 		counter = 0;
 		Move copy = new Move();
 		
-		// String[] hardMoves = {"F", "U", "F'", "U", "R", "L", "D", "U'", "B", "B", "L", "R"};
-		String[] hardMoves = {"B2", "D2", "R", "U2", "F'", "F'", "U'", "F'", "U", "F", "D2", "R", "R'", "U'", "R'", "D", "B", "D" , "R\'", "B2"};
+		// String[] hardMoves = {"R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"};
+		String[] hardMoves = {"D'", "L2", "B'", "B", "U2", "L2", "D", "B", "D", "L", "B'", "R2"};
+		// String[] hardMoves = {"B2", "D2", "R", "U2", "F'", "F'", "U'", "F'", "U", "F", "D2", "R", "R'", "U'", "R'", "D", "B", "D" , "R\'", "B2"};
 		numberOfMoves = hardMoves.length;
 	
 		for (String m : hardMoves) {

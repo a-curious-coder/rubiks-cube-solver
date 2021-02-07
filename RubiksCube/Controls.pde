@@ -1,4 +1,5 @@
 void keyPressed() {
+  if(testing) return;
   keyPress = key;
   if(choosing)  {
     println("choosing");
@@ -10,108 +11,104 @@ void keyPressed() {
     }
   } else {
   switch(key) {
-  case 'a':
-    cube.iSmallSolver();
-    twoxtwosolve = true;
-    break;
-  case 't':
-    println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-    // String[] moves = {"R\'", "U\'", "R\'", "L\'", "U\'"};
-    String[] moves = {"R2"};
-    for(String m : moves) {
-      fCube.move(m);
-      fCube.printCube();
-    }
-    
-    break;
-  case 'h':
-    hud = !hud;
-    break;
-  case 's':
-    if(bigTroll()) break;
-    cube.scrambleCube();
-    // cube.hardcodedScrambleCube();
-    break;
-  case '0':
-    hSolve = true;
-    break;
-  case ']':
-    lsSolve = !lsSolve;
-    break;
-  case '1':
-    cube.rScrambleCube();
-    break;
-  case '2':
-    resetCube();
-    break;
-  case '3':
-    print(cube.len + " are being stored\n");
-    print((int)(pow(dim, 3)) + " would have been stored\n");
-    print(((int)(pow(dim, 3)) - cube.len) + " cubies are not being stored, saving cpu power\n\n");
-    break;
-  case '4':
-    for(int i = 0; i < 999; i++)  {
-      println("");
-    }
-  case 'm':
-    speed += 0.10;
-    break;
-  case 'n':
-    speed -= 0.10;
-    break;
-  case 'k':
-    speed += 0.0010;
-    break;
-  case 'j':
-    speed -= 0.0010;
-    break;
-  case 'i':
-    speed = 10;
-    break;
-  case '6':
-    println("Testing moves X");
-    cube.testMoves('X');
-    break;
-  case '7':
-    println("Testing moves Y");
-    cube.testMoves('Y');
-    break;
-  case '8':
-    println("Testing moves Z");
-    cube.testMoves('Z');
-    break;
-  case '9':
-    for(Cubie c : centers)  {
-      println(c.details());
-    }
-  case 'q':
-    println("Cube solved: " + cube.evaluateCube());
-    break;
-  case 'o':
-    speed = 0.01;
-    break;
-  case 'p':
-    paused = !paused;
-    break;
-  case 'w':  
-    dim++;
-    resetCube();
-    break;
-  case 'e':  
-    if(dim > 1) {
-      dim--;
-    }
-    resetCube();
-    break;
-  default: 
-    // if a cube is animating, skip  switch case
-    if (currentMove.animating) {
-      print("animating\n");
-      return;
-    }
-    // println("Key pressed: " + key);
-    applyMove(key);
-    break;
+    case 'a':
+      if(!threadRunning)  {
+        threadRunning = true;
+        loadPruningTables();
+        cube.iksolve();
+        cube.ksolve.solve();
+      }
+      break;
+    case 't': // Test...
+      if(!testing)  {
+        testing = true;
+        // thread("testHumanAlgorithmSolver");
+        thread("testDFSSolver");
+      }
+      break;
+    case 'c':
+
+      // colouring = true;
+      break;
+    case 'h':
+      hud = !hud;
+      break;
+    case 's':
+      if(bigTroll()) break;
+      cube.scrambleCube();
+      // cube.hardcodedScrambleCube();
+      break;
+    case '0':
+      hSolve = true;
+      break;
+    case ']':
+      lsSolve = !lsSolve;
+      break;
+    case '1':
+      cube.rScrambleCube();
+      break;
+    case '2':
+      resetCube();
+      break;
+    case '3':
+      print(cube.len + " are being stored\n");
+      print((int)(pow(dim, 3)) + " would have been stored\n");
+      print(((int)(pow(dim, 3)) - cube.len) + " cubies are not being stored, saving cpu power\n\n");
+      break;
+    case '4':
+      for(int i = 0; i < 999; i++)  {
+        println("");
+      }
+    case 'm':
+      speed *= 10;
+      break;
+    case 'n':
+      speed *= 0.10;
+      break;
+    case '6':
+      println("Testing moves X");
+      cube.testMoves('X');
+      break;
+    case '7':
+      println("Testing moves Y");
+      cube.testMoves('Y');
+      break;
+    case '8':
+      println("Testing moves Z");
+      cube.testMoves('Z');
+      break;
+    case '9':
+      for(Cubie c : centers)  {
+        println(c.details());
+      }
+    case 'q':
+      println("Cube solved: " + cube.evaluateCube());
+      break;
+    case 'o':
+      speed = 0.01;
+      break;
+    case 'p':
+      paused = !paused;
+      break;
+    case 'w':  
+      dim++;
+      resetCube();
+      break;
+    case 'e':  
+      if(dim > 1) {
+        dim--;
+      }
+      resetCube();
+      break;
+    default: 
+      // if a cube is animating, skip  switch case
+      if (currentMove.animating) {
+        print("animating\n");
+        return;
+      }
+      // println("Key pressed: " + key);
+      applyMove(key);
+      break;
   }
   }
 }
@@ -165,10 +162,10 @@ void makeAMove(String move) {
     cube.turn('Z', -axis, -1);;
     break;
   case "D":
-    cube.turn('Y', axis, -1);
+    cube.turn('Y', axis, 1);
     break;
   case "D\'":
-    cube.turn('Y', axis, 1);
+    cube.turn('Y', axis, -1);
     break;
   case "U":
     cube.turn('Y', -axis, 1);
@@ -198,7 +195,6 @@ void makeAMove(String move) {
     return;
   }
 }
-
 
 // For scramblers reference
 void applyMove(char move) {

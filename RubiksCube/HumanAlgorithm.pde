@@ -4,6 +4,7 @@ class HumanAlgorithm {
   int stage = 0;
   int completedCorners = 0;
   int completedEdges = 0;
+  int solutionMoves = 0;
   String faces = "RLUDFB";
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   boolean nextStep = false;
@@ -19,53 +20,50 @@ class HumanAlgorithm {
   /**
   * Responsible for solving the cube and applying the appropriate stage
   */
-  void solveCube() {
-    if(lsSolve) {
-      println("Shouldn't be here (HumanAlgorithm)" + hSolve);
-    }
+  void solve() {
     if (isLargerCube) {
       print("Larger cube solving coming soon...");
+      return;
     }
-    if (!isLargerCube) {
-      switch(stage) {
-      case 0:
-        whiteCross();
-        break;
-      case 1:
-        bottomCorners();
-        break;
-      case 2:
-        finishMiddleEdges();
-        break;
-      case 3:
-        yellowCross();
-        break;
-      case 4:
-        fixYellowCrossEdges();
-        break;
-      case 5:
-        topCorners();
-        break;
-      case 6: 
-        finalRotations();
-        break;
-      case 7:
-        // TODO: Evaluate whether cube is actually solved or not.
-        if(cube.evaluateCube()) {
-          solved = true;
-          resetHumanAlgorithm();
-          println("Rubik's cube is solved in " + counter + " moves.");
-          counterReset = true;
-        } else {
-          println("Something went wrong during solve - try solving again.");
-        }
-        
-        // TODO: print timer
-        // TODO: print number of moves
-        // TODO: pause after finished
-        // TODO: rotate cube?
-        break;
+    switch(stage) {
+    case 0:
+      whiteCross();
+      break;
+    case 1:
+      bottomCorners();
+      break;
+    case 2:
+      finishMiddleEdges();
+      break;
+    case 3:
+      yellowCross();
+      break;
+    case 4:
+      fixYellowCrossEdges();
+      break;
+    case 5:
+      topCorners();
+      break;
+    case 6: 
+      finalRotations();
+      break;
+    case 7:
+      // TODO: Evaluate whether cube is actually solved or not.
+      if(cube.evaluateCube()) {
+        solved = true;
+        resetHumanAlgorithm();
+        println("Rubik's cube is solved in " + counter + " moves.");
+        solutionMoves = counter;
+        counterReset = true;
+      } else {
+        println("Something went wrong during solve - try solving again.");
       }
+      
+      // TODO: print timer
+      // TODO: print number of moves
+      // TODO: pause after finished
+      // TODO: rotate cube?
+      break;
     }
   }
 
@@ -312,12 +310,14 @@ class HumanAlgorithm {
       // if corner is not bottom,right,front OR corner is incorrectly oriented
       if(!from.equals(to) || corner.colours[3] != white) {
         String temp = getDirectionOfCorners(from, to);
+        println("if this is being spammed, I'm stuck");
+        println(temp);
         println(from.x + " " + from.y + " " + from.z);
         println(to.x + " " + to.y + " " + to.z);
         turns += temp;
         turns += "RUR'";
         turns += reverseMoves(temp);
-        println(turns);
+        // println(turns);
       }
     }
     
