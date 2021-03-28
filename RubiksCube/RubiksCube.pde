@@ -1,94 +1,200 @@
 import peasy.*;
+import controlP5.*;
+import processing.opengl.*;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.lang.management.OperatingSystemMXBean;
+import java.awt.Toolkit; // Clipboard
+import controlP5.BitFont;
+
 
 PeasyCam cam;
+ControlP5 cp5;
+int currentScreen;
+
+Textfield enterMoves;
+Textarea outputBox;
+boolean outputLog;
+Textarea statusBox;
+Slider slider;
+Button outputBoxOn;
+Button scrambleTheCube;
+Button solveTheCube;
+Button exitButton;
+Button helpButton;
+Button aboutButton;
+Button pauseButton;
+Button resetButton;
+Button increaseSize;
+Button decreaseSize;
+Button submitMoves;
+Button loadPruneTables;
+Button twodimView;
+ScrollableList dropdown;
+String selected = ""; // Selected Algorithm
+String enteredMoves = "";
+PFont pfont;
+
 char keyPress = 'a';
-int displayWidth = 750;
-int displayHeight = 750;
+float pSmallestScore;
+float percentTilNextMove;
+boolean colouring;
+boolean smallIsSolved;
+boolean reverse;
+boolean counterReset;
+boolean choosing;
+boolean clickedOnce;
+boolean solving;
+boolean solved;
+boolean refreshText;
+boolean loadedPruningTables;
+
+
+// Testing algorithm for csv data variables
+String headers = "method,scramble,solve,time,memconsum";
+
+// Mem consumption
+long beforeFunctionIsCalled = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+ArrayList<Long> memConsumptionArray = new ArrayList();
+long duringFunctionExecution = 0;
+long actualMemUsed = 0;
+
+// Display
+int displayWidth = 720;
+int displayHeight = 450;
+
+// Cube attributes
 int dim = 3;
-int counter;
 int moveCounter;
 int numberOfMoves;
 float middle;
 float axis;
 float speed;
-float pSmallestScore;
-float percentTilNextMove;
 String moves = "";
 String turns = "";
-boolean colouring = false;
 boolean paused;
 boolean scramble;
 boolean scrambling;
-boolean sequenceRunning = true;
-boolean hAlgorithmRunning = false;
+boolean slowCube; // purely for show
+
+// Algorithms/moves running
+boolean sequenceRunning;
+boolean hAlgorithmRunning;
+boolean smallIDDFSRunning;
+boolean ksolveRunning;
+boolean thistlethwaiteRunning;
+
+boolean thistlethwaiteSolving;
 boolean hSolve;
 boolean lsSolve;
-boolean twoxtwosolve;
-boolean smallIsSolved;
 boolean smallSolver;
-boolean reverse;
 boolean hud;
-boolean counterReset;
 boolean display2D;
-boolean choosing;
-boolean threadRunning = false;
-boolean clickedOnce = false;
-boolean testing = false;
-boolean headers;
-boolean ksolveRunning;
+boolean threadRunning;
+boolean testing;
 boolean debugMode;
+
+ArrayList<MoveO> MoveOs = new ArrayList(); // for reduction method
 ArrayList<Cubie> corners;
 ArrayList<Cubie> edges;
 ArrayList<Cubie> centers;
 ArrayList<Move> sequence;
 ArrayList<Move> allMoves;
 ArrayList<String> fMoves;
-ArrayList<Cubie> back = new ArrayList();
-ArrayList<Cubie> front = new ArrayList();
-ArrayList<Cubie> left = new ArrayList();
-ArrayList<Cubie> right = new ArrayList();
-ArrayList<Cubie> top = new ArrayList();
-ArrayList<Cubie> down = new ArrayList();
-PImage background;
-FastCube fCube;
+
+// Holds cubie colours values for each face.
+ArrayList<Cubie> back;
+ArrayList<Cubie> front;
+ArrayList<Cubie> left;
+ArrayList<Cubie> right;
+ArrayList<Cubie> top;
+ArrayList<Cubie> down;
+
 Cube cube;
-Cube completeCube;
 Move currentMove;
-color filler = color(255,192,203);
-Button verifyCubeState;
-// TextBox t = new TextBox();
+// Colours
+color filler = #000000;
+color black = #000000;
+color orange = #FFA500;
+color red = #FF0000;
+color white = #FFFFFF;
+color yellow = #FFFF00;
+color green = #00FF00;
+color blue  = #0000FF;
+
+
 
 // Sets up the Rubik's Cube emulator
 void setup() {
-	size(displayWidth, displayHeight, P3D);
+	 size(600, 600, P3D);
 	//fullScreen(P3D);
+	surface.setTitle("Rubik's Cube Solver");
 	frameRate(60);
-	setupCamera();
-	// background = loadImage("C:\\Users\\callu\\Desktop\\Processing\\rubiks-cube-solver\\RubiksCube\\bg.png");
-	// background.resize(displayHeight, displayWidth);
+	init();
+}
+
+// Draws everything within the Rubik's Cube emulator
+void draw() {
+	theCube();
+	switch(currentScreen)	{
+		case 0:
+			gui();
+			break;
+		case 1:
+			smallgui();
+			break;
+		case 2:
+			// menu();
+			break;
+	}
+}
+
+void init()	{
+	outputLog = false;
+	slowCube = false;
+	back = new ArrayList();
+	front = new ArrayList();
+	left = new ArrayList();
+	right = new ArrayList();
+	top = new ArrayList();
+	down = new ArrayList();
+	pfont = createFont("Arial", 14,true); // use true/false 
+	currentScreen = 0;
+	cp5 = new ControlP5(this);
+	cp5.setAutoDraw(false);
+	solved = false;
+	sequenceRunning = true;
+	hAlgorithmRunning = false;
+	smallIDDFSRunning = false;
+	ksolveRunning = false;
+	thistlethwaiteRunning = false;
+	thistlethwaiteSolving = false;
+	colouring = false;
+	clickedOnce = false;
+	solving = false;
+	refreshText = false;
+	threadRunning = false;
+	testing = false;
 	debugMode = false;
-	counter = 0;
 	moveCounter = 0;
-	numberOfMoves = 25;
+	numberOfMoves = 15;
 	axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
 	middle = (axis) + (-axis);
-	speed = 10;
+	speed = 50;
 	scramble = false;
 	hSolve = false;
 	lsSolve = false;
-	twoxtwosolve = false;
 	smallIsSolved = false;
 	reverse = false;
 	paused = false;
 	counterReset = false;
 	choosing = false;
-
-	headers = true;
 	hud = true;
-	display2D = true;
+	display2D = false;
+	loadedPruningTables = false;
+	
 	// Region: Cubie Arrays for 2D View
 		corners = new ArrayList<Cubie>();
 		edges = new ArrayList<Cubie>();
@@ -101,45 +207,40 @@ void setup() {
 	// End Region: Arrays for moves
 	// Region: Cube objects
 		cube = new Cube();		// Graphical Cube object to apply solutions to.
-		fCube = new FastCube();	// Cube object that's supposed to be faster when searching for a solution.
-		completeCube = new Cube(); // Solved cube for reference point
+		// fCube = new FastCube();	// Cube object that's supposed to be faster when searching for a solution.
+		// completeCube = new Cube(); // Solved cube for reference point
 	// End Region: Cube objects
-	
-	// Region: Buttons
-		verifyCubeState = new Button();
-	// End Region: Buttons
 	// smooth(8);
+	// cam.reset();
+	setupCamera();
+	guiButtons();
 	updateLists();
 	if (dim > 1)  InitialiseMoves();
 	currentMove = new Move('X', 0, 0);
 }
 
-// Draws everything within the Rubik's Cube emulator
-void draw() {
-	background(220,220,220);
-	// background(background);
-	rotateX(- 0.3);
-	rotateY(0.6);
-	
+void theCube()	{
+	background(102);
+	// fill(255, 10); // semi-transparent white
 	updateCam();
+	
 	if (!paused)  {
 		if (!cube.animating) {
 			printScrambleInfo();
-			if (counter <= sequence.size() - 1)	{
+			if (moveCounter <= sequence.size() - 1)	{
 				sequenceRunning = true;
-				Move move = sequence.get(counter);
-				if(counter == 0)	{
-					if(sequence.size() == 1 && !headers)	{
-						headers = true;
-						if(move.index <= axis)	{
-							if(debugMode)	{
-								println("Move\tAxis\tIndex\tDir");
-								println(move + "\t" + move.currentAxis + "\t" + move.index + "\t" + move.dir);
+				Move move = sequence.get(moveCounter);
+				if(debugMode)	{
+					if(moveCounter == 0)	{
+						if(sequence.size() == 1)	{
+							if(move.index <= axis)	{
+									println("Move\tAxis\tIndex\tDir");
+									println(move + "\t" + move.currentAxis + "\t" + move.index + "\t" + move.dir);
 							}
 						}
+					} else {
+						println(move + "\t" + move.currentAxis + "\t" + move.index + "\t" + move.dir);
 					}
-				} else {
-					if(debugMode) println(move + "\t" + move.currentAxis + "\t" + move.index + "\t" + move.dir);
 				}
 				
 				if (move.index > axis)  {
@@ -147,45 +248,34 @@ void draw() {
 				} else {
 					cube.turn(move.currentAxis, move.index, move.dir);
 				}
-				counter++;
-			} else if(sequence.size() > 0 && counter == sequence.size()) {
+				moveCounter++;
+			} else if(sequence.size() > 0 && moveCounter == sequence.size()) {
 				sequence.clear();
-				counter = 0;
-				headers = false;
 				scrambling = false;
+				moveCounter = 0;
 			}
 		}
+
 		if(sequence.size() == 0 && !cube.animating)	sequenceRunning = false;
 
-		// If we want to solve with human algorithm...
-		if (hSolve) {
+		if(hAlgorithmRunning)	{
 			if (turns.length() == 0 && !cube.animating)  {
 				if (counterReset)  {
-					counter = 0;
+					moveCounter = 0;
 					counterReset = false;
 				}
 				cube.hAlgorithm.solve();
 			}
 		}
+		
 		// If we want to solve with search algorithm...
 		if (lsSolve) {
 			if (turns.length() == 0 && !cube.animating)  {
 				if (counterReset)  {
-					counter = 0;
+					moveCounter = 0;
 					counterReset = false;
 				}
 				cube.lsAlgorithm.solve();
-				// if(!threadRunning)	{
-				// 	threadRunning = true;
-				// 	// thread("startSearchAlgorithm");
-				// }
-			}
-		}
-
-		if(twoxtwosolve)	{
-			if(!threadRunning)	{
-				thread("solveSmallCube");
-				threadRunning = true;
 			}
 		}
 		cube.update();
@@ -202,92 +292,313 @@ void draw() {
 			}
 		}
 	}
+	if (dropdown.isMouseOver() ||
+		scrambleTheCube.isMouseOver() ||
+		slider.isMouseOver() ||
+		pauseButton.isMouseOver() ||
+		solveTheCube.isMouseOver()) {
+		cam.setActive(false);
+	} else {
+		cam.setActive(true);
+	}
 	// If we've solved the cube via the human algorithm...
 	if (cube.hAlgorithm.solved)  formatMoves();
-	updateLists();
-	// HUD - contains relevant information
-	if (hud)  {
-		cam.beginHUD();
+	if(display2D)	updateLists(); // For 2D Display
+}
+
+void smallgui()	{
+	textFont(pfont);
+	String fps = "FPS : " + nf(frameRate, 1, 1);
+    float x = 20;
+    float y = 20;
+	textFont(pfont);
+	textSize(14);
+	hint(DISABLE_DEPTH_TEST);
+	cam.beginHUD();
+		text(fps, x, y);
+		if(paused)  {
+			y += 20;
+			text("Paused", x, y);
+		}
+		y = height-20;
+		text("Hit \'x\' to show all controls", x, y);
+	cam.endHUD();
+
+	hint(ENABLE_DEPTH_TEST);
+}
+
+void gui() {
+	textFont(pfont);
+	fill(255);
+	String ctr = "Moves : \t" + str(moveCounter);
+	String fps = "FPS : " + nf(frameRate, 1, 1);
+	String speed = "Speed : \t" + nf(this.speed, 1, 2);
+	hint(DISABLE_DEPTH_TEST);
+	noLights();
+	cam.beginHUD();
+		cp5.draw();
 		float tSize = 12;
 		float x = 0;
 		float y = tSize;
 		textSize(tSize);
-		fill(0);
 		x += 20;
 		y += 20;
-		String ctr = "Moves : \t" + str(counter);
 		text(ctr, x, y);
 		y += 20;
-		String fps = "FPS : " + nf(frameRate, 1, 1);
 		text(fps, x, y);
 		y += 20;
-		text("Speed : \t" + nf((speed*10), 1, 2), x, y);
-		// y += 20;
-		// text("Cube : \t" + dim + "x" + dim + "x" + dim, x, y);
-		if(lsSolve)	{
-			y += 20; 
-			text("Current score of cube: " + (int)cube.lsAlgorithm.cubeScore + " / " + (dim*dim*6), x, y);
-			y += 20;
-			text("Heuristic Search Algorithm Active", x ,y);
-			y += 20;
-			text(nfc(percentTilNextMove, 2) + "%", x, y);
-			x += 45;
-			text(" complete 'til next algorithm",x ,y);
-		}
-		if(hSolve)	{
-			y += 20;
+		text(speed, x, y);
+		y += 20;
+		if(ksolveRunning)  {
+			text("Korf's Algorithm Active", x, y);
+		} else if (thistlethwaiteRunning)  {
+			text("Thistlethwaite's Algorithm Active", x, y);
+		} else if (hAlgorithmRunning)  {
 			text("Human Algorithm Active", x, y);
+		} else if (smallIDDFSRunning)  {
+			text("Small IDDFS Algorithm Active", x, y);
 		}
-		if(twoxtwosolve)	{
-			y+= 20;
-			text("2x2x2 Solver Active" , x, y);
-		}
-		if(paused)	{
+		if(paused)  {
 			y += 20;
 			text("Paused", x, y);
 		}
-		y+= 30;
-		if(verifyCubeState.rectX == 0)	{
-			verifyCubeState.rectX = (int)x;
-			verifyCubeState.rectY = (int)y;
-			verifyCubeState.rectWidth = 100;
-			verifyCubeState.rectHeight = 30;
-			verifyCubeState.text = "Verify Cube";
+		if(!refreshText)	{
+			refreshText = true;
+			thread("statusBoxText");
 		}
-		// verifyCubeState.render();
-		// verifyCubeState.update(mouseX, mouseY);
-		// if(verifyCubeState.mouseClicked() && dim == 3)	{
-		// 	if(verifyCube())	{
-		// 		println("Cube state is valid");
-		// 	} else {
-		// 		println("Cube state is invalid");
-		// 		paused = true;
-		// 	}
-		// }
-		y += 20;
-		// y += 20;
-		// float nCombinations = dim == 2 ? fact(7) * pow(3, 6) : 1;
-		// nCombinations = dim == 3 ? ((0.5) * (fact(8) * pow(3, 7)) * fact((dim*dim*dim) - 15) * pow(2, (dim*dim*dim)-16)) : nCombinations;
-		// text("Total number of combinations:\t" + nfc(nCombinations, 0), x, y);
-		// y += 20;
-		if(twoxtwosolve) y-= 20;
-		if(moves != "")	{
-			float mw = textWidth(moves);
-			fill(255);
-			x -= 5;
-			rect(x, displayHeight-y, mw+10, 100);
-			x += 5;
-			y -= 15;
-			fill(0);
-			text(moves, x, displayHeight-y);
-			y += 20;
+		if (display2D) twoDimensionalView();
+	cam.endHUD();
+	hint(ENABLE_DEPTH_TEST);
+}
+
+void guiButtons()	{
+	// x, y, width, height
+	int textfieldHeight = height > 600 ? 40 : 25;
+	int fontSize = height > 600 ? 25 : 14;
+	ControlFont font = new ControlFont(pfont, fontSize);
+	enterMoves = cp5.addTextfield("")
+				.setPosition(20, height-45)
+				.setSize(width-185, textfieldHeight)
+				.setFont(font)
+				.setText("Enter scramble here")
+				.setAutoClear(false)
+				;
+	submitMoves= cp5.addButton("Submit moves")
+				.setPosition(width-130, height-45)
+				.setSize(110, textfieldHeight)
+				.setId(11)
+				;
+	slider = cp5.addSlider("speed")
+				.setPosition(width-240, 20)
+				.setSize(200, 20)
+				.setRange(1, 100)
+				.setValue(50)
+				.setColorCaptionLabel(color(20,20,20))
+				;
+	scrambleTheCube = cp5.addButton("Scramble")
+						.setPosition(width-135, 70)
+						.setSize(95, 20)
+						.setId(1)
+						;
+	pauseButton		= cp5.addButton("Click to pause")
+						.setPosition(width-240, 45)
+						.setSize(95, 20)
+						.setId(5)
+						;
+	List l = Arrays.asList("Human Algorithm", 
+							"Thistlethwaite's Algorithm", 
+							"Korf's Algorithm", 
+							"More Coming Soon")
+							;
+	dropdown = cp5.addScrollableList("dropdown")
+						.setPosition(width-240, 95)
+						.setSize(200, 200)
+						.setBarHeight(20)
+						.setItemHeight(20)
+						.addItems(l)
+						.setOpen(false)
+						.setId(0)
+						;
+	solveTheCube 	= cp5.addButton("Solve")
+						.setPosition(width-240, 70)
+						.setSize(95, 20)
+						.setId(2)
+						;
+		color background = color(8, 44, 92, 0);
+		float x = width;
+		float y = height;
+		if(outputLog)	{
+			background = color(8, 44, 92, 255);
+			x = width-240;
+			y = height-(height/2+height/4);
 		}
-		// text(mouseX + ", " + mouseY, x, y);
-		// y += 20;
-		// text(keyPress, x, y);
-		// t.draw();
-		if (display2D) twoDimensionalView(displayWidth * 0.75, displayHeight / 20);
-		cam.endHUD();
+		outputBox		= cp5.addTextarea("Output")
+						.setPosition(x,y)
+						.setSize(200, 200)
+						.setLineHeight(14)
+						.setColorBackground(background)
+						.setColorForeground(background)
+						;
+		statusBox		= cp5.addTextarea("Status")
+						.setPosition(x,y+200)
+						.setSize(200, 20)
+						.setFont(pfont)
+						.setLineHeight(14)
+						.setColorBackground(color(0))
+						.setColorForeground(color(0))
+						;
+	loadPruneTables = cp5.addButton("Load Pruning Tables")
+						.setPosition(width-135, 45)
+						.setSize(95, 20)
+						.setId(10)
+						;
+	exitButton		= cp5.addButton("Exit")
+						.setPosition(20, height-70)
+						.setSize(30, 20)
+						.setId(6);
+	helpButton		= cp5.addButton("Help")
+						.setPosition(60, height-70)
+						.setSize(30, 20)
+						.setId(3)
+						;
+	aboutButton		= cp5.addButton("About")
+						.setPosition(100, height-70)
+						.setSize(30, 20)
+						.setId(4)
+						;
+	resetButton		= cp5.addButton("Reset")
+						.setPosition(140, height-70)
+						.setSize(30, 20)
+						.setId(7)
+						;
+	decreaseSize	= cp5.addButton("Decrease cube size")
+						.setPosition(width-220, height-70)
+						.setSize(90, 20)
+						.setId(8)
+						;
+	increaseSize	= cp5.addButton("Increase cube size")
+						.setPosition(width-120, height-70)
+						.setSize(90, 20)
+						.setId(9)
+						;
+	twodimView		= cp5.addButton("2D View Of Cube")
+						.setPosition(width-320, height-70)
+						.setSize(90, 20)
+						.setId(12)
+						;
+	outputBoxOn		= cp5.addButton("Turn off log")
+						.setPosition(width - 380, height -70)
+						.setSize(60, 20)
+						.setId(13)
+						;
+}
+
+void statusBoxText()	{
+	if(solving)	{
+		if(statusBox.getText() == "Solving")	{
+			statusBox.setText("Solving.");
+		} else if(statusBox.getText() == "Solving.")	{
+			statusBox.setText("Solving..");
+		} else if(statusBox.getText() == "Solving..")	{
+			statusBox.setText("Solving...");
+		} else {
+			statusBox.setText("Solving");
+		}
+	} else if(scrambling){
+		statusBox.setText("Scrambling");
+	} else if(solved)	{
+		statusBox.setText("Solved");
+	}
+	delay(1000); // Refreshes text every second
+	refreshText = false;
+}
+//ControlP5 callback - method name must be the same as the string parameter of cp5.addScrollableList()
+void dropdown(int n) {
+	try{
+		selected = cp5.get(ScrollableList.class, "dropdown").getItem(n).get("name").toString();
+	} catch(Exception e)	{
+		println("Err >> " + e + "\nIndex: " + n);
+	}
+}
+
+void controlEvent(ControlEvent theEvent) {
+	switch(theEvent.getController().getId())	{
+		case 1:
+			numberOfMoves = 14;
+			// cube.scrambleCube();
+			cube.hardcodedScrambleCube();
+			enterMoves.setValue(" " + moves);
+			break;
+		case 2:
+			println(selected);
+			if(selected == "Human Algorithm")	{
+				outputBox.setText("");
+				outputBox.append("Human Algorithm\n");
+				thread("humanAlgorithm");
+				solving = true;
+			}
+			if(selected == "Thistlethwaite's Algorithm")	{
+				outputBox.setText("");
+				outputBox.append("Thistlethwaite's Algorithm\n");
+				threadRunning = true;
+				thread("thistlethwaiteAlgorithm");
+				threadRunning = false;
+				solving = true;
+			}
+			if(selected == "Korf's Algorithm")	{
+				outputBox.setText("");
+				outputBox.append("Korf's Algorithm\n");
+				threadRunning = true;
+				thread("korfsAlgorithm");
+				threadRunning = false;
+				solving = true;
+			}
+			if(selected != "")	{
+				outputBox.setText(selected + "\n");
+			}
+			break;
+		case 3:
+			thread("controlsWindow");
+			break;
+		case 4:
+			thread("aboutWindow");
+			break;
+		case 5:
+			paused = !paused;
+			if(paused)	pauseButton.setLabel("Click to unpause");
+			if(!paused)	pauseButton.setLabel("Click to pause");
+			break;
+		case 6:
+			exit();
+			break;
+		case 7:
+			init();
+			break;
+		case 8:
+			dim--;
+			init();
+			break;
+		case 9:
+			dim++;
+			init();
+			break;
+		case 10:
+			if(!loadedPruningTables)	{
+				loadedPruningTables = true;
+				thread("loadPruningTables");
+			}
+			break;
+		case 11:
+			cube.testAlgorithm(enterMoves.getText());
+			break;
+		case 12:
+			display2D = !display2D;
+			break;
+		case 13:
+			// outputBox.value(0);
+			// guiButtons();
+			// outputBoxOn("")
+			break;
 	}
 }
 
@@ -296,30 +607,64 @@ void startSearchAlgorithm()	{
 	return;
 }
 
+void threadKorfs()	{
+	cube.ksolve.solve();
+}
+
 void solveSmallCube()	{
-	cube.twoxtwoSolver.solve();
+	cube.smallDFSSolver.solve();
 	return;
 }
 
 // Info dialogue window
-void aboutForm()	{
-	// This will be a separate dialogue window containing:
-	// 1. What the program is
-	// 2. How the program works
-	// 3. Who the program is by
-	}
+void aboutWindow()	{
+	msgBox(about(), "About");
+}
+
+String about()	{
+	String about = "Welcome to my Rubik\'s Cube Solver!\n\n";
+	about += "You\'re able to solve the cube using the following methods:\n";
+	about += "1. Human Algorithm (7 Step)\n";
+	about += "2. Korf\'s Algorithm\n";
+	about += "2a. IDDFS Solver for 2x2x2 - No tables\n";
+	about += "3. Thistlethwaite\'s Algorithm\n\n";
+	about += "I\'m currently working on further algorithms\nI\'m hoping to refine the pre-existing algorithms too. Enjoy.";
+	return about;
+}
+
+void controlsWindow()	{
+	msgBox(controls(), "Controls");
+}
+
+String controls()	{
+	String controls = "How to use Rubik's Cube Solver\n";
+	controls += "Control Description                                                           Key\n";
+	controls += "Resets the Rubik's Cube On-Screen to a solved state.      1\n";
+	controls += "Solves cube using Human Algorithm                         2\n";
+	controls += "Solves cube using Korf's Algorithm\t3\n";
+	controls += "Solves cube using Thistlethwaite's Algorithm\t4\n";
+	controls += "Increase speed of turning animations on Rubik's Cube\t+\n";
+	controls += "Reduce speed of turning animations on Rubik's Cube\t-\n";
+	controls += "\nR, L, U, D, F, B - These rotate their respective faces clockwise (Hold shift for anti-clockwise rotation)";
+	controls += "\nX, Y, Z - Rotate the entire cube along the specified axis (Hold shift for anti-clockwise rotation)";
+	return controls;
+}
+
 // Sets the camera view for the program
 void setupCamera() {
-	//hint(ENABLE_STROKE_PERSPECTIVE);
+	hint(ENABLE_STROKE_PERSPECTIVE);
 	float fov      = PI / 3;  // field of view
 	float nearClip = 1;
 	float farClip  = 100000;
 	float aspect   = float(width) / float(height);  
 	perspective(fov, aspect, nearClip, farClip);  
 	cam = new PeasyCam(this, 100 * (dim));
-	}
+}
+
 // Updates the camera view
 void updateCam() {
+	rotateX(- 0.3);
+	rotateY(0.6);
 	//----- perspective -----
 	float fov      = PI / 3;  // field of view
 	float nearClip = 1;
@@ -327,10 +672,10 @@ void updateCam() {
 	float aspect   = float(width) / float(height);  
 	perspective(fov, aspect, nearClip, farClip);
 	//println(cam.getDistance());
-	}
+}
+
 /**
 * Extracts a single turn from the turns string and applies it to the cube via cube's function, 'turn'
-*
 * @param	cube The cube that's having a move applied to it
 */
 void doTurn(Cube cube) {
@@ -414,24 +759,25 @@ void doTurn(Cube cube) {
 			cube.turnWholeCube('Z', dir);
 			break;
 	}
-	counter++;
-	}
-// Resets the cube back to a solved state (Helpful when debugging)
+	moveCounter++;
+}
+
 void resetCube() {
-	setup();
-	}
+	init();
+}
 // Prints each move being applied to the cube - Only works for cubes that are 3x3x3, 2x2x2 or 1
 void printScrambleInfo() {
 	if (dim <= 3) {
 		if (scramble) {
 			scramble = false;
-			print(numberOfMoves + " moves were taken to scramble the cube " + "\n" + moves + "\n");
+			if(debugMode) print(numberOfMoves + " moves were taken to scramble the cube " + "\n" + moves + "\n");
 		} else if (reverse) {
 			reverse = false;
-			print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves + "\n");
+			if(debugMode) print(numberOfMoves + " moves were taken to solve the cube " + "\n" + moves + "\n");
 		}
 	}
-	}
+}
+
 // Initialises all possible moves the cube can make
 // Used for testing each and every move on any cube size when debugging.
 void InitialiseMoves() {
@@ -463,7 +809,7 @@ void InitialiseMoves() {
 		// allMoves.add(new Move('Z', 1));
 		// allMoves.add(new Move('Z', - 1));
 	// End Region: Whole Cube Rotations
-	}
+}
 // Checks for valid quantities of each colour of the cube - E.g. 3x3x3 cube would have 9 of each colour. No more, no less.
 boolean verifyCube() {
 	boolean cubeValid = true;
@@ -504,7 +850,6 @@ boolean verifyCube() {
 	}
 
 	// STEP 2: Check if the centers have valid colours in the correct quantities, definitely a concern for larger cubes.
-	// TODO: Cater checking centers for all cube sizes.
 	// Checks centers
 	boolean colFound = false;
 	color[] centerColours = new color[6 * (dim-2) * (dim-2)];
@@ -595,22 +940,21 @@ boolean verifyCube() {
 	}
 // Formats and appends moves from the fMoves arraylist to a string called 'moves'
 void formatMoves()  {
-	moveCounter = 1; 
+	int ctr = 1; 
 	int lineLimit = 10;
 	if (fMoves.size() > 100)  lineLimit = 15;
 	for (int i = 0; i < fMoves.size(); i++)  {
-		if (moveCounter % lineLimit == 0) {
+		if (ctr % lineLimit == 0) {
 			moves += fMoves.get(i) + "\n";
-		} else if (moveCounter == fMoves.size()) {
+		} else if (ctr == fMoves.size()) {
 			moves += fMoves.get(i) + ".\n";
 		} else {
 			if (fMoves.get(i).length() == 2) moves += fMoves.get(i) + " ";
 			if (fMoves.get(i).length() == 1) moves += fMoves.get(i) + "  ";
 		}
-		moveCounter++;
 	}
 	fMoves.clear();
-	}
+}
 // Prints the debug information for each and every move for any sized cube.// 
 void debugMoves() {
 	println("Generating Moves...");
@@ -618,7 +962,7 @@ void debugMoves() {
 		println("Move : " + m.toString() + "\t" + m.currentAxis + "  " + m.index + "  " + m.dir);
 	}
 	println("Number of moves : " + allMoves.size());
-	}
+}
 
 // Called in draw, this updates the positions of every cubie within the cube to their respective lists.
 // E.g. Center cubies go to center, Edge cubies go to edges, Corner cubies go to corners
@@ -635,384 +979,308 @@ void updateLists()  {
 			corners.add(c);
 		}
 	}
-	}
+}
 
-/**
-* Two dimensional view of the entire cube - optimised for 3x3x3 atm
-* TODO: Optimise this for smaller and larger cube sizes
-*
-* @param	x The x coordinate of where the 2D view is going to appear on the screen
-* @param	y The y coordinate ""
-*/
-void twoDimensionalView(float x, float y) {
-	int numberOfFaces = 6;
-	int numOfColours = dim * dim * dim * numberOfFaces;
-	float panelWidth = displayWidth / 3;
-	float panelHeight = displayHeight / 5;
-	float ox = x;
-	float oy = y;
-	float bx = x - displayWidth / 10;
-	float by = y - displayHeight / 25;
-	fill(0);
-	// if(mousePressed && (mouseButton == LEFT)) {
-	//   bx = mouseX;
-	//   by = mouseY;
-	// }
-	rect(bx, by, panelWidth, panelHeight);
-	x = bx;
-	y = by + panelHeight / 3.8;
-	resetLists();
-	populateLists();
-	fill(255);
-	
-	drawSide(left, 1, x, y, panelWidth, panelHeight);// Left - 0
-	x += panelWidth / 5.5;
-	y += panelHeight / 3.4;
-	drawSide(down, 3, x, y, panelWidth, panelHeight); // Down - 3
-	y -= panelHeight / 3.4;
-	drawSide(front, 4, x, y, panelWidth, panelHeight); // Front - 4
-	y -= panelHeight / 3.4;
-	drawSide(top, 2, x, y, panelWidth, panelHeight); // Top - 2
-	x += panelWidth / 5.5;
-	y += panelHeight / 3.4;
-	drawSide(right, 0, x, y, panelWidth, panelHeight); // Right - 1
-	x += panelWidth / 5.5;
-	drawSide(back, 5, x, y, panelWidth, panelHeight); // Back - 5
-	x += panelWidth / 3;
-	y -= panelHeight / 4.75;
-	drawPallette(x, y, panelWidth, panelHeight);
-	}
+// Region: 2D View
+	/**
+	* Two dimensional view of the entire cube - optimised for 3x3x3 atm
+	* TODO: Optimise this for smaller and larger cube sizes
+	*
+	* @param	x The x coordinate of where the 2D view is going to appear on the screen
+	* @param	y The y coordinate ""
+	*/
+	void twoDimensionalView() {
+		int numberOfFaces = 6;
+		int numOfColours = dim * dim * dim * numberOfFaces;
+		float pWidth = width-width/8;
+		float pHeight = height-height/4;
+		if(mouseX > (width/2-pWidth/2) && mouseX < (width/2+pWidth/2) &&
+			mouseY > (height/2-pHeight/2) && mouseY < (height/2+pHeight/2))	{
+			cam.setActive(false);
+		}
+		float fSize = pWidth/9; // Face size
+		// println("fSize: " + fSize);
+		if(dim == 4)	fSize = pWidth/12;
+		float cSize = fSize/dim; // Cube sizes
+		// println("cSize: " + cSize);
+		float fSpacer = 0; // Space between faces
+		fill(255);
+		rectMode(CENTER);
+		rect(width/2, height/2, pWidth, pHeight);
+		fill(0);
+		stroke(0);
+		strokeWeight(cSize/15);
+		text("2D View\nChange the Cube's Colours.", width/2, (height/2 - pHeight/2 +20));
+		rectMode(CORNER);
+		float x = pWidth/6;
+		float y = pHeight/2;
 
-/**
-* Draws a face of the cube in 2D format
-* References the 3D cube
-*
-* @param	cubies		The cubies that we're drawing on this face
-* @param	face		The face of the cube we're drawing
-* @param	xPos		The x coordinate of this face
-* @param	yPos		The y coordinate of this face
-* @param	panelWidth	The width of the entire panel holding the 2D view
-* @param	panelHeight	The height of the entire panel holding the 2D view
-*/
-void drawSide(ArrayList<Cubie> cubies, int face, float xPos, float yPos, float panelWidth, float panelHeight) {
-	float cubieSize = panelWidth / 20;
-	float radius = panelHeight / 60;
-	float nextCube = cubieSize + panelWidth / 125;
-	float resetXPos = xPos;
-	float px = mouseX;
-	float py = mouseY;
-	char currentFace = 'B';
-	switch(face)  {
-		case 0:
-		currentFace = 'R';
-		break;
-		case 1:
-		currentFace = 'L';
-		break;
-		case 2:
-		currentFace = 'U';
-		break;
-		case 3:
-		currentFace = 'D';
-		break;
-		case 4:
-		currentFace = 'F';
-		break;
-	}
-	
-	noStroke();
-	int cubieNo = 0;
-	boolean clickedOnce = false;
-	for (int  i = 0; i < cubies.size(); i++) {
-		if (i % dim == 0)  {
-			xPos = resetXPos;
-			yPos = yPos + nextCube;
-		}
-		// Check if cubie has cursor over it / been clicked
-		boolean hit = pointCubie(px, py, xPos, yPos, cubieSize);
-		if (hit) {
-			fill(filler);
-			if (mousePressed && (mouseButton == LEFT) && !clickedOnce) {
-				clickedOnce = true;
-				cubies.get(i).colours[face] = filler;
-				// print("DEBUG" + cubies.get(i).details());
-				cube.update();
-				cube.show();
-			} else if(!mousePressed)	{
-				clickedOnce = false;
-			}
-		} else {
-			fill(cubies.get(i).colours[face]);
-		}
+		// Handles cubes
+		resetLists();
+		populateLists();
 		
-		// rect(mouseX-1,mouseY-10, 2, 20);
-		// rect(mouseX-10,mouseY-1, 20, 2);
-		xPos = xPos + nextCube;
-		textSize(cubieSize / 1.5);
-		rect(xPos, yPos, cubieSize, cubieSize, radius, radius, radius, radius);
+		drawSide(left, 'L', x, y, cSize);// Left - 0
+		x += fSize + fSpacer;
+		y += fSize + fSpacer;
+		drawSide(down, 'D', x, y, cSize); // Down - 3
+		y -= fSize + fSpacer;
+		drawSide(front, 'F', x, y, cSize); // Front - 4
+		y -= fSize + fSpacer;
+		drawSide(top, 'U', x, y, cSize); // Top - 2
+		x += fSize + fSpacer;
+		y += fSize + fSpacer;
+		drawSide(right, 'R', x, y, cSize); // Right - 1
+		x += fSize + fSpacer;
+		drawSide(back, 'B', x, y, cSize); // Back - 5
+		x = pWidth - fSize;
+		y = pHeight - 200;
+		drawPallette(x, y, cSize*1.5);
+		}
+
+	/**
+	* Draws a face of the cube in 2D format
+	* References the 3D cube
+	* @param	cubies		The cubies that we're drawing on this face
+	* @param	face		The face of the cube we're drawing
+	* @param	x		The x coordinate of this face
+	* @param	y		The y coordinate of this face
+	* @param    cSize	The cube size
+	*/
+	void drawSide(ArrayList<Cubie> cubies, 
+					char currentFace, 
+					float x, 
+					float y,
+					float cSize) {
 		
-		cubieNo++;
-		if (cubieNo == ceil(cubies.size() / 2) + 1) {
-			// println("Cubie " + cubieNo);
-			fill(0);
-			text(currentFace, xPos + cubieSize / 2 - radius, yPos + cubieSize / 2 + radius);
+		// float radius = cSize/10;
+		float radius = 0;
+		// float spacer = cSize/8;
+		float spacer = 0;
+		
+		float nextCube = cSize + spacer;
+		float resetXPos = x;
+		int face = 0;
+
+		rectMode(CORNER);
+		switch(currentFace)	{
+			case 'L':
+				face = 1;
+				break;
+			case 'U':
+				face = 2;
+				break;
+			case 'D':
+				face = 3;
+				break;
+			case 'F':
+				face = 4;
+				break;
+			case 'B':
+				face = 5;
+				break;
 		}
-	}
+		int cubieNo = 0;
+		boolean clickedOnce = false;
+		for (int  i = 0; i < cubies.size(); i++) {
+			Cubie c = cubies.get(i);
+			x = i % dim == 0 ? resetXPos : x;
+			y = i % dim == 0 ? y + nextCube : y;
+			// Check if cubie has cursor over it / been clicked
+			if (pointCubie(x+spacer, y, cSize)) {
+				fill(filler, 185);
+				if (mousePressed && mouseButton == LEFT && !clickedOnce) {
+					clickedOnce = true;
+					c.colours[face] = filler;
+					cube.update();
+					cube.show();
+				} else {
+					clickedOnce = false;
+				}
+			} else {
+				fill(c.colours[face]);
+			}
+			
+			x += nextCube;
+			// rect(x, y, cSize, cSize, radius);
+			square(x, y, cSize);
+			cubieNo++;
+			// Draw letter to center cubie
+			if (!(cubies.size() % 2 == 0) && cubieNo == ceil(cubies.size() / 2) + 1) {
+				fill(0);
+				textSize(cSize * 0.5);
+				text(currentFace, (x + (cSize-spacer) / 3.8),  y + (cSize-spacer) / 1.5);
+			} else if(cubies.size() % 2 == 0 && cubieNo == dim*dim/2+dim/2+1) {
+				fill(0);
+				textSize(cSize * 0.5);
+				text(currentFace, (x + (cSize-spacer) / 3.8),  y + (cSize-spacer) / 1.5);
+			}
+		}
+		}
+
+	/**
+	* Draws the "pallette" containing the 6 cube colours.
+	* This is for the user to select colours from when changing the Rubik's Cubie colours
+	* @param	x			The x coordinate
+	* @param	y			The y coordinate
+	* @param	panelWidth	The width of the entire panel
+	* @param	panelHeight	The height of the entire panel holding the 2D view
+	*/
+	void drawPallette(float x, float y, float cSize) {
+		color[] colours = {red, orange, blue, green, white, yellow};
+		float spacer = cSize/10; // Spacer between squares
+		float pWidth = cSize * 1.2; // Pallette width
+		float pHeight = (cSize * 6) + (spacer * 8); // "" height
+		float radius = cSize / 5; // Radius of square corners
+		rectMode(CENTER);
+		fill(0);
+		rect(x, y, pWidth, pHeight, radius);
+		y += -(pHeight/2) + spacer;
+		// stroke(0);
+		rect(mouseX, mouseY, 30, 1);
+		rect(mouseX, mouseY, 1, 30);
+		rectMode(CORNER);
+		x -= cSize/2;
+		for (color c : colours)  {
+			if (pointCubie(x-(cSize), y-spacer, cSize)) {
+				fill(red(c), green(c), blue(c), 175);
+				if (mousePressed && (mouseButton == LEFT) && !clickedOnce) {
+					clickedOnce = true;
+					filler = c;
+				} else if(!mousePressed)	{
+					clickedOnce = false;
+				}
+			} else {
+				fill(c);
+			}
+			rect(x, y, cSize, cSize, radius);
+			y += cSize + spacer;
+		}
 	}
 
-/**
-* Draws the "pallette" containing the 6 cube colours.
-* This is for the user to select colours from when changing the Rubik's Cubie colours
-*
-* @param	x			The x coordinate
-* @param	y			The y coordinate
-* @param	panelWidth	The width of the entire panel
-* @param	panelHeight	The height of the entire panel holding the 2D view
-*/
-void drawPallette(float x, float y, float panelWidth, float panelHeight) {
-	color[] colours = {red, orange, blue, green, white, yellow};
-	float palletteWidth = panelWidth / 12;
-	float palletteHeight = panelHeight * 0.9;
-	float ox = x;
-	float oy = y;
-	float px = mouseX;
-	float py = mouseY;
-	float cubieSize = palletteWidth * 0.8;
-	float radius = cubieSize / 5;
-
-	fill(205);
-	rect(ox, oy, palletteWidth, palletteHeight, radius, radius, radius, radius);
-	x += palletteWidth / 10;
-	y += palletteHeight / 30;
-	for (color c : colours)  {
-		boolean hit = pointCubie(px, py, x - cubieSize, y, cubieSize);
-		if (hit) {
-			fill(255,255,255, 125);
-			if (mousePressed && (mouseButton == LEFT) && !clickedOnce) {
-				clickedOnce = true;
-				println("Colour " + colToString(c));
-				filler = c;
-			} else if(!mousePressed)	{
-				clickedOnce = false;
-			}
-		} else {
-			fill(c);
+	/**
+	* Detects whether the mouse is within a 2D cubie's space
+	* @param	px
+	* @param	py
+	* @param	x
+	* @param	y
+	* @param	cubieSize
+	* @return	boolean	if mouse is in space, return true
+	*/
+	boolean pointCubie(float x, float y, float cubieSize)  {
+		// is the point inside the rectangle's bounds?
+		if (mouseX > x + cubieSize &&        // right of the left edge AND
+			mouseX < x + cubieSize * 2 &&   // left of the right edge AND
+			mouseY > y &&        // below the top AND
+			mouseY < y + cubieSize) {   // above the bottom
+			fill(255,0,0);
+			rect(mouseX, mouseY, 1, 1);
+			return true;
 		}
-		rect(x, y, cubieSize, cubieSize, radius, radius, radius, radius);
-		y += cubieSize + displayHeight / 120;
+		return false;
 	}
-	
+	// Populates the lists for the 2D view
+	void populateLists()  {
+		left = 	getOrderedList(-1, 'X');
+		right = getOrderedList(1, 'X');
+		top = 	getOrderedList(-1, 'Y');
+		down = 	getOrderedList(1, 'Y');
+		front = getOrderedList(1, 'Z');
+		back = 	getOrderedList(-1, 'Z');
 	}
 
-/**
-* Detects whether the mouse is within a 2D cubie's space
-* @param	px
-* @param	py
-* @param	x
-* @param	y
-* @param	cubieSize
-* @return	boolean	if mouse is in space, return true
-*/
-boolean pointCubie(float px, float py, float x, float y, float cubieSize)  {
-	// is the point inside the rectangle's bounds?
-	if (px > x + cubieSize &&        // right of the left edge AND
-		px < x + cubieSize * 2 &&   // left of the right edge AND
-		py > y &&        // below the top AND
-		py < y + cubieSize) {   // above the bottom
-		return true;
-	}
-	return false;
-	}
-// Populates the lists the 2D view uses for reference of the current cube state
-// This is so it updates with the 3D cube as it changes states
-void populateLists()  {
-	ArrayList<Cubie> newBack = new ArrayList();
-	ArrayList<Cubie> newFront = new ArrayList();
-	ArrayList<Cubie> newLeft = new ArrayList();
-	ArrayList<Cubie> newRight = new ArrayList();
-	ArrayList<Cubie> newTop = new ArrayList();
-	ArrayList<Cubie> newDown = new ArrayList();
-	
-	for (int i = 0; i < cube.len; i++) {
-		Cubie c = cube.getCubie(i);
-		if (c.z == - axis) newBack.add(c);
-		if (c.z == axis) newFront.add(c);
-		if (c.x == - axis) newLeft.add(c);
-		if (c.x == axis) newRight.add(c);
-		if (c.y == - axis) newTop.add(c);
-		if (c.y == axis) newDown.add(c);
-	}
-	
-	left = getOrderedList(newLeft, - 1, 'X');
-	right = getOrderedList(newRight, 1, 'X');
-	top = getOrderedList(newTop, - 1, 'Y');
-	down = getOrderedList(newDown, 1, 'Y');
-	front = getOrderedList(newFront, 1, 'Z');
-	back = getOrderedList(newBack, - 1, 'Z');
+	/**
+	* The order determines how each cubie is laid out in the 2D View
+	* @param	index	index of the face on the cube
+	* @param	cubeAxis Axis of the cube these cubies are from
+	*/
+	ArrayList<Cubie> getOrderedList(int index, char cubeAxis) {
+		ArrayList<Cubie> faceCubies = new ArrayList();
+		ArrayList<Cubie> orderedList = new ArrayList();
+		Cubie[] allCubies = cube.getCubies();
+
+		switch(cubeAxis)  {
+			case 'X':
+				for(Cubie c : allCubies)	{
+					if(c.x == index*axis) faceCubies.add(c);
+				}
+				for(float y = -axis; y <= axis; y++)	{
+					for(float z = -axis; z <= axis; z++)	{
+						for(Cubie c : faceCubies)	{
+							if(c.y == y && c.z == z)	orderedList.add(c);
+						}
+					}
+				}
+				break;
+			case 'Y':
+				for(Cubie c : allCubies)	{
+					if(c.y == index*axis) faceCubies.add(c);
+				}
+				for(float x = -axis; x <= axis; x++)	{
+					for(float z = -axis; z <= axis; z++)	{
+						for(Cubie c : faceCubies)	{
+							if(c.x == x && c.z == z)	orderedList.add(c);
+						}
+					}
+				}
+				break;
+			case 'Z':
+				for(Cubie c : allCubies)	{
+					if(c.z == index*axis) faceCubies.add(c);
+				}
+				for(float y = -axis; y <= axis; y++)	{
+					for(float x = -axis; x <= axis; x++)	{
+						for(Cubie c : faceCubies)	{
+							if(c.y == y && c.x == x)	orderedList.add(c);
+						}
+					}
+				}
+				break;
+		}
+		return orderedList;
 	}
 
-/**
-* The order determines how each cubie is laid out in the 2D representation of the 3D cube
-*
-* @param	cubies	Cubies we're returning, ordered.
-* @param	index	index of clockwise rotation cubie array
-* @param	cubeAxis Axis of the cube these cubies are from
-*/
-ArrayList<Cubie> getOrderedList(ArrayList<Cubie> cubies, int index, char cubeAxis) {
-	Cubie[] newList = new Cubie[cubies.size()];
-	for (int i = 0; i < cubies.size(); i++) {
-		newList[i] = cubies.get(i);
+	// Reset the lists the 2D view uses to reference the 3D cube
+	void resetLists() {
+		back.clear();
+		front.clear();
+		left.clear();
+		right.clear();
+		top.clear();
+		down.clear();
 	}
-	
-	if (dim < 3) {
-		// println("Fuck all we can do here");
-		return cubies;
-	}
-	
-	ArrayList<Cubie> list = new ArrayList();
-	
-	switch(cubeAxis)  {
-		case 'X':
-		for (Cubie c : cubies) {
-			if (c.y == axis && c.z == - axis * index) {
-				newList[8] = c;
-				continue;
-			}
-			if (c.y == axis && c.z == middle) {
-				newList[7] = c;
-				continue;
-			}
-			if (c.y == axis && c.z == axis * index)  {
-				newList[6] = c;
-				continue;
-			}
-			if (c.y == middle && c.z == - axis * index)  {
-				newList[5] = c;
-				continue;
-			}
-			if (c.y == middle && c.z == middle)  {
-				newList[4] = c;
-				continue;
-			}
-			if (c.y == middle && c.z == axis * index) {  
-				newList[3] = c;
-				continue;
-			}
-			if (c.y == - axis && c.z == - axis * index)  {
-				newList[2] = c;
-				continue;
-			}
-			if (c.y == - axis && c.z == middle)  {
-				newList[1] = c;
-				continue;
-			}
-			if (c.y == - axis && c.z == axis * index) {
-				newList[0] = c;
-				continue;
-			}
-		}
-		break;
-		case 'Y':
-		for (Cubie c : cubies) {
-			if (c.x == axis && c.z == axis * index)  {
-				newList[2] = c;
-				continue;
-			}
-			if (c.x == axis && c.z == middle) {
-				newList[5] = c;
-				continue;
-			}
-			if (c.x == axis && c.z == - axis * index) {
-				newList[8] = c;
-				continue;
-			}
-			if (c.x == middle && c.z == axis * index) {  
-				newList[1] = c;
-				continue;
-			}
-			if (c.x == middle && c.z == middle)  {
-				newList[4] = c;
-				continue;
-			}
-			if (c.x == middle && c.z == - axis * index)  {
-				newList[7] = c;
-				continue;
-			}
-			if (c.x == - axis && c.z == axis * index) {
-				newList[0] = c;
-				continue;
-			}
-			if (c.x == - axis && c.z == middle)  {
-				newList[3] = c;
-				continue;
-			}
-			if (c.x == - axis && c.z == - axis * index)  {
-				newList[6] = c;
-				continue;
-			}
-		}
-		break;
-		case 'Z':
-		for (Cubie c : cubies) {
-			if (c.x == - axis * index && c.y == - axis)  {
-				newList[0] = c;
-				continue;
-			}
-			if (c.x == middle && c.y == - axis)  {
-				newList[1] = c;
-				continue;
-			}
-			if (c.x == axis * index && c.y == - axis) {
-				newList[2] = c;
-				continue;
-			}
-			if (c.x == middle && c.y == middle)  {
-				newList[4] = c;
-				continue;
-			}
-			if (c.x == axis * index && c.y == middle) {
-				newList[5] = c;
-				continue;
-			}
-			if (c.x == axis * index && c.y == axis)  {
-				newList[8] = c;
-				continue;
-			}
-			if (c.x == middle && c.y == axis) {  
-				newList[7] = c;
-				continue;
-			}
-			if (c.x == - axis * index && c.y == middle)  {
-				newList[3] = c;
-				continue;
-			}
-			if (c.x == - axis * index && c.y == axis) {
-				newList[6] = c;
-				continue;
-			}
-			break;
-		}
-	}
-	for (Cubie c : newList)  {
-		list.add(c);
-	}
-	return list;
-	}
-// Reset the lists the 2D view uses to reference the 3D cube
-void resetLists() {
-	back.clear();
-	front.clear();
-	left.clear();
-	right.clear();
-	top.clear();
-	down.clear();
-	}
+// End Region: 2D View
+
 // Scramble & solves cube x amount of times adhering to various requirements / conditions
-void testDFSSolver()	{
+void testKorfs()	{
 	Random r = new Random();
     String directory = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
     Writer output;
-	String headers = "method,moves,time,memconsum\n";
+	boolean headersInFile = false;
+	// Region: Headers
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(directory + "TestResults.txt"));
+			try {
+				String line = "";
+				while((line = br.readLine()) != null)
+				{
+					//System.out.println(line);
+					String[] words = line.split(" ");
+
+					for (String word : words) {
+						if (word.equals(headers)) {
+							headersInFile = true;
+						}
+					}
+				}
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	// End Region: Headers
+	if(!headersInFile)	{
 	// Appending headers to file
 		try {
 			output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
@@ -1024,77 +1292,26 @@ void testDFSSolver()	{
 			return;
 		}
 		try {
-			output.append(headers);
+			output.append(headers + "\n");
 			output.close();
 		} catch(IOException e)	{
 			println("Err >> " + e + "\nAborting file appending");
 			return;
 		}
 	// Appended headers to file
-	int tests = 0;
-    loadPruningTables(); // Load pruning tables
-	String out = "";
-	String method = "DFS";
-    while(tests < 50) {
-		numberOfMoves = 13;
-
-		for(int i = 0; i < 3; i++)  {
-			out = "";
-			try {
-				output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
-			} catch (FileNotFoundException e) {
-				println(e);
-				return;
-			} catch (IOException e)	{
-				println(e);
-				return;
-			}
-			cube.scrambleCube(); // Scramble cube with x amount of moves
-			while(scrambling)	{
-				delay(200);
-			}
-			// While scramble is not done... wait.
-			cube.iksolve(); // Get current cube state to solver
-			long start = System.currentTimeMillis();
-			cube.ksolve.solve();
-			long end = System.currentTimeMillis();
-            float duration = (end - start) / 1000F;
-			while(ksolveRunning)	{
-				delay(200);
-			}
-			while(sequence.size() > 0 || sequenceRunning)	{
-				delay(200);
-			}
-			println("Test " + (i+1));
-			// delay(5000);
-			// Once cube is solved
-			//   Append scramble and solution
-			int memconsum = 1;
-			out += method + "," + cube.ksolve.solutionMoves + "," + duration + "," + memconsum + "\n";
-			try {
-				output.append(out);
-				output.close();
-			} catch(IOException e)	{
-				println("Err >> " + e + "\nAborting file appending");
-				return;
-			}
-			resetCube();
-			tests += 1;
-		}
-    numberOfMoves++;
-    }
-	testing = false;
 	}
+	int tests = 1;
+	String out = "";
+    int nMoves = 17;
+	// numberOfMoves = 10;
+	println("Test\tScramble\tSolve\tTime\tMemory Consumption");
+	while(tests < 50) {	
+		nMoves += 1;
+		numberOfMoves = nMoves;
+		out = "";
 
-void testHumanAlgorithmSolver()	{
-	println("Testing human");
-	Random r = new Random();
-    String directory = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
-    Writer output;
-	String headers = "method,moves,time,memconsum\n";
-	// Appending headers to file
 		try {
-			output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", false));
+			output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
 		} catch (FileNotFoundException e) {
 			println(e);
 			return;
@@ -1102,25 +1319,85 @@ void testHumanAlgorithmSolver()	{
 			println(e);
 			return;
 		}
+
+		cube.scrambleCube(); // Scramble cube with x amount of moves
+		while(scrambling)	delay(200);
+		// While scramble is not done... wait.
+
+		cube.ksolve(); // Get current cube state to solver
+		long start = System.currentTimeMillis();
+		cube.ksolve.solve();
+
+		while(ksolveRunning)	{
+			delay(200);
+		}
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+
+		while(sequence.size() > 0 || sequenceRunning)	delay(200);
+
+		duringFunctionExecution = 0;
+		for(long j : memConsumptionArray)	{
+			duringFunctionExecution += j;
+		}
+		duringFunctionExecution = duringFunctionExecution/memConsumptionArray.size();
+		memConsumptionArray.clear();
+
+		if(duringFunctionExecution != 0)	actualMemUsed = duringFunctionExecution - beforeFunctionIsCalled;
+		duringFunctionExecution = 0;
+
+		// Once cube is solved
+		//   Append scramble and solution
+		long memconsum = actualMemUsed;
+		println(tests + "\t" + numberOfMoves + "\t" + cube.ksolve.solutionMoves + "\t" + duration + "\t" + memconsum);
+		out += "2," + numberOfMoves + "," + cube.ksolve.solutionMoves + "," + duration + "," + memconsum + "\n";
 		try {
-			output.append(headers);
+			output.append(out);
 			output.close();
 		} catch(IOException e)	{
 			println("Err >> " + e + "\nAborting file appending");
 			return;
 		}
-	// Appended headers to file
-	int tests = 0;
-	String out = "";
-	String method = "Human algorithm";
-	numberOfMoves = 10;
-    while(tests < 50) {
-		numberOfMoves += r.nextInt(2);
-		out = "";
-		for(int i = 0; i < 3; i++)  {
-			println("Test " + tests);
+		resetCube();
+		tests += 1;
+    }
+	testing = false;
+	}
+// Testing human algorithm for stats
+void testHumanAlgorithmSolver()	{
+	println("Testing human");
+    String directory = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
+    Writer output;
+	boolean headersInFile = false;
+	// Region: Read file and check for headers
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(directory + "TestResults.txt"));
 			try {
-				output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
+				String line = "";
+				while((line = br.readLine()) != null)
+				{
+					//System.out.println(line);
+					String[] words = line.split(" ");
+
+					for (String word : words) {
+						if (word.equals(headers)) {
+							headersInFile = true;
+						}
+					}
+				}
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	// End Region: Read file and check for headers
+	// Region: If there aren't any headers in the csv file, append them.
+		if(!headersInFile)	{
+		// Appending headers to file
+			try {
+				output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", false));
 			} catch (FileNotFoundException e) {
 				println(e);
 				return;
@@ -1128,32 +1405,73 @@ void testHumanAlgorithmSolver()	{
 				println(e);
 				return;
 			}
-			cube.scrambleCube(); // Scramble cube with specified num of moves
-			while(scrambling)	{
-				delay(200);
-			}
-			long start = System.currentTimeMillis();
-			hSolve = true;
-			while(hSolve)	{
-				delay(200);
-			}
-			long end = System.currentTimeMillis();
-            float duration = (end - start) / 1000F;
-			// If human algorithm is running, sequence has moves left or sequence has moves being performed.
-			while(hAlgorithmRunning || sequence.size() > 0 || sequenceRunning)	{
-				delay(200);
-			}
-			// println("Test " + i + " completed. Solution: " + cube.hAlgorithm.solution);
-
-			float memconsum = 1;
-			out += method + "," + cube.hAlgorithm.solutionMoves + "," + duration + "," + memconsum + "\n";
 			try {
-				output.append(out);
+				output.append(headers + "\n");
 				output.close();
 			} catch(IOException e)	{
 				println("Err >> " + e + "\nAborting file appending");
 				return;
 			}
+		}
+	// End Region: If there aren't any headers in the csv file, append them.
+	int tests = 1;
+	String out = "";
+    while(tests <= 50) {
+		out = "";
+		numberOfMoves += new Random().nextInt(2);
+		for(int i = 0; i < 3; i++)  {
+			println("Test " + tests);
+			// Region: Prepare file for writing data.
+				try {
+					output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
+				} catch (FileNotFoundException e) {
+					println(e);
+					return;
+				} catch (IOException e)	{
+					println(e);
+					return;
+				}
+			// End Region: Prepare file for writing data.
+			// Scramble cube with specified num of moves
+			cube.scrambleCube();
+			// Wait for cube to finish scrambling
+			while(scrambling)	delay(200);
+			// Start timer (to see how long solver takes)
+			long start = System.currentTimeMillis();
+			// Set human solve boolean to true - main loop should start solving cube
+			hSolve = true;
+			// While human solver is running, wait.
+			while(hAlgorithmRunning || hSolve)	delay(200);
+			// Ensure that mem consumption value is set to 0
+			duringFunctionExecution = 0;
+			// Get average value from array of memory consumption data.
+			for(long j : memConsumptionArray)	{
+				duringFunctionExecution += j;
+			}
+			// Store average mem consumption for this solve to variable
+			duringFunctionExecution = duringFunctionExecution/memConsumptionArray.size();
+			// Clear the array for next solve.
+			memConsumptionArray.clear();
+			// Calculate memory used/total 
+			if(duringFunctionExecution != 0)	actualMemUsed = duringFunctionExecution - beforeFunctionIsCalled;
+			duringFunctionExecution = 0;
+
+			long end = System.currentTimeMillis();
+            float duration = (end - start) / 1000F;
+			// If human algorithm is running, sequence has moves left or sequence has moves being performed.
+			while(sequence.size() > 0 || sequenceRunning)	delay(200);
+			// println("Test " + i + " completed. Solution: " + cube.hAlgorithm.solution);
+			long memconsum = actualMemUsed;
+			out += "1," + numberOfMoves + "," + cube.hAlgorithm.solutionMoves + "," + duration + "," + memconsum + "\n";
+			// Region: append data to file
+				try {
+					output.append(out);
+					output.close();
+				} catch(IOException e)	{
+					println("Err >> " + e + "\nAborting file appending");
+					return;
+				}
+			// Region: append data to file
 			resetCube();
 			tests += 1;
 		}
@@ -1161,6 +1479,28 @@ void testHumanAlgorithmSolver()	{
     }
 	testing = false;
 	}
+void humanAlgorithm()	{
+	hAlgorithmRunning = true;
+}
+void korfsAlgorithm()	{
+	cube.ksolve();
+	cube.ksolve.solve();
+	}
+void thistlethwaiteAlgorithm()	{
+	while(sequence.size() > 0 || sequenceRunning)	delay(200);
+	cube.tsolve();
+	cube.thistlethwaite.solve();
+	}
+void kociembaAlgorithm()	{
+	cube.optimalSolver();
+	cube.optimalsolver.solve();
+}
+
+void testSmallDFS()	{
+	if(dim != 2)	return;
+	cube.iSmallSolver();
+	cube.smallDFSSolver.solve();
+}
 /**
 * Returns factorial result starting from num
 * @param	num	number factorial starts at.
@@ -1175,3 +1515,26 @@ long fact(int num) {
 		
 		return result;
 	}
+
+void msgBox(String msg, String title){
+  	// Messages
+	try {
+		javax.swing.JOptionPane.showMessageDialog(null, msg, title, javax.swing.JOptionPane.INFORMATION_MESSAGE);
+	} catch (Exception e)	{
+		javax.swing.JOptionPane.showMessageDialog(null, "Error occurred with this dialogue box 😬" + e);
+	}
+}
+
+void pixBox(String title)	{
+	String dir = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
+	try{
+		java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(new File(dir+"controls.png"));
+		javax.swing.JLabel picLabel = new javax.swing.JLabel(new javax.swing.ImageIcon(image));
+		javax.swing.JOptionPane.showMessageDialog(null, picLabel, title, javax.swing.JOptionPane.PLAIN_MESSAGE, null);
+	} catch(Exception e)	{
+		println("Didny work");
+	}
+}
+void pixWindow()	{
+	pixBox("Rubik's Cube Solver Controls");
+}

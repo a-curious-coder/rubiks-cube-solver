@@ -33,12 +33,12 @@ class LocalSearch   {
 	
 	LocalSearch(Cube cube)  {
 		this.cube = cube;
-		fastCube = new Cube2(cube);
-		fastCube.state();
+		// fastCube = new Cube2(cube);
+		// fastCube.state();
 	}
 	
 	void solve()    {
-		switch(stage)   { //<>//
+		switch(stage)   { //<>// //<>//
 			// Generate / Prepare algorithms for use.
 			case 0:
 				initialiseAlgorithms();
@@ -407,6 +407,7 @@ class LocalSearch   {
 		for (int i = 0; i < cube.len; i++)    {  
 			Cubie c = cube.getCubie(i);
 			boolean foundMatch = false;
+			Cube completeCube = new Cube();
 			for (int j = 0; j < completeCube.len; j++) {
 				Cubie referenceCubie = completeCube.getCubie(j);
 				if (foundMatch)  continue;
@@ -1011,6 +1012,7 @@ class LocalSearch   {
 		float cubieScore = 0;
 		boolean foundCubie = false;
 		int counter = 0;
+		Cube completeCube = new Cube();
 		for (int i = 0; i < completeCube.len; i++)    {
 			referenceCubie = completeCube.getCubie(i);
 			color[] cubieColours = new color[6];

@@ -10,23 +10,30 @@ class HumanAlgorithm {
   boolean nextStep = false;
   boolean isLargerCube = false;
   boolean solved = false;
-
+  boolean solveStarted = false;
+  boolean captionsOn = true;
+  long start;
   HumanAlgorithm(Cube cube) {
     setColours();
     this.cube = cube;
     isLargerCube = dim > 3 ? isLargerCube = true : false;
   }
   
-  /**
-  * Responsible for solving the cube and applying the appropriate stage
-  */
+  // Responsible for solving the cube and applying the appropriate stage
   void solve() {
+    if(!solveStarted) {
+      start = System.currentTimeMillis();
+      solveStarted = true;
+    }
+    if(testing) captionsOn = false;
+    memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
     if (isLargerCube) {
       print("Larger cube solving coming soon...");
       return;
     }
     switch(stage) {
     case 0:
+
       whiteCross();
       break;
     case 1:
@@ -48,21 +55,25 @@ class HumanAlgorithm {
       finalRotations();
       break;
     case 7:
-      // TODO: Evaluate whether cube is actually solved or not.
       if(cube.evaluateCube()) {
         solved = true;
         resetHumanAlgorithm();
-        println("Rubik's cube is solved in " + counter + " moves.");
-        solutionMoves = counter;
+        long end = System.currentTimeMillis();
+        float duration = (end-start) / 1000F;
+
+        if(captionsOn)  {
+          println("Rubik's cube\nSolved in " + moveCounter + " moves.\nSolved in " + duration + " seconds.");
+          outputBox.append("Rubik's cube\nSolved in " + moveCounter + " moves.\nSolved in " + duration + " seconds.\n");
+        }
+        solutionMoves = moveCounter;
         counterReset = true;
+        hAlgorithmRunning = false;
+        moveCounter = solutionMoves;
       } else {
-        println("Something went wrong during solve - try solving again.");
+        if(captionsOn)  println("Something went wrong during solve - try solving again.");
       }
-      
-      // TODO: print timer
-      // TODO: print number of moves
-      // TODO: pause after finished
-      // TODO: rotate cube?
+      solveStarted = false;
+      solving = false;
       break;
     }
   }
@@ -86,7 +97,10 @@ class HumanAlgorithm {
     if (turns.length() != 0)  return;
     positionWhiteCrossEdge(green);
     if (turns.length() == 0) {
-      println("Stage 1 - White cross complete.");
+      if(captionsOn)    {
+        println("Stage 1 - White cross complete.");
+        outputBox.setText("Step 1 - White cross complete\n");
+      }
       stage++;
     }
   }
@@ -262,7 +276,10 @@ class HumanAlgorithm {
       if(turns.length() > 0)  return;
       completedCorners++;
     }
-    println("Stage 2 - Bottom corners aligned complete.");
+    if(captionsOn)  {
+      println("Stage 2 - Bottom corners aligned complete.");
+      outputBox.append("Stage 2 - Bottom corners aligned complete.\n");
+    }
     stage++;
   }
   
@@ -310,10 +327,10 @@ class HumanAlgorithm {
       // if corner is not bottom,right,front OR corner is incorrectly oriented
       if(!from.equals(to) || corner.colours[3] != white) {
         String temp = getDirectionOfCorners(from, to);
-        println("if this is being spammed, I'm stuck");
-        println(temp);
-        println(from.x + " " + from.y + " " + from.z);
-        println(to.x + " " + to.y + " " + to.z);
+        // println("if this is being spammed, I'm stuck");
+        // println(temp);
+        // println(from.x + " " + from.y + " " + from.z);
+        // println(to.x + " " + to.y + " " + to.z);
         turns += temp;
         turns += "RUR'";
         turns += reverseMoves(temp);
@@ -345,7 +362,10 @@ class HumanAlgorithm {
       }
       completedEdges++;
     }
-    println("Stage 3 - Middle edges correctly positioned");
+    if(captionsOn)  {
+      println("Stage 3 - Middle edges correctly positioned");
+      outputBox.append("Stage 3 - Middle edges correctly positioned\n");
+    }
     stage++;
   }
 
@@ -440,7 +460,10 @@ class HumanAlgorithm {
     // If all edges have yellow facing up - cross is done.
     if(edgeCount == topEdges.length)  {
       stage++;
-      println("Stage 4 - Yellow cross complete");
+      if(captionsOn)  {
+        println("Stage 4 - Yellow cross complete");
+        outputBox.append("Stage 4 - Yellow cross complete\n");
+      }
       return;
     }
 
@@ -528,7 +551,10 @@ class HumanAlgorithm {
             turns += "UU";
           }
           stage++;
-          println("Stage 5 - Yellow cross edges positioned correctly");
+          if(captionsOn)  {
+            println("Stage 5 - Yellow cross edges positioned correctly");
+            outputBox.append("Stage 5 - Yellow cross edges positioned correctly\n");
+          }
           return;
         }
       }
@@ -594,7 +620,10 @@ class HumanAlgorithm {
     }
     // delay(2500);
     if(correctlyAllocated == 4) {
-      println("Stage 6 - Corners correctly relocated");
+      if(captionsOn)  {
+        println("Stage 6 - Corners correctly relocated");
+        outputBox.append("Stage 6 - Corners correctly relocated\n");
+      }
       stage++;
       return;
     }
@@ -644,7 +673,10 @@ class HumanAlgorithm {
       // If all 4 top corners have been turned
       if(cubiesTurned == 4) {
         // FINISHED SOLVING - THIS TOOK TOO LONG
-        println("Stage 7 - Orient top corners\nCube solved.");
+        if(captionsOn)  {
+          println("Stage 7 - Orient top corners\nCube solved.");
+          outputBox.append("Stage 7 - Orient top corners\nCube is solved!\n");
+        }
         stage++;
         return;
       } else {

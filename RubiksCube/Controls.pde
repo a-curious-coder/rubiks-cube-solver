@@ -1,6 +1,26 @@
 void keyPressed() {
-  if(testing) return;
+  if (enterMoves.isFocus() == true) {
+    if(enterMoves.getText().contains("Enter scramble here")) {
+      enterMoves.setText("");
+    }
+    if(key == '\'') {
+      enteredMoves = enterMoves.getText();
+      enterMoves.setText(enteredMoves + key);
+    } else if(key == BACKSPACE) {
+      enterMoves.setText("");
+    } else if(key == ENTER) {
+      cube.testAlgorithm(enterMoves.getText());
+      enterMoves.setText("");
+    }
+    return;
+  }
   keyPress = key;
+  if(testing || threadRunning) {
+    if(keyPress == 'p')  {
+      paused = !paused;
+    }
+    return;
+  }
   if(choosing)  {
     println("choosing");
     switch(key) {
@@ -11,78 +31,98 @@ void keyPressed() {
     }
   } else {
   switch(key) {
-    case 'a':
-      if(!threadRunning)  {
-        threadRunning = true;
-        loadPruningTables();
-        cube.iksolve();
-        cube.ksolve.solve();
-      }
+    case '\\':
+      slowCube = !slowCube;
       break;
-    case 't': // Test...
-      if(!testing)  {
-        testing = true;
+    case ' ':
+      cube.scrambleCube();
+      break;
+    case 'a':
+      // thread("aboutWindow");
+      thread("pixWindow");
+      break;
+    case 't': // Solves various cubes x amount of times using specified method.
         // thread("testHumanAlgorithmSolver");
-        thread("testDFSSolver");
-      }
+        // thread("testKorfs");
+        // create_slice_table();
+        // create_e_slice_table();
+        // create_ms_slice_table();
+        // create_tetrad_table();
+        // println("" + popcount(4095));
+        // create_edges_p_table();
+        // create_corners_p_table();
+        // thread("testThistlethwaite");
+
       break;
     case 'c':
-
-      // colouring = true;
+      // Cube2 tmp = new Cube2(cube);
+      if(!testing)  {
+        testing = true;
+        thread("testHumanAlgorithmSolver");
+      }
       break;
     case 'h':
       hud = !hud;
+      // thread("controlsWindow");
       break;
     case 's':
       if(bigTroll()) break;
-      cube.scrambleCube();
       // cube.hardcodedScrambleCube();
+      Cube2 ha = new Cube2(cube);
+      ha.imageState();
+      // cube.testAlgorithm(cube.generateScramble(10000));
       break;
-    case '0':
-      hSolve = true;
+    case 'x':
+      currentScreen++;
+      if (currentScreen > 1) { currentScreen = 0; }
       break;
     case ']':
       lsSolve = !lsSolve;
       break;
-    case '1':
-      cube.rScrambleCube();
+    case '0':
       break;
-    case '2':
+    case '1':
       resetCube();
       break;
+    case '2':
+      thread("humanAlgorithm");
+      break;
     case '3':
-      print(cube.len + " are being stored\n");
-      print((int)(pow(dim, 3)) + " would have been stored\n");
-      print(((int)(pow(dim, 3)) - cube.len) + " cubies are not being stored, saving cpu power\n\n");
+      thread("korfsAlgorithm");
       break;
     case '4':
-      for(int i = 0; i < 999; i++)  {
-        println("");
-      }
-    case 'm':
-      speed *= 10;
+      thread("thistlethwaiteAlgorithm");
       break;
-    case 'n':
-      speed *= 0.10;
+    case '5':
+      thread("kociembaAlgorithm");
       break;
     case '6':
       println("Testing moves X");
-      cube.testMoves('X');
+      // cube.testMoves('X');
+      cube.testMove(allMoves.get(10));
+      // Z move - -axis+1, Z
       break;
     case '7':
       println("Testing moves Y");
       cube.testMoves('Y');
       break;
     case '8':
-      println("Testing moves Z");
-      cube.testMoves('Z');
+      cube.testAlgorithm("R U R' U' R' F R2 U' R' U' R U R' F'");
       break;
     case '9':
-      for(Cubie c : centers)  {
-        println(c.details());
-      }
+      display2D = !display2D;
+      break;
+    case '+':
+      speed *= 10;
+      break;
+    case '-':
+      speed *= 0.10;
+      break;
     case 'q':
-      println("Cube solved: " + cube.evaluateCube());
+      int oldMoves = numberOfMoves;
+      numberOfMoves = 1;
+      cube.scrambleCube();
+      numberOfMoves = oldMoves;
       break;
     case 'o':
       speed = 0.01;
@@ -90,15 +130,17 @@ void keyPressed() {
     case 'p':
       paused = !paused;
       break;
-    case 'w':  
-      dim++;
-      resetCube();
+    case 'w':
+      oldMoves = numberOfMoves;
+      numberOfMoves = 5;
+      cube.scrambleCube();
+      numberOfMoves = oldMoves;
       break;
     case 'e':  
-      if(dim > 1) {
-        dim--;
-      }
-      resetCube();
+      oldMoves = numberOfMoves;
+      numberOfMoves = 15;
+      cube.scrambleCube();
+      numberOfMoves = oldMoves;
       break;
     default: 
       // if a cube is animating, skip  switch case
@@ -112,6 +154,16 @@ void keyPressed() {
   }
   }
 }
+
+char decodeByte(byte i) {
+        char col = 'O';
+        if(i == 1)  col = 'R';
+        if(i == 2)  col = 'Y';
+        if(i == 3)  col = 'W';
+        if(i == 4)  col = 'G';
+        if(i == 5)  col = 'B';
+        return col;
+    }
 
 // R L on X
 // U D on Y
@@ -195,7 +247,6 @@ void makeAMove(String move) {
     return;
   }
 }
-
 // For scramblers reference
 void applyMove(char move) {
   switch(move) {
@@ -257,7 +308,6 @@ void applyMove(char move) {
     return;
   }
 }
-
 boolean bigTroll() {
   if (dim == 1) {
     scramble = false;

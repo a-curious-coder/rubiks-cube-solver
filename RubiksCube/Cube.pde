@@ -13,10 +13,14 @@ class Cube {
 	Cubie[] cubies;
 	ArrayList<Cubie> rotatingCubies;
 	ArrayList<ArrayList<Cubie>> cubieLists;
+	// Solver objects
 	HumanAlgorithm hAlgorithm;
 	LocalSearch lsAlgorithm;
-	solve2x2 twoxtwoSolver;
-	solver ksolve;
+	SmallDFS smallDFSSolver;
+	Korfs ksolve;
+	Kociemba optimalsolver;
+	Thistlethwaite thistlethwaite;
+	Reduction reduce;
 	
 	Cube() {
 		dimensions = dim;
@@ -44,6 +48,7 @@ class Cube {
 		}
 		hAlgorithm = new HumanAlgorithm(this);
 		lsAlgorithm = new LocalSearch(this);
+
 	}
 
 	/**
@@ -82,17 +87,8 @@ class Cube {
 			}
 		}
 	}
-	
-	void iksolve()	{
-		ksolve = new solver(this);
-	}
 
-	void iSmallSolver()	{
-		twoxtwoSolver = new solve2x2(this);
-	}
-	/**
-	* Shows the cube on ~reen
-	*/
+	// Shows the cube on screen
 	void show() {
 		int angleMultiplier = currentDirection;
 		
@@ -105,21 +101,21 @@ class Cube {
 					if (animating && (turningWholeCube || rotatingCubies.contains(cubies[i]))) {
 						switch(currentAxis) {
 							case 'X' : 
-							if (rotatingIndex == - axis)  {
-								rotateX(angleMultiplier * - rotationAngle);
-							} else {
-								rotateX(angleMultiplier * rotationAngle);
-							}
+								if (rotatingIndex == - axis)  {
+									rotateX(angleMultiplier * - rotationAngle);
+								} else {
+									rotateX(angleMultiplier * rotationAngle);
+								}
 							break;
 							case 'Y':
-							rotateY(angleMultiplier * - rotationAngle);
+								rotateY(angleMultiplier * - rotationAngle);
 							break;
 							case 'Z':
-							if (rotatingIndex == - axis)  {
-								rotateZ(angleMultiplier * - rotationAngle);
-							} else {
-								rotateZ(angleMultiplier * rotationAngle);
-							}
+								if (rotatingIndex == - axis)  {
+									rotateZ(angleMultiplier * - rotationAngle);
+								} else {
+									rotateZ(angleMultiplier * rotationAngle);
+								}
 							break;
 						}
 					}
@@ -132,17 +128,12 @@ class Cube {
 		}
 	}
 	
-	/**
-	* Updates the cubes' state
-	*/
+	// Updates the cube state
 	void update() {
 		if (animating) {
 			if (rotationAngle < HALF_PI) {
-				float scrambleMultiplier = 1;
-				if (scramble) {
-					scrambleMultiplier = 5;
-				} 
-				int turningEaseCoeff = 2;
+				float scrambleMultiplier = 0.005;
+				int turningEaseCoeff = 3;
 				if (rotationAngle < HALF_PI / 4) {
 					rotationAngle += scrambleMultiplier * speed / map(rotationAngle, 0, HALF_PI / 4, turningEaseCoeff, 1);
 				} else if (rotationAngle > HALF_PI - HALF_PI / 4) {
@@ -163,7 +154,21 @@ class Cube {
 			}
 		}
 	}
+	void ksolve()	{
+		ksolve = new Korfs(this);
+	}
+
+	void optimalSolver()	{
+		optimalsolver = new Kociemba(this);
+	}
 	
+	void tsolve()	{
+		thistlethwaite = new Thistlethwaite(this);
+	}
+
+	void iSmallSolver()	{
+		smallDFSSolver = new SmallDFS(this);
+	}
 	/**
 	* Turns the face of the cube
 	*
@@ -176,8 +181,8 @@ class Cube {
 			rotationAngle = 0;
 			finaliseTurn(currentAxis, rotatingIndex, currentDirection);
 		}
-		// TODO: Temporary fix here... 
-		// Unsure why the D face won't behave accordingly to it's given direction. Needs inverting.
+		// Temporary fix here... 
+		// Unsure why the D face won't behave accordingly to it's given direction. Needs inverting. //<>//
 		if(axisFace == 'Y' && index == axis && dir != 2)	dir = -dir;
 		currentAxis = axisFace;
 		currentDirection = dir;
@@ -277,7 +282,6 @@ class Cube {
 	
 	/**
 	* Collects cubies from an axis at specified index ready for rotation
-	*
 	* @param	axisFace	The axis of the face we're collecting cubies from
 	* @param	index		The index of the face we're collecting cubies from
 	*/
@@ -302,15 +306,22 @@ class Cube {
 	* @param	index
 	* @param	listNumber
 	*/
-	void returnListToCube(ArrayList<Cubie> oldList, ArrayList<Cubie> list, char axisFace, float index, int listNumber) {
+	void returnListToCube(ArrayList<Cubie> oldList, 
+							ArrayList<Cubie> list, 
+							char axisFace, 
+							float index, 
+							int listNumber) {
+
 		int size = dim - listNumber * 2;
 		for (int i = 0; i < list.size(); i++)  {
 			boolean found = false;
-			if (found) continue;
 			for (Cubie c : cubies) {
-				if (list.get(i).x == c.x && list.get(i).y == c.y && list.get(i).z == c.z) {
-					c.colours = oldList.remove(0).copy().colours;
-					found = true;
+				if (found) continue;
+				if (list.get(i).x == c.x && 
+					list.get(i).y == c.y && 
+					list.get(i).z == c.z) {
+						c.colours = oldList.remove(0).copy().colours;
+						found = true;
 				}
 			}
 		}
@@ -332,33 +343,72 @@ class Cube {
 		}
 	}
 	
+	// Generates scramble.
+	Move[] generateScramble(int numMoves)	{
+		Move[] scramble = new Move[numMoves];
+		String pMoves = "";
+		Move m = new Move();
+		Move prev = new Move();
+		int counter = 0;
+		for (int i = 0; i < numMoves; i++) {
+			// Compare two moves, stricter scramble boolean
+			if(numberOfMoves > 1)	{
+				while (compare(m, prev, true)) {
+					int r = int(random(allMoves.size()));
+					m = allMoves.get(r).copy();
+				}
+			} else {
+				int r = int(random(allMoves.size()));
+				m = allMoves.get(r).copy();
+			}
+			// Save prev move for next iteration
+			prev = new Move(m.currentAxis, m.index, m.dir);
+			// if(counter % 10 == 0)
+			// 	pMoves += m.toString() + " ";
+			// else 
+			// 	pMoves += m.toString() + " ";
+			scramble[counter] = m;
+			counter++;
+		}
+		println(pMoves + " " + numMoves + " moves applied");
+		return scramble;
+	}
 	// Scrambles the cube
 	void scrambleCube() {
 		scrambling = true;
 		scramble = true;
 		sequence.clear();
 		fMoves.clear();
+		moveCounter = 0;
 		moves = "";
+
 		Move m = new Move();
 		Move prev = new Move();
 		
 		for (int i = 0; i < numberOfMoves; i++) {
 			// Compare two moves, stricter scramble boolean
-			while (compare(m, prev, true)) {
+			if(numberOfMoves > 1)	{
+				while (compare(m, prev, true)) {
+					int r = int(random(allMoves.size()));
+					m = allMoves.get(r).copy();
+				}
+			} else {
 				int r = int(random(allMoves.size()));
 				m = allMoves.get(r).copy();
 			}
 			// Save prev move for next iteration
 			prev = new Move(m.currentAxis, m.index, m.dir);
 			sequence.add(m);
-			fMoves.add(m.toString()); 
+			fMoves.add(m.toString());
 		}
 		formatMoves();
 	}
 	
 	/**
 	* Compares two moves following a strictness boolean.
-	*
+	* @param  m  Move to compare
+	* @param  n  Move to compare
+	* @return  strict  boolean we're checking for something
 	*/
 	boolean compare(Move m, Move n, boolean strict)	{
 		if(strict)	return m.currentAxis == n.currentAxis;
@@ -374,12 +424,17 @@ class Cube {
 		sequence.clear();
 		moves = "";
 		fMoves.clear();
-		counter = 0;
+		moveCounter = 0;
 		Move copy = new Move();
 		
 		// String[] hardMoves = {"R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"};
-		String[] hardMoves = {"D'", "L2", "B'", "B", "U2", "L2", "D", "B", "D", "L", "B'", "R2"};
+		// String[] hardMoves = {"D'", "L2", "U2", "L2", "D", "B", "D", "L", "B'", "R2"};
+		
+    	// String[] hardMoves = {"U", "B", "F'", "U'", "R", "B'", "L", "F2", "B2", "R'", "L2", "D", "R2", "L", "D'", "F", "R", "F'", "U2", "B'", "D2", "U'", "L2", "B2", "D2", "R", "L'", "F2", "L'", "R"};
 		// String[] hardMoves = {"B2", "D2", "R", "U2", "F'", "F'", "U'", "F'", "U", "F", "D2", "R", "R'", "U'", "R'", "D", "B", "D" , "R\'", "B2"};
+		String[] hardMoves = {"F2", "L2", "F2", "B2", "D2", "L2", "R2", "F2", "L2", "D2", "U2", "R2", "U2", "L2", "R2", "F2", "R2", "U2", "F2", "R2", "U2", "R2", "U2", "R2", "U2", "F2", "L2", "U2", "B2", "L2"};
+		// Superflip
+		// String[] hardMoves = {"U","R2","F","B","R","B2","R","U2","L","B2","R","U'","D'","R2","F","R'","L","B2","U2","F2"};
 		numberOfMoves = hardMoves.length;
 	
 		for (String m : hardMoves) {
@@ -398,7 +453,6 @@ class Cube {
 	
 	/** 
 	* Tests all possible moves along specified axis regardless of cube size
-	*
 	* @param	axisFace	Specifies which axis the moves are being made along
 	*/
 	void testMoves(char axisFace) {
@@ -406,7 +460,7 @@ class Cube {
 		sequence.clear();
 		moves = "";
 		fMoves.clear();
-		counter = 0;
+		moveCounter = 0;
 		
 		int numberOfZMoves = 0;
 		ArrayList<Move> allZMoves = new ArrayList();
@@ -447,15 +501,21 @@ class Cube {
 		formatMoves();
 	}
 
+	Cube testAlgorithm(Move[] moves)	{
+		for(Move m : moves)	{
+			this.turn(m.currentAxis, m.index, m.dir);
+		}
+		return this;
+	}
 	/**
 	* Tests algorithm on this cube object
-	*
 	* @param	algorithm	The algorithm of moves tested on this cube object
 	* @return	this		This new cube state is returned after the algorithm is applied
 	*/
 	Cube testAlgorithm(String algorithm) {
 		// println("\nTesting: " + algorithm + "\tNumber of chars: " + algorithm.length()+"\n");
 		for (int i = 0; i < algorithm.length(); i++) {
+			if(algorithm.charAt(i) + "" == " ")	continue;
 			// Initially direction of each move is 1
 			int dir = 1;
 			char move = algorithm.charAt(i);
@@ -495,15 +555,17 @@ class Cube {
 				break;
 			}
 		}
+		sequenceRunning = false;
 		return this;
 	}
 	
+	void testMove(Move m)	{
+		sequence.add(m);
+	}
 	
-	/**
-	* Reverses all moves made by the scramble function - illusion of solve
-	*/
+	// Reverses all moves made by the scramble function - illusion of solve
 	void rScrambleCube() {
-		counter = 0;
+		moveCounter = 0;
 		ArrayList<Move> reverseSequence = new ArrayList<Move>();
 		if (sequence.size() == 0) return;
 		for (Move m : sequence) {
@@ -526,7 +588,6 @@ class Cube {
 	
 	/**
 	* Generates a list of cubies from specified index in axis
-	*
 	* @param	axisFace	Axis of which the face of cubies is located
 	* @param	index		Index of which row/column of the axis in the cube is to be chosen
 	* @param	listNumber	List number plays part in how far into the cube we go to retrieve cubies.
@@ -541,138 +602,196 @@ class Cube {
 		ArrayList<Cubie> rightRow = new ArrayList();
 		ArrayList<Cubie> bottomRow = new ArrayList();
 		ArrayList<Cubie> temp = new ArrayList();
+
 		int leftSize = 0;
 		int indexOfCubie = 0;
 		
 		switch(axisFace) {
 			case 'X':
 			// Order cubies are stored: left, top, right, bottom - clockwise
-			// Left row
-			for (Cubie c : cubies) {
-				for (float i = 0; i < size; i++)  {
-					if (c.x == index && c.y == (i - axis + listNumber) && c.z == (- axis + listNumber)) {
-						if (leftRow.contains(c)) continue;
-						leftRow.add(c.copy());
+			// // Left row
+			// for(Cubie c : cubies){
+			// 	if(c.x == index)	list.add(c);
+			// }
+			// list = reorder(axisFace, listNumber, list);
+					for (Cubie c : cubies) {
+						for (float i = 0; i < size; i++)  {
+							if (c.x == index && c.y == (i - axis + listNumber) && c.z == (- axis + listNumber)) {
+								if (leftRow.contains(c)) continue;
+								leftRow.add(c.copy());
+							}
+						}
+						//Top row
+						for (float i = 1; i < size; i++) {
+							if (c.x == index && c.y == (- axis + listNumber) && c.z > (- axis + listNumber) && c.z <= (axis - listNumber)  && topRow.size() != size)  {
+								if (topRow.contains(c)) {
+									continue;
+								} else {
+									topRow.add(c.copy());
+								}
+							}
+						}
+						//Right row
+						for (float i = 1; i < size; i++) {
+							if (c.x == index && c.y > (- axis + listNumber) && c.z == (axis - listNumber)) {
+								if (rightRow.contains(c)) {
+									continue;
+								} else {
+									if (c.y <= (axis - listNumber))  rightRow.add(c.copy());
+								}
+							}
+						}
+						
+						//Bottom row
+						for (float i = 2; i < size; i++)  {
+							if (c.x == index && c.y == (axis - listNumber) && c.z <= axis - 0.5 - listNumber && c.z >= - axis + 0.5 + listNumber)  {
+								if (bottomRow.contains(c))  {
+									continue;
+								} else {
+									bottomRow.add(c.copy());
+								} 
+							}
+						}
+						indexOfCubie++;
 					}
-				}
-				//Top row
-				for (float i = 1; i < size; i++) {
-					if (c.x == index && c.y == (- axis + listNumber) && c.z > (- axis + listNumber) && c.z <= (axis - listNumber)  && topRow.size() != size)  {
-						if (topRow.contains(c)) {
-							continue;
-						} else {
+					temp = new ArrayList();
+					leftSize = leftRow.size();
+					for (int i = 0; i < leftSize; i++) {
+						temp.add(leftRow.remove(leftRow.size() - 1));
+					}
+					if(bottomRow.size() > 0)	{
+						for(int j = 0; j < bottomRow.size(); j++)	{
+							for(int i = 1; i < bottomRow.size()-1; i++)	{
+								if(bottomRow.get(j).y < bottomRow.get(i).y)	
+									bottomRow = swap(bottomRow.get(j), bottomRow.get(i), bottomRow);
+							}
+						}
+						ArrayList<Cubie> tmp = new ArrayList();
+						for(int i = 0; i < bottomRow.size(); i++)	{
+							tmp.add(bottomRow.get(i));
+						}
+						bottomRow.clear();
+						for(int i = tmp.size()-1; i >= 0; i--)	{
+							bottomRow.add(tmp.get(i));
+						}
+					}
+					leftRow.addAll(temp);
+				break;
+			
+			case 'Y':
+				for (Cubie c : cubies) {
+					for (float i = 0; i < size; i++)  {
+						if (c.x == (- axis + listNumber) &&  c.y == index &&  c.z == (i - axis + listNumber)) {
+							if (leftRow.contains(c)) continue;
+							leftRow.add(c.copy());
+						}
+					}
+					for (float i = 1; i < size; i++) {
+						if (c.x > (- axis + listNumber) && c.x <= (axis - listNumber) &&  c.y == index &&  c.z == (- axis + listNumber)  && topRow.size() != size)  {
+							if (topRow.contains(c)) continue;
 							topRow.add(c.copy());
 						}
 					}
-				}
-				//Right row
-				for (float i = 1; i < size; i++) {
-					if (c.x == index && c.y > (- axis + listNumber) && c.z == (axis - listNumber)) {
-						if (rightRow.contains(c)) {
-							continue;
-						} else {
-							if (c.y <= (axis - listNumber))  rightRow.add(c.copy());
+					for (float i = 1; i < size; i++) {
+						if (c.x == (axis - listNumber) &&  c.y == index &&  c.z > (- axis + listNumber)) {
+							if (rightRow.contains(c)) {
+								continue;
+							} else {
+								if (c.z <= (axis - listNumber))  rightRow.add(c.copy());
+							}
 						}
 					}
-				}
-				
-				//Bottom row
-				for (float i = 2; i < size; i++)  {
-					if (c.x == index && c.y == (axis - listNumber) && c.z <= axis - 0.5 - listNumber && c.z >= - axis + 0.5 + listNumber)  {
-						if (bottomRow.contains(c))  {
-							continue;
-						} else {
+					for (float i = 2; i < size; i++)  {
+						if (c.x <= (axis - 0.5 - listNumber) && c.x >= (- axis + 0.5 + listNumber) &&  c.y == index &&  c.z == (axis - listNumber))  {
+							if (bottomRow.contains(c)) continue;
 							bottomRow.add(c.copy());
-						} 
-					}
-				}
-				indexOfCubie++;
-			}
-			temp = new ArrayList();
-			leftSize = leftRow.size();
-			for (int i = 0; i < leftSize; i++) {
-				temp.add(leftRow.remove(leftRow.size() - 1));
-			}
-			leftRow.addAll(temp);
-			break;
-			
-			case 'Y':
-			for (Cubie c : cubies) {
-				for (float i = 0; i < size; i++)  {
-					if (c.x == (- axis + listNumber) &&  c.y == index &&  c.z == (i - axis + listNumber)) {
-						if (leftRow.contains(c)) continue;
-						leftRow.add(c.copy());
-					}
-				}
-				for (float i = 1; i < size; i++) {
-					if (c.x > (- axis + listNumber) && c.x <= (axis - listNumber) &&  c.y == index &&  c.z == (- axis + listNumber)  && topRow.size() != size)  {
-						if (topRow.contains(c)) continue;
-						topRow.add(c.copy());
-					}
-				}
-				for (float i = 1; i < size; i++) {
-					if (c.x == (axis - listNumber) &&  c.y == index &&  c.z > (- axis + listNumber)) {
-						if (rightRow.contains(c)) {
-							continue;
-						} else {
-							if (c.z <= (axis - listNumber))  rightRow.add(c.copy());
 						}
 					}
+					indexOfCubie++;
 				}
-				for (float i = 2; i < size; i++)  {
-					if (c.x <= (axis - 0.5 - listNumber) && c.x >= (- axis + 0.5 + listNumber) &&  c.y == index &&  c.z == (axis - listNumber))  {
-						if (bottomRow.contains(c)) continue;
-						bottomRow.add(c.copy());
+				temp = new ArrayList();
+				leftSize = leftRow.size();
+				for (int i = 0; i < leftSize; i++) {
+					temp.add(leftRow.remove(leftRow.size() - 1));
+				}
+				if(bottomRow.size() > 0)	{
+					for(int j = 0; j < bottomRow.size(); j++)	{
+						for(int i = 1; i < bottomRow.size()-1; i++)	{
+							if(bottomRow.get(j).x > bottomRow.get(i).x)	
+								bottomRow = swap(bottomRow.get(j), bottomRow.get(i), bottomRow);
+						}
+					}
+					// println();
+					ArrayList<Cubie> tmp = new ArrayList();
+					for(int i = 0; i < bottomRow.size(); i++)	{
+						tmp.add(bottomRow.get(i));
+					}
+					bottomRow.clear();
+					for(int i = tmp.size()-1; i >= 0; i--)	{
+						bottomRow.add(tmp.get(i));
 					}
 				}
-				indexOfCubie++;
-			}
-			temp = new ArrayList();
-			leftSize = leftRow.size();
-			for (int i = 0; i < leftSize; i++) {
-				temp.add(leftRow.remove(leftRow.size() - 1));
-			}
-			leftRow.addAll(temp);
-			
+				// println();
+				leftRow.addAll(temp);
+				
 			break;
 			case 'Z':
 			
-			for (Cubie c : cubies) {
-				for (float i = 0; i < size; i++)  {
-					if (c.x == (- axis + listNumber)  && c.y == (i - axis + listNumber) && c.z == index) {
-						if (leftRow.contains(c)) continue;
-						leftRow.add(c.copy());
+				for (Cubie c : cubies) {
+					for (float i = 0; i < size; i++)  {
+						if (c.x == (- axis + listNumber)  && c.y == (i - axis + listNumber) && c.z == index) {
+							if (leftRow.contains(c)) continue;
+							leftRow.add(c.copy());
+						}
+					}
+					for (float i = 1; i < size; i++) {
+						if (c.x > (- axis + listNumber) && c.x <= (axis - listNumber) && c.y == (- axis + listNumber) &&  c.z == index && topRow.size() != size)  {
+							if (topRow.contains(c)) continue;
+							topRow.add(c.copy());
+						}
+					}
+					for (float i = 1; i < size; i++) {
+						if (c.x == (axis - listNumber) && c.y > (- axis + listNumber)  &&   c.z == index) {
+							if (rightRow.contains(c))  continue;
+							if (c.y <= (axis - listNumber))  rightRow.add(c.copy());
+						}
+					}
+					for (float i = 2; i < size; i++)  {
+						if (c.x <= axis - 0.5 - listNumber && c.x >= - axis + 0.5 + listNumber && c.y == (axis - listNumber) && c.z == index)  {
+							if (bottomRow.contains(c)) continue;
+							bottomRow.add(c.copy());
+						}
+					}
+					indexOfCubie++;
+				}
+				
+				temp = new ArrayList();
+				leftSize = leftRow.size();
+				for (int i = 0; i < leftSize; i++) {
+					temp.add(leftRow.remove(leftRow.size() - 1));
+				}
+				if(bottomRow.size() > 0)	{
+					for(int j = 0; j < bottomRow.size(); j++)	{
+						for(int i = 1; i < bottomRow.size()-1; i++)	{
+							if(bottomRow.get(j).z < bottomRow.get(i).z)	
+								bottomRow = swap(bottomRow.get(j), bottomRow.get(i), bottomRow);
+						}
+					}
+					ArrayList<Cubie> tmp = new ArrayList();
+					for(int i = 0; i < bottomRow.size(); i++)	{
+						tmp.add(bottomRow.get(i));
+					}
+					bottomRow.clear();
+					for(int i = tmp.size()-1; i >= 0; i--)	{
+						bottomRow.add(tmp.get(i));
 					}
 				}
-				for (float i = 1; i < size; i++) {
-					if (c.x > (- axis + listNumber) && c.x <= (axis - listNumber) && c.y == (- axis + listNumber) &&  c.z == index && topRow.size() != size)  {
-						if (topRow.contains(c)) continue;
-						topRow.add(c.copy());
-					}
-				}
-				for (float i = 1; i < size; i++) {
-					if (c.x == (axis - listNumber) && c.y > (- axis + listNumber)  &&   c.z == index) {
-						if (rightRow.contains(c))  continue;
-						if (c.y <= (axis - listNumber))  rightRow.add(c.copy());
-					}
-				}
-				for (float i = 2; i < size; i++)  {
-					if (c.x <= axis - 0.5 - listNumber && c.x >= - axis + 0.5 + listNumber && c.y == (axis - listNumber) && c.z == index)  {
-						if (bottomRow.contains(c)) continue;
-						bottomRow.add(c.copy());
-					}
-				}
-				indexOfCubie++;
-			}
-			
-			temp = new ArrayList();
-			leftSize = leftRow.size();
-			for (int i = 0; i < leftSize; i++) {
-				temp.add(leftRow.remove(leftRow.size() - 1));
-			}
-			leftRow.addAll(temp);
+				leftRow.addAll(temp);
 			break;
 		}
+    	// TODO Re-order cubies.
+		// reorder(leftRow);
+		// if(axisFace != 'X')
 		list.addAll(leftRow);
 		list.addAll(topRow);
 		list.addAll(rightRow);
@@ -680,9 +799,138 @@ class Cube {
 		return list;
 	}
 	
+	ArrayList<Cubie> reorder(char faceAxis, int listN, ArrayList<Cubie> cubie)	{
+		ArrayList<Cubie> ordered = new ArrayList();
+		ArrayList<Cubie> tmpLeft = new ArrayList();
+		ArrayList<Cubie> tmpUp = new ArrayList();
+		ArrayList<Cubie> tmpRight = new ArrayList();
+		ArrayList<Cubie> tmpBottom = new ArrayList();
+		ArrayList<Cubie> tmp		= new ArrayList();
+		int size = dim - listN * 2;
+		switch(faceAxis)	{
+			case 'X':
+				for (Cubie c : cubie) {
+					// if(c.x != index) continue; // If cubie is not on this face, skip
+					for (float i = 0; i < size; i++)  {
+						if (c.y == (i - axis + listN) && c.z == (- axis + listN)) {
+							if (tmpLeft.contains(c)) continue;
+								tmpLeft.add(c.copy());
+						}
+					}
+					//Top row
+					for (float i = 1; i < size; i++) {
+						if (c.y == (- axis + listN) && c.z > (- axis + listN) && c.z <= (axis - listN)  && tmpUp.size() != size)  {
+							if (tmpUp.contains(c))	continue;
+							
+							tmpUp.add(c.copy());
+						}
+					}
+					//Right row
+					for (float i = 1; i < size; i++) {
+						if (c.y > (- axis + listN) && c.z == (axis - listN)) {
+							if (tmpRight.contains(c))	continue;
+								if (c.y <= (axis - listN))  
+									tmpRight.add(c.copy());
+						}
+					}
+					
+					//Bottom row
+					for (float i = 2; i < size; i++)  {
+						if (c.y == (axis - listN) && c.z <= axis - 0.5 - listN && c.z >= - axis + 0.5 + listN)  {
+							if (tmpBottom.contains(c))  {
+								continue;
+							} else {
+								tmpBottom.add(c.copy());
+							} 
+						}
+					}
+				}
+
+					// -1, 0, 1 (-) 0, -1, 1
+							//      0, 1, -1
+				// Sorts list largest to smallest y coord
+				for(int j = 0; j < tmpLeft.size()-1; j++)	{
+					for(int i = 1; i < tmpLeft.size()-2; i++)	{
+						if(tmpLeft.get(j).y < tmpLeft.get(i).y)	
+							tmpLeft = swap(tmpLeft.get(j), tmpLeft.get(i), tmpLeft);
+					}
+				}
+				for(int i = 0; i < tmpLeft.size(); i++)	{
+					tmp.add(tmpLeft.get(i));
+				}
+				tmpLeft.clear();
+				for(int i = tmp.size()-1; i >= 0; i--)	{
+					tmpLeft.add(tmp.get(i));
+				}
+				println("Left: " + tmpLeft.size());
+				for(Cubie c : tmpLeft)	{
+					print(c.y, c.z + " ");
+				}
+				
+
+				// Order up row - if z: Smallest - Largest
+				for(int i = 0; i < tmpUp.size()-1; i++)	{
+					if(tmpUp.get(i).z > tmpUp.get(i+1).z)	
+						tmpUp = swap(tmpUp.get(i), tmpUp.get(i+1), tmpUp);
+				}
+				println("\nUp: " + tmpUp.size());
+				for(Cubie c : tmpUp)	{
+					print(c.y, c.z + " ");
+				}
+
+				// -1, 0 - -1, 1
+				// Order right row - if y: Smallest - Largest
+				for(int i = 0; i < tmpRight.size()-1; i++)	{
+					if(tmpRight.get(i).y > tmpRight.get(i+1).y)	
+						tmpRight = swap(tmpRight.get(i), tmpRight.get(i+1), tmpRight);
+				}
+				println("\nRight: " + tmpRight.size());
+				for(Cubie c : tmpRight)	{
+					print(c.y, c.z + " ");
+				}
+
+				// Order down row - if z: Largest - Smallest
+				for(int i = 0; i < tmpBottom.size()-1; i++)	{
+					if(tmpBottom.get(i).z < tmpBottom.get(i+1).z)	
+						tmpBottom = swap(tmpBottom.get(i), tmpBottom.get(i+1), tmpBottom);
+				}
+				tmp.clear();
+				for(int i = 0; i < tmpBottom.size(); i++)	{
+					tmp.add(tmpBottom.get(i));
+				}
+				tmpBottom.clear();
+				for(int i = tmp.size()-1; i >= 0; i--)	{
+					tmpBottom.add(tmp.get(i));
+				}
+				println("\nBottom: " + tmpBottom.size());
+				for(Cubie c : tmpBottom)	{
+					print(c.y, c.z + " ");
+				}
+				break;
+		}
+		ArrayList<Cubie> cubies = new ArrayList();
+		cubies.addAll(tmpLeft);
+		cubies.addAll(tmpUp);
+		cubies.addAll(tmpRight);
+		cubies.addAll(tmpBottom);
+		int ctr = 0;
+		// for(Cubie c : cubies)	{
+		// 	print(c.y, c.z + ", ");
+		// 	ctr++;
+		// 	if(ctr == 3 || ctr == 5 || ctr == 8)	println();
+		// }
+		return cubies;
+	}
+
+	ArrayList<Cubie> swap(Cubie a, Cubie b, ArrayList<Cubie> oneList) {
+		// do some bounds check
+		Cubie tmp = b;
+		oneList.set(oneList.indexOf(b), a);
+		oneList.set(oneList.indexOf(a), tmp);
+		return oneList;
+	}
 	/**
 	* Gets specified cubie from this cube object
-	*
 	* @param	i			Index of the cubie within the cube object
 	* @return	cubies[i]	The cubie object from index i
 	*/
@@ -700,7 +948,6 @@ class Cube {
 	
 	/**
 	* Gets every unique colour from the cube
-	*
 	* @return	cubies[0].getEachColour()	Each possible colour that can be on a cubie object
 	*/
 	color[] getEachColour()	{
@@ -709,12 +956,11 @@ class Cube {
 
 	/**
 	* Gets the name of every colour from the cubie object
-	*
 	* @return	cubies[0].getEachColourName()	Each name for each colour that can be applied to a cubie
 	*/
 	String[] getEachColourName() {
     	return cubies[0].getEachColourName();
-  	}
+	}
 
 	/**
 	* Counts the number of each colour that's on the cube
@@ -763,7 +1009,6 @@ class Cube {
 			case "orange":
 				cIndex = 0;
 				cubies = getList('X', axis, 0);
-				// print("cubies size: " + cubies.size());
 			break;
 			case "red":
 				cIndex = 1;

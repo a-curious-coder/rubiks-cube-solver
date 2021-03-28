@@ -3,19 +3,47 @@ String YRotation = "FLBR";
 String ZRotation = "LDRB";
 
 color[] colours = new color[6];
-color orange = color(255, 140, 0);
-color red = color(255, 0, 0);
-color white = color(255);
-color yellow = color(255, 255, 0);
-color green = color(0, 255, 0);
-color blue  = color(0, 0, 255);
-color defaultRGB = color(0);
 
 Cubie[] upperCorners = new Cubie[4];
 Cubie[] lowerCorners = new Cubie[4];
 Cubie[] upperEdges = new Cubie[4];
 Cubie[] lowerEdges = new Cubie[4];
 
+/**
+* Returns the solution to the main thread to be applied to the graphical cube object
+* @param solution   The solution to solving the cube.
+*/
+void returnSolution(String solution)   {
+    // println(solution);
+    moves = solution;
+    for(int i = 0; i < solution.length(); i++)    {
+        String move = solution.charAt(i) + "";
+        if(i+1 < solution.length())  {
+            if(solution.charAt(i+1) == '\'' || solution.charAt(i+1) == '2') {
+                move += solution.charAt(i+1) + "";
+                i++;
+            }
+        }
+        if(move != "")  {
+            addMoveToSequence(move);
+        }
+    }
+}
+/**
+* Adds move to sequence for applying to cube
+* @param move   Move being applied to cube
+*/
+void addMoveToSequence(String move)  {
+    // turns += move;
+    boolean matchfound = false;
+    for (Move m : allMoves)  {
+        if (matchfound) continue;
+        if (m.toString().equals(move))  {
+            matchfound = true;
+            sequence.add(m);
+        }
+    }
+}
 // Get the direction of where the cube is going to rotate. - E.g. L to F
 String getDirection(char fromFace, char toFace) {
   // Checks to see if faces are valid for a X rotation

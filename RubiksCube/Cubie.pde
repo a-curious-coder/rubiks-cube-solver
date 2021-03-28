@@ -5,16 +5,9 @@ class Cubie {
   float x = 0;
   float y = 0;
   float z = 0;
+  PMatrix3D matrix;
   String[] colourNames = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   color[] colours = new color[6];
-  color defaultRGB = color(0);
-  color orange = color(255, 140, 0);
-  color red = color(255, 0, 0);
-  color white = color(255);
-  color yellow = color(255, 255, 0);
-  color green = color(0, 255, 0);
-  color blue  = color(0, 0, 255);
-  PMatrix3D matrix;
   Face[] faces = new Face[6];
 
   // create new cubie with 6 faces
@@ -24,7 +17,15 @@ class Cubie {
     this.y = y;
     this.z = z;
     // Sets colour for each face of the cube dependant on their position on the cube and whether certain faces are visible
-    setColours();
+    colours[0] = x ==  axis  ?  orange : black;
+    colours[1] = x == -axis  ?  red    : black;
+    colours[2] = y == -axis  ?  yellow : black;
+    colours[3] = y ==  axis  ?  white  : black;
+    colours[4] = z ==  axis  ?  green  : black;
+    colours[5] = z == -axis  ?  blue   : black;
+    for (color c : colours) {
+      nCols += c != black ? 1 : 0;
+    }
     // Sets each face to their required colours
     faces[0] = new Face(new PVector(1, 0, 0), colours[0]); // Orange / Right
     faces[1] = new Face(new PVector(-1, 0, 0), colours[1]); // Red   / Left
@@ -36,36 +37,28 @@ class Cubie {
 
   // Cloning Cubie constructor
   Cubie(Cubie c)  {
-    this.matrix = c.matrix;
-    this.x = c.x;
-    this.y = c.y;
-    this.z = c.z;
-    this.colours = c.colours;
+    matrix = c.matrix;
+    x = c.x;
+    y = c.y;
+    z = c.z;
+    colours = c.colours;
     for(int i = 0; i < faces.length; i++) {
-      // println("Before: " + colToString(c.colours[i]));
-      this.faces[i] = new Face(c.faces[i]);
-      // println("After: " + colToString(this.colours[i]));
-      // this.faces[i] = new Face(new PVector(x, y, z), c.colours[i]);
-      if(c.colours[i] != this.colours[i]) println("THEY ACTUALLY DON'T MATCH THO FAM");
+      faces[i] = new Face(c.faces[i]);
     }
-    // for(Face face : this.faces)  println("\t\t" + colToString(face.c));
   }
-
+  
   Cubie(){};
 
   void show() {
     noFill();
-    // stroke(1200);
     noStroke();
     strokeWeight(0.2 / dim);
     push();
       applyMatrix(matrix);
       box(1);
-      int i = 0;
-      for (Face f : faces) {
-        f.c = colours[i];
-        f.show();
-        i++;
+      for (int i = 0; i < faces.length; i++) {
+        faces[i].c = colours[i];
+        faces[i].show();
       }
     pop();
   }
@@ -77,6 +70,17 @@ class Cubie {
     this.y = y;
     this.z = z;
   }
+
+  void setValue(String s) {
+    println("Setting val");
+    for(int i = 0; i < 6; i++) {
+      faces[i].setValue(s);
+    }
+  }
+  
+  boolean mouseIsOver() {
+    return false;
+  }
   
   Cubie copy()  {
     Cubie copy = new Cubie();
@@ -87,18 +91,6 @@ class Cubie {
     copy.colours = colours.clone();
     copy.nCols = nCols;
     return copy;
-  }
-
-  void setColours() {
-    colours[0] = x ==  axis  ?  orange : defaultRGB;   // Orange
-    colours[1] = x == -axis  ?  red    : defaultRGB;    // Red
-    colours[2] = y == -axis  ?  yellow : defaultRGB;  // Yellow
-    colours[3] = y ==  axis  ?  white  : defaultRGB;     // White
-    colours[4] = z ==  axis  ?  green  : defaultRGB;   // Green
-    colours[5] = z == -axis  ?  blue   : defaultRGB;    // Blue
-    for (color c : colours) {
-      nCols += c != defaultRGB ? 1 : 0;
-      }
   }
 
   // Responsible for turning the faces of the cubies
@@ -161,11 +153,11 @@ class Cubie {
   // Returns the colour of this cubie's face
   color getFaceColour() {
     for (color c : colours) {
-      if (c != defaultRGB) {
+      if (c != black) {
         return c;
       }
     }
-    return defaultRGB;
+    return black;
   }
 
   // Checks if two colours match

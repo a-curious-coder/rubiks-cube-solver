@@ -1,21 +1,145 @@
 class Cube2 {
-    int[] corners_p = new int[8];
-    int[] edges_p = new int[12];
-    int[] corners_o = new int[8];
-    int[] edges_o = new int[12];
+
+    int[] corners_p;
+    int[] edges_p;
+    int[] corners_o;
+    int[] edges_o;
+    byte[] edgeColours;
+    byte[] cornerColours;
     Cubie[] corners;
     Cubie[] edges;
+
     Cube2() {
         reset();
     }
-
+    // translate cube object to cube2 representation
     Cube2(Cube cube) {
+        corners_o = new int[8];
+        corners_p = new int[8];
         corners = new Cubie[8];
-        edges = new Cubie[12];
+        cornerColours = new byte[24];
+        edges_o = new int[(dim-2)*12];
+        edges_p = new int[(dim-2)*12];
+        edges = new Cubie[(dim-2)*12];
+        edgeColours = new byte[((dim-2)*12)*2];
         ic(cube);
-        ipce(cube);
-        ioe(cube);
-        ioc(cube);
+        getEdgeColours();
+        getCornerColours();
+        ipce();
+        ioe();
+        ioc();
+    }
+    // Clone cube2 object
+    Cube2(Cube2 cube)   {
+        corners = new Cubie[8];
+        for(int i = 0; i < cube.corners.length; i++) {
+            this.corners[i] = cube.corners[i];
+        }
+        edges = new Cubie[(dim-2)*12];
+        for(int i = 0; i < cube.edges.length; i++) {
+            this.edges[i] = cube.edges[i];
+        }
+        edgeColours = new byte[((dim-2)*12)*2];
+        for(int i = 0; i < cube.edgeColours.length; i++)    {
+            this.edgeColours[i] = cube.edgeColours[i];
+        }
+        cornerColours = new byte[24];
+        for(int i = 0; i < cube.cornerColours.length; i++)    {
+            this.cornerColours[i] = cube.cornerColours[i];
+        }
+        edges_p = new int[(dim-2)*12];
+        for(int i = 0; i < cube.edges_p.length; i++) {
+            this.edges_p[i] = cube.edges_p[i];
+        }
+        edges_o = new int[(dim-2)*12];
+        for(int i = 0; i < cube.edges_o.length; i++) {
+            this.edges_o[i] = cube.edges_o[i];
+        }
+        corners_p = new int[8];
+        for(int i = 0; i < cube.corners_p.length; i++) {
+            this.corners_p[i] = cube.corners_p[i];
+        }
+        corners_o = new int[8];
+        for(int i = 0; i < cube.corners_o.length; i++) {
+            this.corners_o[i] = cube.corners_o[i];
+        }
+    }
+    
+    void getEdgeColours()    {
+        for(Cubie c : edges) {
+            // RU, RF, RD, RB
+            edgeColours[0] = (c.x == axis && c.y == -axis&& c.z == 0) ?       c2b('R', c.colours) : edgeColours[0];
+            edgeColours[1] = (c.x == axis && c.y == 0    && c.z == axis) ?    c2b('R', c.colours) : edgeColours[1];
+            edgeColours[2] = (c.x == axis && c.y == axis && c.z == 0) ?       c2b('R', c.colours) : edgeColours[2];
+            edgeColours[3] = (c.x == axis && c.y == 0    && c.z == -axis) ?   c2b('R', c.colours) : edgeColours[3];
+            // LU, LF, LD, LB
+            edgeColours[4] = (c.x == -axis && c.y == -axis && c.z == 0) ?     c2b('L', c.colours) : edgeColours[4];
+            edgeColours[5] = (c.x == -axis && c.y == 0     && c.z == axis) ?  c2b('L', c.colours) : edgeColours[5];
+            edgeColours[6] = (c.x == -axis && c.y == axis && c.z == 0) ?      c2b('L', c.colours) : edgeColours[6];
+            edgeColours[7] = (c.x == -axis && c.y == 0     && c.z == -axis) ? c2b('L', c.colours) : edgeColours[7];
+            // UB, UR, UF, UL
+            edgeColours[8] = (c.x == 0     && c.y == -axis && c.z == -axis) ?  c2b('U', c.colours) : edgeColours[8];
+            edgeColours[9] = (c.x == axis && c.y == -axis && c.z == 0) ?       c2b('U', c.colours) : edgeColours[9];
+            edgeColours[10] = (c.x == 0     && c.y == -axis && c.z == axis) ?  c2b('U', c.colours) : edgeColours[10];
+            edgeColours[11] = (c.x == -axis  && c.y == -axis && c.z == 0 ) ?   c2b('U', c.colours) : edgeColours[11];
+            // DF, DL, DB, DR
+            edgeColours[12] = (c.x == 0    && c.y == axis && c.z == axis) ?   c2b('D', c.colours) : edgeColours[12];
+            edgeColours[13] = (c.x == -axis&& c.y == axis && c.z == 0) ?      c2b('D', c.colours) : edgeColours[13];
+            edgeColours[14] = (c.x == 0    && c.y == axis && c.z == -axis) ?  c2b('D', c.colours) : edgeColours[14];
+            edgeColours[15] = (c.x == axis && c.y == axis && c.z == 0) ?      c2b('D', c.colours) : edgeColours[15];
+            // FU, FL, FD, FR
+            edgeColours[16] = (c.x == 0    && c.y == -axis && c.z == axis) ?  c2b('F', c.colours) : edgeColours[16];
+            edgeColours[17] = (c.x == -axis&& c.y == 0     && c.z == axis) ?  c2b('F', c.colours) : edgeColours[17];
+            edgeColours[18] = (c.x == 0    && c.y == axis  && c.z == axis) ?  c2b('F', c.colours) : edgeColours[18];
+            edgeColours[19] = (c.x == axis && c.y == 0     && c.z == axis) ?  c2b('F', c.colours) : edgeColours[19];
+            // BU, BL, BD, BR
+            edgeColours[20] = (c.x == 0    && c.y == -axis&& c.z == -axis) ?  c2b('B', c.colours) : edgeColours[20];
+            edgeColours[21] = (c.x == -axis&& c.y == 0    && c.z == -axis) ?  c2b('B', c.colours) : edgeColours[21];
+            edgeColours[22] = (c.x == 0    && c.y == axis && c.z == -axis) ?  c2b('B', c.colours) : edgeColours[22];
+            edgeColours[23] = (c.x == axis && c.y == 0    && c.z == -axis) ?  c2b('B', c.colours) : edgeColours[23];
+        }
+    }
+    
+    void getCornerColours() {
+        for(int i = 0; i < corners.length; i++)  {
+            Cubie c = corners[i];
+            // UFL, UBL, UBR, UFR       0, 1, 2, 3
+            // DFL, DBL, DBR, DFR       4, 5, 6, 7
+            // FDL, FUL, FUR, FDR       8, 9, 10, 11
+            // BDL, BUL, BUR, BDR       12, 13, 14, 15
+            // RDF, RUF, RUB, RDB       16, 17, 18, 19
+            // LDF, LUF LUB, LDB        20, 21, 22, 23
+            // 0, 1, 2, 3
+            cornerColours[0] = (c.x == -axis && c.y == -axis && c.z == axis)    ? c2b('U', c.colours) : cornerColours[0];
+            cornerColours[1] = (c.x == -axis && c.y == -axis && c.z == -axis)    ? c2b('U', c.colours) : cornerColours[1];
+            cornerColours[2] = (c.x == axis && c.y == -axis && c.z == -axis)    ? c2b('U', c.colours) : cornerColours[2];
+            cornerColours[3] = (c.x == axis && c.y == -axis && c.z == axis)    ? c2b('U', c.colours) : cornerColours[3];
+            // 4, 5, 6, 7
+            cornerColours[4] = (c.x == -axis && c.y == axis && c.z == axis)    ? c2b('D', c.colours) : cornerColours[4];
+            cornerColours[5] = (c.x == -axis && c.y == axis && c.z == -axis)    ? c2b('D', c.colours) : cornerColours[5];
+            cornerColours[6] = (c.x == axis && c.y == axis && c.z == -axis)    ? c2b('D', c.colours) : cornerColours[6];
+            cornerColours[7] = (c.x == axis && c.y == axis && c.z == axis)    ? c2b('D', c.colours) : cornerColours[7];
+            // 8, 9, 10, 11
+            cornerColours[8] = (c.x == -axis&& c.y == axis  && c.z == axis)    ? c2b('F', c.colours) : cornerColours[8];
+            cornerColours[9] = (c.x == -axis&& c.y == -axis && c.z == axis)    ? c2b('F', c.colours) : cornerColours[9];
+            cornerColours[10] = (c.x == axis && c.y == -axis && c.z == axis)    ? c2b('F', c.colours) : cornerColours[10];
+            cornerColours[11] = (c.x == axis && c.y == axis  && c.z == axis)    ? c2b('F', c.colours) : cornerColours[11];
+            // 12, 13, 14, 15 - B is from F perspective
+            cornerColours[12] = (c.x == -axis&& c.y == axis  && c.z == -axis)    ? c2b('B', c.colours) : cornerColours[12];
+            cornerColours[13] = (c.x == -axis&& c.y == -axis && c.z == -axis)    ? c2b('B', c.colours) : cornerColours[13];
+            cornerColours[14] = (c.x == axis && c.y == -axis && c.z == -axis)    ? c2b('B', c.colours) : cornerColours[14];
+            cornerColours[15] = (c.x == axis && c.y == axis  && c.z == -axis)    ? c2b('B', c.colours) : cornerColours[15];
+            // 16, 17, 18, 19
+            cornerColours[16] = (c.x == axis && c.y == axis && c.z == axis )    ? c2b('R', c.colours) : cornerColours[16];
+            cornerColours[17] = (c.x == axis && c.y == -axis&& c.z == axis)    ? c2b('R', c.colours) : cornerColours[17];
+            cornerColours[18] = (c.x == axis && c.y == -axis&& c.z == -axis)    ? c2b('R', c.colours) : cornerColours[18];
+            cornerColours[19] = (c.x == axis && c.y == axis && c.z == -axis)    ? c2b('R', c.colours) : cornerColours[19];
+            // 20, 21, 22, 23
+            cornerColours[20] = (c.x == -axis && c.y == axis && c.z == axis )    ? c2b('L', c.colours) : cornerColours[20];
+            cornerColours[21] = (c.x == -axis && c.y == -axis&& c.z == axis)    ? c2b('L', c.colours) : cornerColours[21];
+            cornerColours[22] = (c.x == -axis && c.y == -axis&& c.z == -axis)    ? c2b('L', c.colours) : cornerColours[22];
+            cornerColours[23] = (c.x == -axis && c.y == axis && c.z == -axis)    ? c2b('L', c.colours) : cornerColours[23];
+        }
     }
     /**
     * Translates Cube state to Cube2
@@ -34,68 +158,63 @@ class Cube2 {
             if(positionMatch(c.getPosition(), -axis, axis, axis))   corners[5] = c;    // White, red, green
             if(positionMatch(c.getPosition(), axis, axis, axis))    corners[6] = c;     // White, orange, green
             if(positionMatch(c.getPosition(), axis, axis, -axis))   corners[7] = c;    // White, orange, blue
-            // Edges stored in clockwise fashion
+            // Top layer stored in clockwise fashion
             if(positionMatch(c.getPosition(),      0, -axis, axis))    edges[0] = c;  // Yellow, Green
             if(positionMatch(c.getPosition(),  -axis, -axis, 0))       edges[1] = c;  // Yellow, Red
             if(positionMatch(c.getPosition(),      0, -axis, -axis))   edges[2] = c;  // Yellow, Blue
             if(positionMatch(c.getPosition(),   axis, -axis, 0))       edges[3] = c;  // Yellow, Orange
-            // Middle Layer
-            if(positionMatch(c.getPosition(),   axis, 0, axis))        edges[6] = c;  // Green, Orange
-            if(positionMatch(c.getPosition(),  -axis, 0, axis))        edges[5] = c;  // Green, Red
+            // Middle Layer edges stored anticlockwise
             if(positionMatch(c.getPosition(),  -axis, 0, -axis))       edges[4] = c;  // Blue, Red
+            if(positionMatch(c.getPosition(),  -axis, 0, axis))        edges[5] = c;  // Green, Red
+            if(positionMatch(c.getPosition(),   axis, 0, axis))        edges[6] = c;  // Green, Orange
             if(positionMatch(c.getPosition(),   axis, 0, -axis))       edges[7] = c;  // Blue Orange
-            // Bottom (D) Layer
+            // Bottom (D) Layer stored anti clockwise
             if(positionMatch(c.getPosition(),      0, axis, -axis))    edges[8] = c; // White, Blue
-            if(positionMatch(c.getPosition(),   axis, axis, 0))        edges[11] = c;  // White, Orange
-            if(positionMatch(c.getPosition(),      0, axis, axis))     edges[10] = c;  // White, Green
             if(positionMatch(c.getPosition(),  -axis, axis, 0))        edges[9] = c; // White, Red
+            if(positionMatch(c.getPosition(),      0, axis, axis))     edges[10] = c;  // White, Green
+            if(positionMatch(c.getPosition(),   axis, axis, 0))        edges[11] = c;  // White, Orange
         }
         }
     // Intialise permutation of edges and corners of cube.
-    void ipce(Cube hCube)  {
+    void ipce()  {
 
         int ctr = 0;
         // Corner permutations
         for(int i = 0; i < corners.length; i++)    {
             Cubie c = corners[i];
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.red) && contains(c.colours, c.green))     corners_p[ctr] = 1;
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.red) && contains(c.colours, c.blue))      corners_p[ctr] = 2;
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.orange) && contains(c.colours, c.blue))   corners_p[ctr] = 3;
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.orange) && contains(c.colours, c.green))  corners_p[ctr] = 4;
-            if(contains(c.colours, c.white) && contains(c.colours, c.red) && contains(c.colours, c.blue))       corners_p[ctr] = 5;
-            if(contains(c.colours, c.white) && contains(c.colours, c.red) && contains(c.colours, c.green))      corners_p[ctr] = 6;
-            if(contains(c.colours, c.white) && contains(c.colours, c.orange) && contains(c.colours, c.green))   corners_p[ctr] = 7;
-            if(contains(c.colours, c.white) && contains(c.colours, c.orange) && contains(c.colours, c.blue))    corners_p[ctr] = 8;
+            if(contains(c.colours, yellow) && contains(c.colours, red) && contains(c.colours, green))     corners_p[ctr] = 1;
+            if(contains(c.colours, yellow) && contains(c.colours, red) && contains(c.colours, blue))      corners_p[ctr] = 2;
+            if(contains(c.colours, yellow) && contains(c.colours, orange) && contains(c.colours, blue))   corners_p[ctr] = 3;
+            if(contains(c.colours, yellow) && contains(c.colours, orange) && contains(c.colours, green))  corners_p[ctr] = 4;
+            if(contains(c.colours, white) && contains(c.colours, red) && contains(c.colours, blue))       corners_p[ctr] = 5;
+            if(contains(c.colours, white) && contains(c.colours, red) && contains(c.colours, green))      corners_p[ctr] = 6;
+            if(contains(c.colours, white) && contains(c.colours, orange) && contains(c.colours, green))   corners_p[ctr] = 7;
+            if(contains(c.colours, white) && contains(c.colours, orange) && contains(c.colours, blue))    corners_p[ctr] = 8;
             ctr++;
         }
 
         ctr = 0;
         // Edge permutations
         for(Cubie c : edges)    {
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.green)) edges_p[ctr] = 1;
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.red)) edges_p[ctr] = 2;
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.blue)) edges_p[ctr] = 3;
-            if(contains(c.colours, c.yellow) && contains(c.colours, c.orange)) edges_p[ctr] = 4;
+            if(contains(c.colours, yellow) && contains(c.colours, green)) edges_p[ctr] = 1;
+            if(contains(c.colours, yellow) && contains(c.colours, red)) edges_p[ctr] = 2;
+            if(contains(c.colours, yellow) && contains(c.colours, blue)) edges_p[ctr] = 3;
+            if(contains(c.colours, yellow) && contains(c.colours, orange)) edges_p[ctr] = 4;
 
-            if(contains(c.colours, c.orange) && contains(c.colours, c.green)) edges_p[ctr] = 7;
-            if(contains(c.colours, c.red) && contains(c.colours, c.green)) edges_p[ctr] = 6;
-            if(contains(c.colours, c.red) && contains(c.colours, c.blue)) edges_p[ctr] = 5;
-            if(contains(c.colours, c.orange) && contains(c.colours, c.blue)) edges_p[ctr] = 8;
+            if(contains(c.colours, red) && contains(c.colours, blue)) edges_p[ctr] = 5;
+            if(contains(c.colours, red) && contains(c.colours, green)) edges_p[ctr] = 6;
+            if(contains(c.colours, orange) && contains(c.colours, green)) edges_p[ctr] = 7;
+            if(contains(c.colours, orange) && contains(c.colours, blue)) edges_p[ctr] = 8;
 
-            if(contains(c.colours, c.white) && contains(c.colours, c.blue)) edges_p[ctr] = 9;
-            if(contains(c.colours, c.white) && contains(c.colours, c.orange)) edges_p[ctr] = 12;
-            if(contains(c.colours, c.white) && contains(c.colours, c.green)) edges_p[ctr] = 11;
-            if(contains(c.colours, c.white) && contains(c.colours, c.red)) edges_p[ctr] = 10;
+            if(contains(c.colours, white) && contains(c.colours, blue)) edges_p[ctr] = 9;
+            if(contains(c.colours, white) && contains(c.colours, red)) edges_p[ctr] = 10;
+            if(contains(c.colours, white) && contains(c.colours, green)) edges_p[ctr] = 11;
+            if(contains(c.colours, white) && contains(c.colours, orange)) edges_p[ctr] = 12;
             ctr++;
         }
         }
     // Initialise orientation of edges - http://cube.rider.biz/zz.php?p=eoline#eo_detection
-    void ioe(Cube hCube)  {
-        // Region: colours
-            color white = hCube.getCubie(0).white;
-            color yellow = hCube.getCubie(0).yellow;
-            color black = color(0);
-        // End Region: colours
+    void ioe()  {
         // For every edge
         Arrays.fill(edges_o, -1); // Fill edges array with -1 values
         for(int i = 0; i < edges.length; i++)    {
@@ -117,7 +236,7 @@ class Cube2 {
             // If green/blue, look at side of edge.
             if(up == green || up == blue || down == green || down == blue)  {
                 // If side of edge is yellow or white, it's bad.
-                if(contains(c.colours, c.white) || contains(c.colours, c.yellow))   {
+                if(contains(c.colours, white) || contains(c.colours, yellow))   {
                     edges_o[i] = 1;
                     continue;
                 }
@@ -145,12 +264,7 @@ class Cube2 {
         }
         }
     // Initialise orientations of corners
-    void ioc(Cube hCube) {
-        // Region: colours
-            color white = hCube.getCubie(0).white;
-            color yellow = hCube.getCubie(0).yellow;
-            color black = color(0);
-        // End Region: colours
+    void ioc() {
         for(int i = 0; i < corners.length; i++)  {
         // Region: colours of each cubie's side.
             color right = corners[i].colours[0];
@@ -254,24 +368,22 @@ class Cube2 {
     * @return   this        The FastCube in its new state after applying the algorithm
     */
     Cube2 testAlgorithm(String algorithm)   {
+        // Goes through each char of the algorithm string
         for (int i = 0; i < algorithm.length(); i++) {
-			// Initially direction of each move is 1
-			int dir = 1;
+            if(algorithm.charAt(i) + "" == " ")  continue;
 			String move = algorithm.charAt(i) + "";
-			// print(move);
-			// If there are moves in algorithm and the next char is a prime: '
+			// If there are chars left in algorithm string and the next char is a prime: ' or a 2
 			if(i+1 < algorithm.length())	{
-				if (algorithm.charAt(i+1) == '\'' || algorithm.charAt(i+1) == '’' || algorithm.charAt(i+1) == '2') {
-					char next = algorithm.charAt(i+1);
-					// Set the direction of the move to anticlockwise
-					if(next == '\'' || next == '’')	{
-						move += "\'";
-					}	else	{
-						dir = 2;
+                // Call move function 2 times on top of default call to move to perform anticlockwise move
+				if (algorithm.charAt(i+1) == '\'' || algorithm.charAt(i+1) == '’') {
+                        move(move);
+                        move(move);
+                        i++;
+					}	else if(algorithm.charAt(i+1) == '2')	{
+                        move(move);
+                        i++;
 					}
-					i++;
 				}
-			} 
             move(move);
         }
         return this;
@@ -300,6 +412,7 @@ class Cube2 {
             if(edges_o[i] != 0)    
                 return false;
         }
+        // this.state();
         return true;
     }
 
@@ -340,26 +453,174 @@ class Cube2 {
         state += "\n";
         for(int i : edges_o)  state += String.valueOf(i) + " ";
         state += "\nEnd";
+
         println(state);
         return state;
     }
-    // Resets this cube object to a solved state.
-    void reset()    {
-        Arrays.fill(corners_p, 0);
-        Arrays.fill(corners_o, 0);
-        Arrays.fill(edges_p, 0);
-        Arrays.fill(edges_o, 0);
-        //print("cp\tco\tep\teo\n" + corners_p.length + "\t" + corners_o.length + "\t" + edges_p.length + "\t" + edges_o.length);
+
+    void imageState() {
+        byte[] ec = edgeColours;
+        byte[] cc = cornerColours;
+
+        
+        // UP
+        println("\n\t\t" + b2c(cc[1]) + " " + b2c(ec[8]) + " " + b2c(cc[2]));
+        println("\t\t" + b2c(ec[11]) + " " +  b2c((byte)2) + " " + b2c(ec[9]));
+        println("\t\t" + b2c(cc[0]) + " " + b2c(ec[10]) + " " + b2c(cc[3]) + "\n");
+        // L, F, R, B
+        // FIRST ROW
+        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "\t"
+        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "\t"
+        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "\t"
+        +            b2c(cc[14]) + " " + b2c(ec[20]) + " " + b2c(cc[13]) + "\n" );
+        // Second ROW
+        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "\t"
+                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "\t"
+                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "\t"
+                    + b2c(ec[23]) + " " + b2c(byte(5)) + " " + b2c(ec[21]) + "\n");
+        // Third ROW
+        print("\t" + b2c(cc[23]) + " " + b2c(ec[6]) + " " + b2c(cc[20]) + "\t"
+        +            b2c(cc[8]) + " " + b2c(ec[18]) + " " + b2c(cc[11]) + "\t"
+        +            b2c(cc[16]) + " " + b2c(ec[2]) + " " + b2c(cc[19]) + "\t"
+        +            b2c(cc[15]) + " " + b2c(ec[22]) + " " + b2c(cc[12]) + "\n" );
+
+        println("\n\t\t" + b2c(cc[4]) + " " + b2c(ec[12]) + " " + b2c(cc[7]));
+        println("\t\t" + b2c(ec[13]) + " " +  b2c((byte)3) + " " + b2c(ec[15]));
+        println("\t\t" + b2c(cc[5]) + " " + b2c(ec[14]) + " " + b2c(cc[6]) +        "\n");
+    }
+    
+    String b2c(byte s)    {
+        switch(s){
+            case 0:
+                return "\u001b[31m" + "O";
+            case 1:
+                return "\u001b[31;1m" + "R";
+            case 2:
+                return "\u001b[33m" + "Y";
+            case 3:
+                return "\u001b[37m" + "W";
+            case 4:
+                return "\u001b[32m" + "G";
+            case 5:
+                return "\u001b[34m" + "B";
+        }
+        return "i";
     }
 
+    byte c2b(char face, color[] colours)   {
+        byte col = 0;
+        switch(face)    {
+                    case 'R':
+                        if(colours[0] == red)       col = 1;
+                        if(colours[0] == yellow)    col = 2;
+                        if(colours[0] == white)     col = 3;
+                        if(colours[0] == green)     col = 4;
+                        if(colours[0] == blue)      col = 5;
+                        return col;
+                    case 'L':
+                        if(colours[1] == red)       col = 1;
+                        if(colours[1] == yellow)    col = 2;
+                        if(colours[1] == white)     col = 3;
+                        if(colours[1] == green)     col = 4;
+                        if(colours[1] == blue)      col = 5;
+                        return col;
+                    case 'U':
+                        if(colours[2] == red)       col = 1;
+                        if(colours[2] == yellow)    col = 2;
+                        if(colours[2] == white)     col = 3;
+                        if(colours[2] == green)     col = 4;
+                        if(colours[2] == blue)      col = 5;
+                        return col;
+                    case 'D':
+                        if(colours[3] == red)       col = 1;
+                        if(colours[3] == yellow)    col = 2;
+                        if(colours[3] == white)     col = 3;
+                        if(colours[3] == green)     col = 4;
+                        if(colours[3] == blue)      col = 5;
+                        return col;
+                    case 'F':
+                        if(colours[4] == red)       col = 1;
+                        if(colours[4] == yellow)    col = 2;
+                        if(colours[4] == white)     col = 3;
+                        if(colours[4] == green)     col = 4;
+                        if(colours[4] == blue)      col = 5;
+                        return col;
+                    case 'B':
+                        if(colours[5] == red)       col = 1;
+                        if(colours[5] == yellow)    col = 2;
+                        if(colours[5] == white)     col = 3;
+                        if(colours[5] == green)     col = 4;
+                        if(colours[5] == blue)      col = 5;
+                        return col;
+        }
+        return -1;
+    }
+
+    // Resets this cube object to a solved state.
+    void reset()    {
+        Cube cube = new Cube();
+        corners_o = new int[8];
+        corners_p = new int[8];
+        corners = new Cubie[8];
+        cornerColours = new byte[24];
+        edges_o = new int[(dim-2)*12];
+        edges_p = new int[(dim-2)*12];
+        edges = new Cubie[(dim-2)*12];
+        edgeColours = new byte[((dim-2)*12)*2];
+        ic(cube);
+        getEdgeColours();
+        getCornerColours();
+        ipce();
+        ioe();
+        ioc();
+    }
     /**
     * Prepare move to be applied to this cube object.
     * @param    move    move we're deconstructing to values
     */
     void move(String move) {
         int x = 0;
+        byte b = 0;
         switch(move)    {
             case "U":
+                // Region: Colours
+                    // Edge colours
+                    b = edgeColours[8];
+                    edgeColours[8] = edgeColours[9];
+                    edgeColours[9] = edgeColours[10];
+                    edgeColours[10] = edgeColours[11];
+                    edgeColours[11] = b;
+                    // BU -> RU -> FU -> LU
+                    // 20 -> 0  -> 16 -> 4
+                    b = edgeColours[20];
+                    edgeColours[20] = edgeColours[4];
+                    edgeColours[4] = edgeColours[16];
+                    edgeColours[16] = edgeColours[0];
+                    edgeColours[0] = b;
+
+                    // Corner colours
+                    b = cornerColours[0];
+                    cornerColours[0] = cornerColours[3];
+                    cornerColours[3] = cornerColours[2];
+                    cornerColours[2] = cornerColours[1];
+                    cornerColours[1] = b;
+                    // FUL, FUR, LUB, LUF, BUL, BUR, RUF, RUB
+                    // FUL -> LUB -> BUR -> RUF
+                    //  9      22     14     17
+                    b = cornerColours[9];
+                    cornerColours[9] = cornerColours[17];
+                    cornerColours[17] = cornerColours[14];
+                    cornerColours[14] = cornerColours[22];
+                    cornerColours[22] = b;
+                    // FUR -> LUF -> BUL -> RUB
+                    //               13
+                    b = cornerColours[10];
+                    cornerColours[10] = cornerColours[18];
+                    cornerColours[18] = cornerColours[13];
+                    cornerColours[13] = cornerColours[21];
+                    cornerColours[21] = b;
+                // Region: Colours
+                // permutation and orientation array
                 x = corners_p[0];
                 corners_p[0] = corners_p[3];
                 corners_p[3] = corners_p[2];
@@ -382,6 +643,42 @@ class Cube2 {
                 edges_o[1] = x;
                 break;            
             case "D":
+                // Region: Colours
+                    b = edgeColours[12];
+                    edgeColours[12] = edgeColours[13];
+                    edgeColours[13] = edgeColours[14];
+                    edgeColours[14] = edgeColours[15];
+                    edgeColours[15] = b;
+
+                    b = edgeColours[18];
+                    edgeColours[18] = edgeColours[6];
+                    edgeColours[6] = edgeColours[22];
+                    edgeColours[22] = edgeColours[2];
+                    edgeColours[2] = b;
+
+                    // DFL -> DBL -> DBR -> DFR
+                    //  4      5      6      7
+                    b = cornerColours[4];
+                    cornerColours[4] = cornerColours[7];
+                    cornerColours[7] = cornerColours[6];
+                    cornerColours[6] = cornerColours[5];
+                    cornerColours[5] = b;
+                    // This is correct order -> BDL is from F perspective
+                    // FDL, FDR, LDB, LDF, BDR, BDL, RDF, RDB
+                    //  8   11    23   20  15   12   16   19
+                    b = cornerColours[8];
+                    cornerColours[8] = cornerColours[23];
+                    cornerColours[23] = cornerColours[15];
+                    cornerColours[15] = cornerColours[16];
+                    cornerColours[16] = b;
+
+                    b = cornerColours[11];
+                    cornerColours[11] = cornerColours[20];
+                    cornerColours[20] = cornerColours[12];
+                    cornerColours[12] = cornerColours[19];
+                    cornerColours[19] = b;
+                // End Region: Colours
+                // Perms/Oris
                 x = corners_p[4];
                 corners_p[4] = corners_p[7];
                 corners_p[7] = corners_p[6];
@@ -404,6 +701,39 @@ class Cube2 {
                 edges_o[9] = x;
                 break;
             case "F":
+                // Region: Colours
+                    b = edgeColours[16];
+                    edgeColours[16] = edgeColours[17];
+                    edgeColours[17] = edgeColours[18];
+                    edgeColours[18] = edgeColours[19];
+                    edgeColours[19] = b;
+                    b = edgeColours[10];
+                    edgeColours[10] = edgeColours[1];
+                    edgeColours[1] = edgeColours[12];
+                    edgeColours[12] = edgeColours[5];
+                    edgeColours[5] = b;
+
+                    // FDL -> FUL -> FUR -> FDR
+                    // 8      9      10     11
+                    b = cornerColours[8];
+                    cornerColours[8] = cornerColours[11];
+                    cornerColours[11] = cornerColours[10];
+                    cornerColours[10] = cornerColours[9];
+                    cornerColours[9] = b;
+                    // UFL, UFR, RUF, RDF, DFR, DFL, LDF, LUF
+                    //  0    3    17   16   7    4    20   21
+                    b = cornerColours[0];
+                    cornerColours[0] = cornerColours[20];
+                    cornerColours[20] = cornerColours[7];
+                    cornerColours[7] = cornerColours[17];
+                    cornerColours[17] = b;
+
+                    b = cornerColours[3];
+                    cornerColours[3] = cornerColours[21];
+                    cornerColours[21] = cornerColours[4];
+                    cornerColours[4] = cornerColours[16];
+                    cornerColours[16] = b;
+                // End Region: Colours
                 x = corners_p[0];
                 corners_p[0] = corners_p[5];
                 corners_p[5] = corners_p[6];
@@ -426,6 +756,39 @@ class Cube2 {
                 edges_o[6] = (x+1)%2;
                 break;
             case "B":
+                // Region: Colours
+                    b = edgeColours[20];
+                    edgeColours[20] = edgeColours[21];
+                    edgeColours[21] = edgeColours[22];
+                    edgeColours[22] = edgeColours[23];
+                    edgeColours[23] = b;
+                    b = edgeColours[8];
+                    edgeColours[8] = edgeColours[3];
+                    edgeColours[3] = edgeColours[14];
+                    edgeColours[14] = edgeColours[7];
+                    edgeColours[7] = b;
+
+                    // BDL -> BUL -> BUR -> BDR
+                    //  12     13    14      15
+                    b = cornerColours[12];
+                    cornerColours[12] = cornerColours[15];
+                    cornerColours[15] = cornerColours[14];
+                    cornerColours[14] = cornerColours[13];
+                    cornerColours[13] = b;
+                    // UBR, UBL, LUB, LDB, DBL, DBR, RDB, RUB
+                    //  2    1    22   23   5    6    19   18
+                    b = cornerColours[2];
+                    cornerColours[2] = cornerColours[19];
+                    cornerColours[19] = cornerColours[5];
+                    cornerColours[5] = cornerColours[22];
+                    cornerColours[22] = b;
+
+                    b = cornerColours[1];
+                    cornerColours[1] = cornerColours[18];
+                    cornerColours[18] = cornerColours[6];
+                    cornerColours[6] = cornerColours[23];
+                    cornerColours[23] = b;
+                // End Region: Colours
                 x = corners_p[1];
                 corners_p[1] = corners_p[2];
                 corners_p[2] = corners_p[7];
@@ -448,6 +811,38 @@ class Cube2 {
                 edges_o[4] = (x+1)%2;
                 break;
             case "R":
+                // Region: Colours
+                    b = edgeColours[0];
+                    edgeColours[0] = edgeColours[1];
+                    edgeColours[1] = edgeColours[2];
+                    edgeColours[2] = edgeColours[3];
+                    edgeColours[3] = b;
+                    b = edgeColours[9];
+                    edgeColours[9] = edgeColours[23];
+                    edgeColours[23] = edgeColours[15];
+                    edgeColours[15] = edgeColours[19];
+                    edgeColours[19] = b;
+                    // RDF -> RUF -> RUB -> RDB
+                    //  16    17      18     19
+                    b = cornerColours[16];
+                    cornerColours[16] = cornerColours[19];
+                    cornerColours[19] = cornerColours[18];
+                    cornerColours[18] = cornerColours[17];
+                    cornerColours[17] = b;
+                    // UFR, UBR, BUR, BDR, DBR, DFR, FDR, FUR
+                    //  3    2    14   15   6    7    11   10
+                    b = cornerColours[3];
+                    cornerColours[3] = cornerColours[11];
+                    cornerColours[11] = cornerColours[6];
+                    cornerColours[6] = cornerColours[14];
+                    cornerColours[14] = b;
+
+                    b = cornerColours[2];
+                    cornerColours[2] = cornerColours[10];
+                    cornerColours[10] = cornerColours[7];
+                    cornerColours[7] = cornerColours[15];
+                    cornerColours[15] = b;
+                // End Region: Colours
                 x = corners_p[2];
                 corners_p[2] = corners_p[3];
                 corners_p[3] = corners_p[6];
@@ -470,6 +865,40 @@ class Cube2 {
                 edges_o[7] = x;
                 break;
             case "L":
+                // Region: Colours
+                    // LU -> LF -> LD -> LB
+                    // 4     5      6     7
+                    b = edgeColours[4];
+                    edgeColours[4] = edgeColours[7];
+                    edgeColours[7] = edgeColours[6];
+                    edgeColours[6] = edgeColours[5];
+                    edgeColours[5] = b;
+                    b = edgeColours[11];
+                    edgeColours[11] = edgeColours[21];
+                    edgeColours[21] = edgeColours[13];
+                    edgeColours[13] = edgeColours[17];
+                    edgeColours[17] = b;
+                    // LDF -> LUF -> LUB -> LDB
+                    // 20      21     22     23
+                    b = cornerColours[20];
+                    cornerColours[20] = cornerColours[21];
+                    cornerColours[21] = cornerColours[22];
+                    cornerColours[22] = cornerColours[23];
+                    cornerColours[23] = b;
+                    // UFL, UBL, FDL, FUL, DBL, DFL, BUL, BDL
+                    //  0    1    8    9    5    4   13   12
+                    b = cornerColours[0];
+                    cornerColours[0] = cornerColours[13];
+                    cornerColours[13] = cornerColours[5];
+                    cornerColours[5] = cornerColours[8];
+                    cornerColours[8] = b;
+                    // 
+                    b = cornerColours[1];
+                    cornerColours[1] = cornerColours[12];
+                    cornerColours[12] = cornerColours[4];
+                    cornerColours[4] = cornerColours[9];
+                    cornerColours[9] = b;
+                // End Region: Colours
                 x = corners_p[0];
                 corners_p[0] = corners_p[1];
                 corners_p[1] = corners_p[4];
@@ -492,12 +921,119 @@ class Cube2 {
                 edges_o[5] = x;
                 break;
         }
-        }
+    }
 
-    /**
-    *   Don't fully understand this yet - have taken inspiration from
-    *   https://www.jaapsch.net/puzzles/compindx.htm
-    */
+    // Returns cube state regarding e slice edges as int
+    int esliceState()  {
+        String binaryRepresentation = "";
+        for(int i : edges_p)    {
+            // println(i);
+            // If edge has e slice permutation value
+            // (If the edge belongs in e slice)
+            if(i == 5 || i == 6 || i == 7 || i == 8)  {
+                binaryRepresentation += "1";
+            } else {
+                binaryRepresentation += "0";
+            }
+        }
+        // println(binaryRepresentation);
+        // Return binary as base 2 number
+        return Integer.parseInt(binaryRepresentation, 2);
+    }
+
+    // Label m slice as 0, s slice will be 1 - 
+    // index 4,5,6,7 of binary are set e slice so will be ignored.
+    int msSliceState()  {
+        String binaryRepresentation = "";
+        for(int i : edges_p)    {
+            // (If the edge belongs in s slice)
+            if(i == 2 || i == 4 || i == 10 || i == 12)  {
+                // S Slice
+                binaryRepresentation += "1";
+            } else {
+                binaryRepresentation += "0";
+            }
+        }
+        // println(binaryRepresentation);
+        // Return binary as base 2 number
+        return Integer.parseInt(binaryRepresentation, 2);
+    }
+
+    int tetradState()   {
+        // 8 corners - 1, 3, 5, 7 and 2, 4, 6, 8
+        String binaryRepresentation = "";
+        for(int i : corners_p)    {
+            // (If the edge belongs in m slice)
+            if(i == 2 || i == 4 || i == 6 || i == 8)  {
+                // tetrad 2, 4, 6, 8
+                binaryRepresentation += "1";
+            } else {
+                binaryRepresentation += "0";
+            }
+        }
+        // println(binaryRepresentation);
+        return Integer.parseInt(binaryRepresentation, 2);
+    }
+    // Converts int to binary
+    // Replaces index positions of edges_p corresponding to index positions of 1s in the binary to a random e slice edge value.
+    void eSliceIndexToState(int index)   {
+        String binary = Integer.toBinaryString(index);
+        String zeroes = "";
+        for(int i = 0; i <= 12-binary.length()-1; i++)
+            zeroes  += "0";
+        
+        binary = zeroes + binary;
+
+        int edge = 5;
+        for(int i = binary.length()-1; i >= 0; i--) {
+            if(binary.charAt(i) == '0') {
+                edges_p[i] = 0;
+                continue;
+            }
+            edges_p[i] = edge;
+            edge++;
+        }
+    }
+
+    void msSliceIndexToState(int index) {
+        String binary = Integer.toBinaryString(index);
+        String zeroes = "";
+        for(int i = 0; i <= 12-binary.length()-1; i++)
+            zeroes  += "0";
+        
+        binary = zeroes + binary;
+        int m = 1; // 1, 3, 9, 11
+        int s = 2; // 2, 4, 10, 12
+        // No checks for invalid states so can just duplicate permutation values for the sake of generating a table
+        for(int i = binary.length()-1; i >= 0; i--) {
+            if(i == 4 || i == 5 || i == 6 || i == 7) continue; // Skips e slice
+            if(binary.charAt(i) == '0') {
+                edges_p[i] = 1;
+            } else {
+                edges_p[i] = 2;
+            }
+        }
+    }
+
+    void tetradIndexToState(int index)  {
+        String binary = Integer.toBinaryString(index);
+        String zeroes = "";
+        for(int i = 0; i <= 8-binary.length()-1; i++)
+            zeroes  += "0";
+        
+        binary = zeroes + binary;
+        // Tetrad 1, 3, 5, 7
+        // Tetrad 2, 4, 6, 8
+        // Repeating corners - no checks
+        for(int i = binary.length()-1; i >= 0; i--) {
+            if(binary.charAt(i) == '0') {
+                corners_p[i] = 1;
+            } else {
+                corners_p[i] = 2;
+            }
+        }
+    }
+
     int encode_corners_p(){
         int t = 0;
         for(int i=0; i<7; i++){
@@ -611,6 +1147,4 @@ class Cube2 {
             edges_o[i] = v[i];
         }
     }
-
-    
 }

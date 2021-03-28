@@ -48,7 +48,7 @@ class FastCube  {
         this.green = green;
         this.blue = blue;
     }
-
+    
     /**
     * Clone constructor
     * @param    c   The cube we're copying to this Fastcube object
@@ -62,7 +62,7 @@ class FastCube  {
         this.blue =     getFace("blue",  c);
         // printCube();
     }
-
+    
     /**
     * Clone constructor
     * @param    f   The fastcube object we're cloning
@@ -75,7 +75,7 @@ class FastCube  {
         this.yellow = cloneFace(f.yellow);
         this.white = cloneFace(f.white);
     }
-
+    
     /**
     * Returns an array representing a cloned face
     * @param thisFace   The face we're wanting to clone
@@ -83,12 +83,12 @@ class FastCube  {
     */
     Integer[] cloneFace(Integer[] thisFace) {
         Integer[] face = new Integer[8];
-        for(int i = 0; i < thisFace.length; i++)    {
+        for (int i = 0; i < thisFace.length; i++)    {
             face[i] = thisFace[i];
         }
         return face;
     }
-
+    
     /**
     * Prints the cube in console - Mainly used for debugging purposes as there's a 2D representation on GUI
     */
@@ -114,41 +114,41 @@ class FastCube  {
     String printFirstRow(Integer[] f, int whichFace) {
         // 1 - Red, 2 - Green, 3 - Orange, 4 - Blue
         String s = "";
-        if(this.debug)  {
+        if (this.debug)  {
             switch(whichFace)   {
-                case 1: // If red
-                    s += (2 + " " + 3 + " " + 4 + "\t");
-                    break;
-                case 2: // if green
-                    s += (2 + " " + 3 + " " + 4 + "\t");
-                    break;
-                case 3: // if orange
-                    s += (4 + " " + 3 + " " + 2 + "\t");
-                    break;
-                case 4: // if blue
-                    s += (4 + " " + 3 + " " + 2 + "\t");
-                    break;
+                case 1 : // If red
+                s += (2 + " " + 3 + " " + 4 + "\t");
+                break;
+                case 2 : // if green
+                s += (2 + " " + 3 + " " + 4 + "\t");
+                break;
+                case 3 : // if orange
+                s += (4 + " " + 3 + " " + 2 + "\t");
+                break;
+                case 4 : // if blue
+                s += (4 + " " + 3 + " " + 2 + "\t");
+                break;
             }
             return s;
         }
         switch(whichFace)   {
-            case 1: // If red
-                s += (colour.values()[f[2]] + " " + colour.values()[f[3]] + " " + colour.values()[f[4]]+ "\t");
-                break;
-            case 2: // if green
-                s += (colour.values()[f[2]] + " " + colour.values()[f[3]] + " " + colour.values()[f[4]]+ "\t");
-                break;
-            case 3: // if orange
-                s += (colour.values()[f[4]] + " " + colour.values()[f[3]] + " " + colour.values()[f[2]]+ "\t");
-                break;
-            case 4: // if blue
-                s += (colour.values()[f[4]] + " " + colour.values()[f[3]] + " " + colour.values()[f[2]]+ "\t");
-                break;
+            case 1 : // If red
+            s += (colour.values()[f[2]] + " " + colour.values()[f[3]] + " " + colour.values()[f[4]] + "\t");
+            break;
+            case 2 : // if green
+            s += (colour.values()[f[2]] + " " + colour.values()[f[3]] + " " + colour.values()[f[4]] + "\t");
+            break;
+            case 3 : // if orange
+            s += (colour.values()[f[4]] + " " + colour.values()[f[3]] + " " + colour.values()[f[2]] + "\t");
+            break;
+            case 4 : // if blue
+            s += (colour.values()[f[4]] + " " + colour.values()[f[3]] + " " + colour.values()[f[2]] + "\t");
+            break;
         }
-
+        
         return s;
     };
-
+    
     /**
     * Prints the second row of a cube's face.
     *
@@ -162,50 +162,50 @@ class FastCube  {
         String s = "";
         switch(whichFace)   {
             case 1:
-                c = "R";
-                break;
+            c = "R";
+            break;
             case 2:
-                c = "G";
-                break;
+            c = "G";
+            break;
             case 3:
-                c = "O";
-                break;
+            c = "O";
+            break;
         }
-        if(this.debug)  {
+        if (this.debug)  {
             switch(whichFace)   {
                 case 1:
-                    s += (1 + " " + c + " " + 5 + "\t");
-                    break;
+                s += (1 + " " + c + " " + 5 + "\t");
+                break;
                 case 2:
-                    s += (1 + " " + c + " " + 5 + "\t");
-                    break;
+                s += (1 + " " + c + " " + 5 + "\t");
+                break;
                 case 3:
-                    s += (5 + " " + c + " " + 1 + "\t");
-                    break;
+                s += (5 + " " + c + " " + 1 + "\t");
+                break;
                 case 4:
-                    s += (5 + " " + c + " " + 1 + "\t");
-                    break;
+                s += (5 + " " + c + " " + 1 + "\t");
+                break;
             }
             return s;
         }
         switch(whichFace)   {
             case 1:
-                s += (colour.values()[f[1]] + " " + c + " " + colour.values()[f[5]] + "\t");
+            s += (colour.values()[f[1]] + " " + c + " " + colour.values()[f[5]] + "\t");
             break;
             case 2:
-                s += (colour.values()[f[1]] + " " + c + " " + colour.values()[f[5]] + "\t");
+            s += (colour.values()[f[1]] + " " + c + " " + colour.values()[f[5]] + "\t");
             break;
             case 3:
-                s += (colour.values()[f[5]] + " " + c + " " + colour.values()[f[1]] + "\t");
+            s += (colour.values()[f[5]] + " " + c + " " + colour.values()[f[1]] + "\t");
             break;
             case 4:
-                s += (colour.values()[f[5]] + " " + c + " " + colour.values()[f[1]] + "\t");
+            s += (colour.values()[f[5]] + " " + c + " " + colour.values()[f[1]] + "\t");
             break;
         }
-
+        
         return s;
     };
-
+    
     /**
     * Prints the third row of a cube's face.
     *
@@ -216,40 +216,40 @@ class FastCube  {
     String printThirdRow(Integer[] f, int whichFace) {
         // 1 - Red, 2 - Green, 3 - Orange, 4 - Blue
         String s = "";
-        if(this.debug)  {
+        if (this.debug)  {
             switch(whichFace)   {
                 case 1:
-                    s += (0 + " " + 7 + " " + 6 + "\t");
-                    break;
+                s += (0 + " " + 7 + " " + 6 + "\t");
+                break;
                 case 2:
-                    s += (0 + " " + 7 + " " + 6 + "\t");
-                    break;
+                s += (0 + " " + 7 + " " + 6 + "\t");
+                break;
                 case 3:
-                    s += (6 + " " + 7 + " " + 0 + "\t");
-                    break;
+                s += (6 + " " + 7 + " " + 0 + "\t");
+                break;
                 case 4:
-                    s += (6 + " " + 7 + " " + 0 + "\t");
-                    break;
+                s += (6 + " " + 7 + " " + 0 + "\t");
+                break;
             }
             return s;
         }
         switch(whichFace)   {
             case 1:
-                s += (colour.values()[f[0]] + " " + colour.values()[f[7]] + " " + colour.values()[f[6]] + " \t");
-                break;
+            s += (colour.values()[f[0]] + " " + colour.values()[f[7]] + " " + colour.values()[f[6]] + " \t");
+            break;
             case 2:
-                s += (colour.values()[f[0]] + " " + colour.values()[f[7]] + " " + colour.values()[f[6]] + " \t");
-                break;
+            s += (colour.values()[f[0]] + " " + colour.values()[f[7]] + " " + colour.values()[f[6]] + " \t");
+            break;
             case 3:
-                s += (colour.values()[f[6]] + " " + colour.values()[f[7]] + " " + colour.values()[f[0]] + " \t");
-                break;
+            s += (colour.values()[f[6]] + " " + colour.values()[f[7]] + " " + colour.values()[f[0]] + " \t");
+            break;
             case 4:
-                s += (colour.values()[f[6]] + " " + colour.values()[f[7]] + " " + colour.values()[f[0]] + " \t");
-                break;
+            s += (colour.values()[f[6]] + " " + colour.values()[f[7]] + " " + colour.values()[f[0]] + " \t");
+            break;
         }
         return s;
     };
-
+    
     /**
     * Prints the entire cube
     *
@@ -264,11 +264,11 @@ class FastCube  {
         String c = whichFace == 0 ? "Y" : "W";
         String face = "";
         String spacer = y ? "\t" : "";
-        for(int i : f) { face += i; }
-
-        if(this.debug)  {
+        for (int i : f) { face += i; }
+        
+        if (this.debug)  {
             s += "\n";
-            if(whichFace == 1)  { // White
+            if (whichFace == 1)  { // White
                 s += (spacer + 0 + " " +    7   +  " "  + 6 + "\n");
                 s += (spacer + 1 + " " +    c   +  " "  + 5 + "\n");
                 s += (spacer + 2 + " " +    3   +  " "  + 4);
@@ -280,18 +280,18 @@ class FastCube  {
             return s;
         }
         s += "\n";
-        if(whichFace == 1)  { // White
+        if (whichFace == 1)  { // White
             s += (spacer + colour.values()[f[0]] + " " + colour.values()[f[7]] + " " + colour.values()[f[6]] + "\n");
-            s += (spacer + colour.values()[f[1]] + " " +                        c   +  " "  + colour.values()[f[5]]+ "\n");
+            s += (spacer + colour.values()[f[1]] + " " +                        c   +  " "  + colour.values()[f[5]] + "\n");
             s += (spacer + colour.values()[f[2]] + " " + colour.values()[f[3]] + " " + colour.values()[f[4]]);
         } else {             // Yellow
             s += (spacer + colour.values()[f[2]] + " " + colour.values()[f[3]] + " " + colour.values()[f[4]] + "\n");
-            s += (spacer + colour.values()[f[1]] + " " +                        c   +  " "  + colour.values()[f[5]]+ "\n");
+            s += (spacer + colour.values()[f[1]] + " " +                        c   +  " "  + colour.values()[f[5]] + "\n");
             s += (spacer + colour.values()[f[0]] + " " + colour.values()[f[7]] + " " + colour.values()[f[6]] + "\n");
         }
         return s;
     }
-
+    
     
     /**
     * Gets the face from the cube ready for the fastcube
@@ -304,14 +304,14 @@ class FastCube  {
         // long thisFace = 0;
         Integer[] nums = new Integer[8];
         String face = c.getFace(f);
-        for(int i = 0; i < face.length(); i++)  {
+        for (int i = 0; i < face.length(); i++)  {
             String a = face.charAt(i) + "";
             nums[i] = colour.valueOf(a).ordinal();
         }
         // println(f + "\t" + Arrays.toString(nums));
         return nums;
     }
-
+    
     //******************************************
     /**
     * Tests a specified algorithm on this FastCube object. Computationally cheaper to test on this than Cube object.
@@ -321,70 +321,58 @@ class FastCube  {
     */
     FastCube testAlgorithm(String algorithm)   {
         for (int i = 0; i < algorithm.length(); i++) {
-			// Initially direction of each move is 1
-			int dir = 1;
-			String move = algorithm.charAt(i) + "";
-			// print(move);
-			// If there are moves in algorithm and the next char is a prime: '
-			if(i+1 < algorithm.length())	{
-				if (algorithm.charAt(i+1) == '\'' || algorithm.charAt(i+1) == '’' || algorithm.charAt(i+1) == '2') {
-					char next = algorithm.charAt(i+1);
-					// Set the direction of the move to anticlockwise
-					if(next == '\'' || next == '’')	{
-						move += "\'";
-					}	else	{
-						dir = 2;
-					}
-					i++;
-				}
-			} 
-            move(move);
-        }
-        return this;
+            // Initially direction of each move is 1
+            int dir = 1;
+            String move = algorithm.charAt(i) + "";
+            // print(move);
+            // If there are moves in algorithm and the next char is a prime: '
+            if (i + 1 < algorithm.length())	{
+                if (algorithm.charAt(i + 1) == '\'' || algorithm.charAt(i+1) == '’' || algorithm.charAt(i+1) == '2') {
+                      	   char next = algorithm.charAt(i+1);
+                       // Set the direction of the move to anticlockwise
+                      	   if(next == '\'' || next == '’')	{
+                       	move += "\'";
+                   	  } 	else	{
+                       	dir = 2;
+                       }
+                   i++;
+             			}
+        		} 
+        move(move);
     }
-    /**
-    * Applies the specified move to FastCube object
-    *
-    * @param    move    The move being applied to the
-    */
-    void move(String move)    {
-        Integer temp;
-        int dir = 1;
-        if(move.length() > 1) {
-            if(move.charAt(1) == '2')   {
-                dir = 2;
-            } else if (move.charAt(1) == '\'')  {
-                dir = -1;
-            }
+    return this;
+}
+/**
+* Applies the specified move to FastCube object
+*
+* @param    move    The move being applied to the
+*/
+void move(String move)    {
+    Integer temp;
+    int dir = 1;
+    if (move.length() > 1) {
+        if (move.charAt(1) == '2')   {
+            dir = 2;
+        } else if (move.charAt(1) == '\'')  {
+            dir = -1;
         }
-        move = move.charAt(0) +"";
-        switch(move)    {
+        }
+            move= move.charAt(0) +"";
+            switch(move)    {
             case "R": // Orange  Affects: White, Yellow, Blue, Green
-                if(dir == -1)   {
-                    Collections.rotate(Arrays.asList(this.orange), 2);
-                    for(int i = 4; i < 7; i++) {
-                        temp = this.yellow[i];
-                        this.yellow[i] = this.blue[10-i];
-                        this.blue[10-i] = this.white[10-i];
-                        this.white[10-i] = this.green[i];
-                        this.green[i] = temp;
-                    }
-                } else {
-                    if(dir == 2)    {
-                        Collections.rotate(Arrays.asList(this.orange), 4);
-                        for(int j = 0; j < 2; j++)  {
-                            for(int i = 4; i < 7; i++) {
-                                temp = this.yellow[i];
-                                this.yellow[i] = this.green[i];
-                                this.green[i] = this.white[10-i];
-                                this.white[10-i] = this.blue[10-i];
-                                this.blue[10-i] = temp;
-                            }
-                        }
-                    } else {
-                        // Rotation requires 2 int to move.
-                        Collections.rotate(Arrays.asList(this.orange), 6);
-                        // Swap all rows from faces next to orange.
+            if(dir == -1)   {
+                Collections.rotate(Arrays.asList(this.orange), 2);
+                for(int i = 4; i < 7; i++) {
+                    temp = this.yellow[i];
+                    this.yellow[i] = this.blue[10-i];
+                    this.blue[10-i] = this.white[10-i];
+                    this.white[10-i] = this.green[i];
+                    this.green[i] = temp;
+                }
+            } else {
+                if(dir == 2)    {
+                    Collections.rotate(Arrays.asList(this.orange), 4);
+                    for(int j = 0; j < 2; j++)  {
                         for(int i = 4; i < 7; i++) {
                             temp = this.yellow[i];
                             this.yellow[i] = this.green[i];
@@ -393,32 +381,34 @@ class FastCube  {
                             this.blue[10-i] = temp;
                         }
                     }
-				}
-				break;
+                } else {
+                    // Rotation requires 2 int to move.
+                    Collections.rotate(Arrays.asList(this.orange), 6);
+                    // Swap all rows from faces next to orange.
+                    for(int i = 4; i < 7; i++) {
+                        temp = this.yellow[i];
+                        this.yellow[i] = this.green[i];
+                        this.green[i] = this.white[10-i];
+                        this.white[10-i] = this.blue[10-i];
+                        this.blue[10-i] = temp;
+                    }
+                }
+         			}
+            break;
             case "L": // Red    Affects: White, Yellow, Blue, Green
-                if( dir == -1)  {
-                    Collections.rotate(Arrays.asList(this.red), 6);
-                    for(int i = 0; i < 3; i++) {
-                        temp = this.yellow[2-i];
-                        this.yellow[2-i] = this.green[2-i];
-                        this.green[2-i] = this.white[i];
-                        this.white[i] = this.blue[i];
-                        this.blue[i] = temp;
-                    } 
-                } else  {
-                    if(dir == 2)    {
-                        Collections.rotate(Arrays.asList(this.red), 4);
-                        for(int j = 0; j < 2; j++)  {
-                            for(int i = 0; i < 3; i++) {
-                                temp = this.green[i];
-                                this.green[i] = this.yellow[i];
-                                this.yellow[i] = this.blue[2-i];
-                                this.blue[2-i] = this.white[2-i];
-                                this.white[2-i] = temp;
-                            }
-                        }
-                    } else {
-                        Collections.rotate(Arrays.asList(this.red), 2);
+            if( dir == -1)  {
+                Collections.rotate(Arrays.asList(this.red), 6);
+                for(int i = 0; i < 3; i++) {
+                    temp = this.yellow[2-i];
+                    this.yellow[2-i] = this.green[2-i];
+                    this.green[2-i] = this.white[i];
+                    this.white[i] = this.blue[i];
+                    this.blue[i] = temp;
+                } 
+            } else  {
+                if(dir == 2)    {
+                    Collections.rotate(Arrays.asList(this.red), 4);
+                    for(int j = 0; j < 2; j++)  {
                         for(int i = 0; i < 3; i++) {
                             temp = this.green[i];
                             this.green[i] = this.yellow[i];
@@ -427,35 +417,33 @@ class FastCube  {
                             this.white[2-i] = temp;
                         }
                     }
-                }
-                break;
-            case "U": // Yellow Affects: Red, Green, Blue, Orange
-                if(dir == -1)   {
-                    Collections.rotate(Arrays.asList(this.yellow), 6);
-                    for(int i = 4; i > 1; i--)  {
+                } else {
+                    Collections.rotate(Arrays.asList(this.red), 2);
+                    for(int i = 0; i < 3; i++) {
                         temp = this.green[i];
-                        this.green[i] = this.red[i];
-                        this.red[i] = this.blue[6-i];
-                        this.blue[6-i] = this.orange[6-i];
-                        this.orange[6-i] = temp;
-                        // println("Orange\tBlue\tRed\tGreen\n" + i + "\t" + i + "\t" + (6-i) + "\t" + greens[(4-i)]);
+                        this.green[i] = this.yellow[i];
+                        this.yellow[i] = this.blue[2-i];
+                        this.blue[2-i] = this.white[2-i];
+                        this.white[2-i] = temp;
                     }
-                }   else    {
-                    if(dir == 2)    {
-                        Collections.rotate(Arrays.asList(this.yellow), 4);
-                        for(int j = 0; j < 2; j++)  {
-                            int[] greens = {0, 3, 4};
-                            for(int i = 4; i > 1; i--)  {
-                                temp = this.orange[i];
-                                this.orange[i] = this.blue[i];
-                                this.blue[i] = this.red[6-i];
-                                this.red[6-i] = this.green[greens[4-i]];
-                                this.green[greens[4-i]] = temp;
-                                // println("Orange\tBlue\tRed\tGreen\n" + i + "\t" + i + "\t" + (6-i) + "\t" + greens[(4-i)]);
-                            }
-                        }
-                    } else {
-                        Collections.rotate(Arrays.asList(this.yellow), 2);
+                }
+            }
+            break;
+            case "U": // Yellow Affects: Red, Green, Blue, Orange
+            if(dir == -1)   {
+                Collections.rotate(Arrays.asList(this.yellow), 6);
+                for(int i = 4; i > 1; i--)  {
+                    temp = this.green[i];
+                    this.green[i] = this.red[i];
+                    this.red[i] = this.blue[6-i];
+                    this.blue[6-i] = this.orange[6-i];
+                    this.orange[6-i] = temp;
+                    // println("Orange\tBlue\tRed\tGreen\n" + i + "\t" + i + "\t" + (6-i) + "\t" + greens[(4-i)]);
+                }
+            }   else    {
+                if(dir == 2)    {
+                    Collections.rotate(Arrays.asList(this.yellow), 4);
+                    for(int j = 0; j < 2; j++)  {
                         int[] greens = {0, 3, 4};
                         for(int i = 4; i > 1; i--)  {
                             temp = this.orange[i];
@@ -466,38 +454,39 @@ class FastCube  {
                             // println("Orange\tBlue\tRed\tGreen\n" + i + "\t" + i + "\t" + (6-i) + "\t" + greens[(4-i)]);
                         }
                     }
-                }
-                break;
-            case "D": // White  Affects: Red, Green, Blue, Orange
-                int[] oranges = {6, 7, 0};
-                int[] blues = {6, 7, 0};
-                int[] reds = {0, 7, 6};
-                int[] greens = {2, 7, 6};
-                if(dir == -1)   {
-                    Collections.rotate(Arrays.asList(this.white), 2);
-                    for(int i = 0; i < 3; i++)  {
-                        temp = this.blue[blues[i]];
-                        this.blue[blues[i]] = this.red[reds[i]];
-                        this.red[reds[i]] = this.green[greens[i]];
-                        this.green[greens[i]] = this.orange[oranges[i]];
-                        this.orange[oranges[i]] = temp;
-                        // println("Orange\tBlue\tRed\tGreen\n" + oranges[i] + "\t" + blues[i] + "\t" + reds[i] + "\t" + greens[i]);
+                } else {
+                    Collections.rotate(Arrays.asList(this.yellow), 2);
+                    int[] greens = {0, 3, 4};
+                    for(int i = 4; i > 1; i--)  {
+                        temp = this.orange[i];
+                        this.orange[i] = this.blue[i];
+                        this.blue[i] = this.red[6-i];
+                        this.red[6-i] = this.green[greens[4-i]];
+                        this.green[greens[4-i]] = temp;
+                        // println("Orange\tBlue\tRed\tGreen\n" + i + "\t" + i + "\t" + (6-i) + "\t" + greens[(4-i)]);
                     }
-                }   else    {
-                    if(dir == 2)    {
-                        Collections.rotate(Arrays.asList(this.white), 4);
-                        for(int j = 0; j < 2; j++)  {
-                            for(int i = 0; i < 3; i++)  {
-                                temp = this.orange[oranges[i]];
-                                this.orange[oranges[i]] = this.green[greens[i]];
-                                this.green[greens[i]] = this.red[reds[i]];
-                                this.red[reds[i]] = this.blue[blues[i]];
-                                this.blue[blues[i]] = temp;
-                                // println("Orange\tBlue\tRed\tGreen\n" + oranges[i] + "\t" + blues[i] + "\t" + reds[i] + "\t" + greens[i]);
-                            }
-                        }
-                    } else {
-                        Collections.rotate(Arrays.asList(this.white), 6);
+                }
+            }
+            break;
+            case "D": // White  Affects: Red, Green, Blue, Orange
+            int[] oranges = {6, 7, 0};
+            int[] blues = {6, 7, 0};
+            int[] reds = {0, 7, 6};
+            int[] greens = {2, 7, 6};
+            if(dir == -1)   {
+                Collections.rotate(Arrays.asList(this.white), 2);
+                for(int i = 0; i < 3; i++)  {
+                    temp = this.blue[blues[i]];
+                    this.blue[blues[i]] = this.red[reds[i]];
+                    this.red[reds[i]] = this.green[greens[i]];
+                    this.green[greens[i]] = this.orange[oranges[i]];
+                    this.orange[oranges[i]] = temp;
+                    // println("Orange\tBlue\tRed\tGreen\n" + oranges[i] + "\t" + blues[i] + "\t" + reds[i] + "\t" + greens[i]);
+                }
+            }   else    {
+                if(dir == 2)    {
+                    Collections.rotate(Arrays.asList(this.white), 4);
+                    for(int j = 0; j < 2; j++)  {
                         for(int i = 0; i < 3; i++)  {
                             temp = this.orange[oranges[i]];
                             this.orange[oranges[i]] = this.green[greens[i]];
@@ -507,41 +496,42 @@ class FastCube  {
                             // println("Orange\tBlue\tRed\tGreen\n" + oranges[i] + "\t" + blues[i] + "\t" + reds[i] + "\t" + greens[i]);
                         }
                     }
-                }
-                
-                // println("Orange\tBlue\tRed\tGreen\n" + 6 + "\t" + 6 + "\t" + 0 + "\t" + 2);
-                // println("Orange\tBlue\tRed\tGreen\n" + 7 + "\t" + 7 + "\t" + 7 + "\t" + 7);
-                // println("Orange\tBlue\tRed\tGreen\n" + 0 + "\t" + 0 + "\t" + 6 + "\t" + 6);
-
-                break;
-            case "F": // Green  Affects: Red, Yellow, Orange, White
-                int[] fyellows = {0,7,6};
-                int[] foranges = {4,5,6};
-                int[] fwhites = {6,7,0};
-                int[] freds = {6,5,4};
-                if(dir == -1)   {
-                    Collections.rotate(Arrays.asList(this.green), 6);
-                    for(int i = 0; i < 3; i++)  {
-                        temp = this.yellow[fyellows[i]];
-                        this.yellow[fyellows[i]] = this.orange[foranges[i]];
-                        this.orange[foranges[i]] = this.white[fwhites[i]];
-                        this.white[fwhites[i]] = this.red[freds[i]];
-                        this.red[freds[i]] = temp;
-                    }
                 } else {
-                    if(dir == 2)    {
-                        Collections.rotate(Arrays.asList(this.green), 4);
-                        for(int j = 0; j < 2; j++)  {
-                            for(int i = 0; i < 3; i++)  {
-                                temp = this.red[freds[i]];
-                                this.red[freds[i]] = this.white[fwhites[i]];
-                                this.white[fwhites[i]] = this.orange[foranges[i]];
-                                this.orange[foranges[i]] = this.yellow[fyellows[i]];
-                                this.yellow[fyellows[i]] = temp;
-                            }
-                        }
-                    } else {
-                        Collections.rotate(Arrays.asList(this.green), 2);
+                    Collections.rotate(Arrays.asList(this.white), 6);
+                    for(int i = 0; i < 3; i++)  {
+                        temp = this.orange[oranges[i]];
+                        this.orange[oranges[i]] = this.green[greens[i]];
+                        this.green[greens[i]] = this.red[reds[i]];
+                        this.red[reds[i]] = this.blue[blues[i]];
+                        this.blue[blues[i]] = temp;
+                        // println("Orange\tBlue\tRed\tGreen\n" + oranges[i] + "\t" + blues[i] + "\t" + reds[i] + "\t" + greens[i]);
+                    }
+                }
+            }
+            
+            // println("Orange\tBlue\tRed\tGreen\n" + 6 + "\t" + 6 + "\t" + 0 + "\t" + 2);
+            // println("Orange\tBlue\tRed\tGreen\n" + 7 + "\t" + 7 + "\t" + 7 + "\t" + 7);
+            // println("Orange\tBlue\tRed\tGreen\n" + 0 + "\t" + 0 + "\t" + 6 + "\t" + 6);
+            
+            break;
+            case "F": // Green  Affects: Red, Yellow, Orange, White
+            int[] fyellows = {0,7,6};
+            int[] foranges = {4,5,6};
+            int[] fwhites = {6,7,0};
+            int[] freds = {6,5,4};
+            if(dir == -1)   {
+                Collections.rotate(Arrays.asList(this.green), 6);
+                for(int i = 0; i < 3; i++)  {
+                    temp = this.yellow[fyellows[i]];
+                    this.yellow[fyellows[i]] = this.orange[foranges[i]];
+                    this.orange[foranges[i]] = this.white[fwhites[i]];
+                    this.white[fwhites[i]] = this.red[freds[i]];
+                    this.red[freds[i]] = temp;
+                }
+            } else {
+                if(dir == 2)    {
+                    Collections.rotate(Arrays.asList(this.green), 4);
+                    for(int j = 0; j < 2; j++)  {
                         for(int i = 0; i < 3; i++)  {
                             temp = this.red[freds[i]];
                             this.red[freds[i]] = this.white[fwhites[i]];
@@ -550,195 +540,205 @@ class FastCube  {
                             this.yellow[fyellows[i]] = temp;
                         }
                     }
-                }
-                break;
-            case "B": // Blue   Affects: Red, Yellow, Orange, White
-                if(dir == 1)   {
-                    Collections.rotate(Arrays.asList(this.blue), 6);
-                    for(int i = 4; i > 1; i--)  {
-                        temp = this.white[6-i];
-                        this.white[6-i] = this.red[floor(i-2)];
-                        this.red[floor(i-2)] = this.yellow[i];
-                        this.yellow[i] = this.orange[4-i];
-                        this.orange[4-i] = temp;
-                        // println("Orange\tYellow\tRed\tWhite\n" + (4-i) + "\t" + i + "\t" + round(i-2) + "\t" + (6-i));
-                    }
                 } else {
-                    if(dir == 2)    {
-                        Collections.rotate(Arrays.asList(this.blue), 4);
-                        for(int j = 0; j < 2; j++)  {
-                            for(int i = 4; i > 1; i--)  {
-                                temp = this.orange[4-i];
-                                this.orange[4-i] = this.yellow[i];
-                                this.yellow[i] = this.red[floor(i-2)];
-                                this.red[floor(i-2)] = this.white[6-i];
-                                this.white[6-i] = temp;
-                            }
-                        }
-                    } else {
-                        Collections.rotate(Arrays.asList(this.blue), 2);
+                    Collections.rotate(Arrays.asList(this.green), 2);
+                    for(int i = 0; i < 3; i++)  {
+                        temp = this.red[freds[i]];
+                        this.red[freds[i]] = this.white[fwhites[i]];
+                        this.white[fwhites[i]] = this.orange[foranges[i]];
+                        this.orange[foranges[i]] = this.yellow[fyellows[i]];
+                        this.yellow[fyellows[i]] = temp;
+                    }
+                }
+            }
+            break;
+            case "B": // Blue   Affects: Red, Yellow, Orange, White
+            if(dir == 1)   {
+                Collections.rotate(Arrays.asList(this.blue), 6);
+                for(int i = 4; i > 1; i--)  {
+                    temp = this.white[6-i];
+                    this.white[6-i] = this.red[floor(i-2)];
+                    this.red[floor(i-2)] = this.yellow[i];
+                    this.yellow[i] = this.orange[4-i];
+                    this.orange[4-i] = temp;
+                    // println("Orange\tYellow\tRed\tWhite\n" + (4-i) + "\t" + i + "\t" + round(i-2) + "\t" + (6-i));
+                }
+            } else {
+                if(dir == 2)    {
+                    Collections.rotate(Arrays.asList(this.blue), 4);
+                    for(int j = 0; j < 2; j++)  {
                         for(int i = 4; i > 1; i--)  {
                             temp = this.orange[4-i];
                             this.orange[4-i] = this.yellow[i];
                             this.yellow[i] = this.red[floor(i-2)];
                             this.red[floor(i-2)] = this.white[6-i];
                             this.white[6-i] = temp;
-                            // println("Orange\tYellow\tRed\tWhite\n" + (4-i) + "\t" + i + "\t" + round(i-2) + "\t" + (6-i));
                         }
                     }
+                } else {
+                    Collections.rotate(Arrays.asList(this.blue), 2);
+                    for(int i = 4; i > 1; i--)  {
+                        temp = this.orange[4-i];
+                        this.orange[4-i] = this.yellow[i];
+                        this.yellow[i] = this.red[floor(i-2)];
+                        this.red[floor(i-2)] = this.white[6-i];
+                        this.white[6-i] = temp;
+                        // println("Orange\tYellow\tRed\tWhite\n" + (4-i) + "\t" + i + "\t" + round(i-2) + "\t" + (6-i));
+                    }
                 }
-                // R, Y, O, W
-                break;
+            }
+            // R, Y, O, W
+            break;
         }
-    }
-
-    // Initialises cubies
-    void initCubies()    {
-        Integer[][] newCorners = {{this.green[0], this.red[6], this.white[0]}, 
-                        {this.green[2], this.red[4], this.yellow[0]},
-                        {this.green[4], this.yellow[6], this.orange[4]}, 
-                        {this.green[6], this.orange[6], this.white[6]},
-                        {this.blue[0], this.red[0], this.white[2]}, 
-                        {this.blue[2], this.yellow[2], this.red[2]},
-                        {this.blue[4], this.orange[2], this.yellow[4]}, 
-                        {this.blue[6], this.orange[0], this.white[4]}};
-        for(int i = 0; i < newCorners.length; i++)    {
+        }
+            
+            // Initialises cubies
+            void initCubies()    {
+            Integer[][] newCorners = {{this.green[0], this.red[6], this.white[0]}, 
+                    {this.green[2], this.red[4], this.yellow[0]},
+                    {this.green[4], this.yellow[6], this.orange[4]}, 
+                    {this.green[6], this.orange[6], this.white[6]},
+                    {this.blue[0], this.red[0], this.white[2]}, 
+                    {this.blue[2], this.yellow[2], this.red[2]},
+                    {this.blue[4], this.orange[2], this.yellow[4]}, 
+                    {this.blue[6], this.orange[0], this.white[4]}};
+            for(int i = 0; i < newCorners.length; i++)    {
             for(int j = 0; j < newCorners[i].length; j++)   {
-                this.corners[i][j] = newCorners[i][j];
-            }
+            this.corners[i][j] = newCorners[i][j];
         }
-
-        Integer[][] newEdges =   {{this.green[1], this.red[5]}, 
-                        {this.green[3], this.yellow[7]}, 
-                        {this.green[5], this.orange[5]}, 
-                        {this.green[7], this.white[7]}, 
-                        {this.yellow[1], this.red[3]}, 
-                        {this.yellow[5], this.orange[3]},
-                        {this.white[1], this.red[7]}, 
-                        {this.white[5], this.orange[7]}, 
-                        {this.blue[1], this.red[1]},
-                        {this.blue[3], this.yellow[3]}, 
-                        {this.blue[5], this.orange[1]}, 
-                        {this.blue[7], this.white[3]}};
-        for(int i = 0; i < newEdges.length; i++)    {
+        }
+            
+            Integer[][] newEdges =   {{this.green[1], this.red[5]}, 
+                    {this.green[3], this.yellow[7]}, 
+                    {this.green[5], this.orange[5]}, 
+                    {this.green[7], this.white[7]}, 
+                    {this.yellow[1], this.red[3]}, 
+                    {this.yellow[5], this.orange[3]},
+                    {this.white[1], this.red[7]}, 
+                    {this.white[5], this.orange[7]}, 
+                    {this.blue[1], this.red[1]},
+                    {this.blue[3], this.yellow[3]}, 
+                    {this.blue[5], this.orange[1]}, 
+                    {this.blue[7], this.white[3]}};
+            for(int i = 0; i < newEdges.length; i++)    {
             for(int j = 0; j < newEdges[i].length; j++)   {
-                this.edges[i][j] = newEdges[i][j];
+            this.edges[i][j] = newEdges[i][j];
+        }
+        }
+        }
+            
+            /*
+            * Scoresthe cube to dictate how solved it is
+            * @param   f   The cube we're scoring
+            * @return   float   Overall score of the cube - 0 = solved
+            */
+            float scoreCube(FastCube f)   {
+            FastCube complete = new FastCube();
+            if (this.equals(complete))   {
+                return 0;
             }
+            float o = scoreFace(this.orange, "orange");
+            float r = scoreFace(this.red, "red");
+            float b = scoreFace(this.blue, "blue");
+            float g = scoreFace(this.green, "green");
+            float w = scoreFace(this.white, "white");
+            float y = scoreFace(this.yellow, "yellow");
+            
+            return o + r + b + g + w + y;
         }
-    }
-
-    /*
-    * Scores the cube to dictate how solved it is
-    * @param    f   The cube we're scoring
-    * @return   float   Overall score of the cube - 0 = solved
-    */
-    float scoreCube(FastCube f)   {
-        FastCube complete = new FastCube();
-        if(this.equals(complete))   {
-            return 0;
-        }
-        float o = scoreFace(this.orange, "orange");
-        float r = scoreFace(this.red, "red");
-        float b = scoreFace(this.blue, "blue");
-        float g = scoreFace(this.green, "green");
-        float w = scoreFace(this.white, "white");
-        float y = scoreFace(this.yellow, "yellow");
-
-        return o+r+b+g+w+y;
-    }
-
-    float scoreUD(String face)   {
-        float score = 0;
-        if(face == "white") {
-            for(int i = 0; i < this.white.length; i++)    {
-                if(this.white[i] != 2 && this.white[i] != 3)  {
-                    score += 1;
+        
+        float scoreUD(String face)   {
+            float score = 0;
+            if (face == "white") {
+                for (int i = 0; i < this.white.length; i++)    {
+                    if (this.white[i] != 2 && this.white[i] != 3)  {
+                        score += 1;
+                    }
                 }
-            }
-            // println("White score: " + wScore);
-        } else if (face == "yellow")    {
-            for(int i = 0; i < this.yellow.length; i++)    {
-                if(this.yellow[i] != 2 && this.yellow[i] != 3)  {
-                    score += 1;
+                // println("White score: " + wScore);
+            } else if (face == "yellow")    {
+                for (int i = 0; i < this.yellow.length; i++)    {
+                    if (this.yellow[i] != 2 && this.yellow[i] != 3)  {
+                        score += 1;
+                    }
                 }
+                // println("Yellow score: " + yScore);
+            } else {
+                println("Idk what face you want. You entered: " + face);
+                return 0;
             }
-            // println("Yellow score: " + yScore);
-        } else {
-            println("Idk what face you want. You entered: " + face);
-            return 0;
+            // println("Returning " + score);
+            return score;
         }
-        // println("Returning " + score);
-        return score;
-    }
-
-    /**
-    * TODO: Re-evaluate function to compare the correct face against completed correct face.
-    * Stops the score iterating unecessarily past 0
-    */
-    float scoreFace(Integer[] face, String faceColour)    {
-        FastCube c = new FastCube();
-        Integer[] completeFace = new Integer[8];
-
-        switch(faceColour)  {
-            case "red":
+        
+        /**
+        * TODO: Re-evaluate function to compare the correct face against completed correct face.
+        * Stops the score iterating unecessarily past 0
+        */
+        float scoreFace(Integer[] face, String faceColour)    {
+            FastCube c = new FastCube();
+            Integer[] completeFace = new Integer[8];
+            
+            switch(faceColour)  {
+                case"red":
                 Integer[] redFace = {c.red[0], c.red[1], c.red[2],
-                                c.red[3],           c.red[4], 
-                                c.red[5], c.red[6], c.red[7]};
+                            c.red[3],           c.red[4], 
+                            c.red[5], c.red[6], c.red[7]};
                 completeFace = redFace;
                 break;
-            case "orange":
+                case"orange":
                 Integer[] orangeFace = {c.orange[0], c.orange[1], c.orange[2],
-                                c.orange[3],              c.orange[4], 
-                                c.orange[5], c.orange[6], c.orange[7]};
+                            c.orange[3],              c.orange[4], 
+                            c.orange[5], c.orange[6], c.orange[7]};
                 completeFace = orangeFace;
                 break;
-            case "blue":
+                case"blue":
                 Integer[] blueFace = {c.blue[0], c.blue[1], c.blue[2],
-                                c.blue[3],            c.blue[4],
-                                c.blue[5], c.blue[6], c.blue[7]};
+                            c.blue[3],            c.blue[4],
+                            c.blue[5], c.blue[6], c.blue[7]};
                 completeFace = blueFace;
                 break;
-            case "green":
+                case"green":
                 Integer[] greenFace = {c.green[0], c.green[1], c.green[2],
-                                c.green[3],             c.green[4], 
-                                c.green[5], c.green[6], c.green[7]};
+                            c.green[3],             c.green[4], 
+                            c.green[5], c.green[6], c.green[7]};
                 completeFace = greenFace;
                 break;
-            case "white":
+                case"white":
                 Integer[] whiteFace = {c.white[0], c.white[1], c.white[2],
-                                c.white[3],             c.white[4], 
-                                c.white[5], c.white[6], c.white[7]};
+                            c.white[3],             c.white[4], 
+                            c.white[5], c.white[6], c.white[7]};
                 completeFace = whiteFace;
                 break;
-            case "yellow":
+                case"yellow":
                 Integer[] yellowFace = {c.yellow[0], c.yellow[1], c.yellow[2],
-                                c.yellow[3],              c.yellow[4], 
-                                c.yellow[5], c.yellow[6], c.yellow[7]};
+                            c.yellow[3],              c.yellow[4], 
+                            c.yellow[5], c.yellow[6], c.yellow[7]};
                 completeFace = yellowFace;
                 break;
-        }
-        
-        float score = 0;
-        for(int i = 0; i < face.length; i++)    {
-            if(completeFace[i] != face[i])  {
-                score += 1;
             }
+            
+            float score = 0;
+            for (int i = 0; i < face.length; i++)    {
+                if (completeFace[i] != face[i])  {
+                    score += 1;
+                }
+            }
+            
+            return score;
         }
         
-        return score;
-    }
-
-    float scoreFace(String faceColour)   {
-        FastCube f = new FastCube();
-        Integer[][] completeCubieEdges = new Integer[4][2];
-        Integer[][] completeCubieCorners = new Integer[4][3];
-        Integer[][] cubieEdges = new Integer[4][2];
-        Integer[][] cubieCorners = new Integer[4][3];
-        int score = 0;
-        f.initCubies();
-        this.initCubies();
-        switch(faceColour)  {
-            case "red":
+        float scoreFace(String faceColour)   {
+            FastCube f = new FastCube();
+            Integer[][] completeCubieEdges = new Integer[4][2];
+            Integer[][] completeCubieCorners = new Integer[4][3];
+            Integer[][] cubieEdges = new Integer[4][2];
+            Integer[][] cubieCorners = new Integer[4][3];
+            int score = 0;
+            f.initCubies();
+            this.initCubies();
+            switch(faceColour)  {
+                case"red":
                 // Integer[][] cEdges = {f.edges[0], f.edges[4], f.edges[6], f.edges[8]};
                 // Integer[][] cCorners = {f.corners[0],f.corners[1],f.corners[4],f.corners[5]};
                 // Integer[][] edges = {this.edges[0], this.edges[4], this.edges[6], this.edges[8]};
@@ -748,23 +748,23 @@ class FastCube  {
                 // cubieEdges = edges;
                 // cubieCorners = corners;
                 break;
-            case "orange":
+                case"orange":
                 // Integer[][] completeCubieEdges = {{f.edges[2]}, {f.edges[5]}, {f.edges[7]}, {f.edges[10]}};
                 // Integer[][] completeCubieCorners = {{f.corners[2]},{f.corners[3]},{f.corners[6]},{f.corners[7]}};
                 // Integer[][] cubieEdges = {{this.edges[2]}, {this.edges[5]}, {this.edges[7]}, {this.edges[10]}};
                 // Integer[][] cubieCorners = {{this.corners[2]},{this.corners[3]},{this.corners[6]},{this.corners[7]}};
                 break;
-            case "blue":
+                case"blue":
                 Integer[] blueFace = {f.blue[0], f.blue[1], f.blue[2],
-                                        f.blue[3],            f.blue[4],
-                                        f.blue[5], f.blue[6], f.blue[7]};
+                                    f.blue[3],            f.blue[4],
+                                    f.blue[5], f.blue[6], f.blue[7]};
                 break;
-            case "green":
+                case"green":
                 Integer[] greenFace = {f.green[0], f.green[1], f.green[2],
-                                        f.green[3],             f.green[4], 
-                                        f.green[5], f.green[6], f.green[7]};
+                                    f.green[3],             f.green[4], 
+                                    f.green[5], f.green[6], f.green[7]};
                 break;
-            case "white":
+                case"white":
                 Integer[][] cEdges = {f.edges[3], f.edges[6], f.edges[7], f.edges[11]};
                 Integer[][] cCorners = {f.corners[0],f.corners[3],f.corners[4],f.corners[7]};
                 Integer[][] edges = {this.edges[3], this.edges[6], this.edges[7], this.edges[11]};
@@ -774,105 +774,105 @@ class FastCube  {
                 cubieEdges = edges;
                 cubieCorners = corners;
                 break;
-            case "yellow":
+                case"yellow":
                 Integer[] yellowFace = {f.yellow[0], f.yellow[1], f.yellow[2],
-                                        f.yellow[3],             f.yellow[4], 
-                                        f.yellow[5], f.yellow[6], f.yellow[7]};
+                                    f.yellow[3],             f.yellow[4], 
+                                    f.yellow[5], f.yellow[6], f.yellow[7]};
                 break;
-        }
-
-        boolean edgeOrientedCorrectly = false;
-        boolean edgeFound = false;
-        for(int i = 0; i < 4; i++)  {
-            edgeFound = false;
-            edgeOrientedCorrectly = false;
-            int counter = 0;
-            for(int j = 0; j < 2; j++)  {
-                if(completeCubieEdges[i][j] == cubieEdges[i][j])  {
-                    counter++;
-                }
-                if(counter == 2)    {
-                    edgeFound = true;
-                }
             }
-            if(!edgeFound)   score += 1;
-            // if(edgeFound && !edgeOrientedCorrectly) score += 0.5;
-        }
-
-        boolean cornerFound = false;
-        boolean cornerOrientedCorrectly = false;
-        for(int i = 0; i < 4; i++)  {
-            cornerFound = false;
-            cornerOrientedCorrectly = false;
-            int counter = 0;
-            for(int j = 0; j < 3; j++)  {
-                if(completeCubieCorners[i][j] == cubieCorners[i][j])  {
-                    counter++;
+            
+            boolean edgeOrientedCorrectly = false;
+            boolean edgeFound = false;
+            for (int i = 0; i < 4; i++)  {
+                edgeFound = false;
+                edgeOrientedCorrectly = false;
+                int counter = 0;
+                for (int j = 0; j < 2; j++)  {
+                    if (completeCubieEdges[i][j] == cubieEdges[i][j])  {
+                        counter++;
+                    }
+                    if (counter == 2)    {
+                        edgeFound = true;
+                    }
                 }
-                if(counter == 3)    {
-                    // println("Comparing " + Arrays.toString(completeCubieCorners[i]) + " with " + Arrays.toString(cubieCorners[j]));
-                    cornerFound = true;
-                }
+                if (!edgeFound)   score += 1;
+                // if(edgeFound && !edgeOrientedCorrectly) score += 0.5;
             }
-            if(!cornerFound)    score += 1;
+            
+            boolean cornerFound = false;
+            boolean cornerOrientedCorrectly = false;
+            for (int i = 0; i < 4; i++)  {
+                cornerFound = false;
+                cornerOrientedCorrectly = false;
+                int counter = 0;
+                for (int j = 0; j < 3; j++)  {
+                    if (completeCubieCorners[i][j] == cubieCorners[i][j])  {
+                        counter++;
+                    }
+                    if (counter == 3)    {
+                        // println("Comparing " + Arrays.toString(completeCubieCorners[i]) + " with " + Arrays.toString(cubieCorners[j]));
+                        cornerFound = true;
+                    }
+                }
+                if (!cornerFound)    score += 1;
+            }
+            return score;
         }
-        return score;
-    }
-
-    boolean equals(FastCube f)  {
-        if(f.orange == this.orange &&
-            f.red == this.red &&
-            f.blue == this.blue &&
-            f.green == this.green &&
-            f.white == this.white &&
-            f.yellow == this.yellow)    {
+        
+        boolean equals(FastCube f)  {
+            if (f.orange == this.orange &&
+                f.red == this.red &&
+                f.blue == this.blue &&
+                f.green == this.green &&
+                f.white == this.white &&
+                f.yellow == this.yellow)    {
                 return true;
             }
-        return false;
-    }
-
-    boolean equals(Integer[] c, Integer[] f) {
-        for(int i = 0; i < f.length; i++)   {
-            if(f[i] != c[i]) {
-                return false;
-            }
+            return false;
         }
-        return true;
-    }
-
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    // Potentially obsolete / useless functions
-    float scoreMiddleEdges()    {
-        // 0, 2, 8, 10
-        // GR, GO, BR, BO
-        FastCube c = new FastCube();
-        float score = 0;
-        Integer[] orangeFace =  {c.orange[0], c.orange[1], c.orange[2],
-                                c.orange[3],             c.orange[4], 
-                                c.orange[5], c.orange[6], c.orange[7]};
-        Integer[] redFace =     {c.red[0], c.red[1], c.red[2],
-                                c.red[3],            c.red[4], 
-                                c.red[5], c.red[6], c.red[7]};
-        score = 4;
-        for(int i = 3; i < 5; i++)  {
-            if(this.red[i] == 0 ||this.red[i] == 1)  {
-                score -= 1;
+        
+        boolean equals(Integer[] c, Integer[] f) {
+            for (int i = 0; i < f.length; i++)   {
+                if (f[i] != c[i]) {
+                    return false;
+                }
             }
+            return true;
         }
-        for(int i = 3; i < 5; i++)  {
-            if(this.orange[i] == 0 ||this.orange[i] == 1)  {
-                score -= 1;
+        
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        // Potentially obsolete / useless functions
+        float scoreMiddleEdges()    {
+            // 0, 2, 8, 10
+            // GR, GO, BR, BO
+            FastCube c = new FastCube();
+            float score = 0;
+            Integer[] orangeFace =  {c.orange[0], c.orange[1], c.orange[2],
+                            c.orange[3],             c.orange[4], 
+                            c.orange[5], c.orange[6], c.orange[7]};
+            Integer[] redFace =     {c.red[0], c.red[1], c.red[2],
+                            c.red[3],            c.red[4], 
+                            c.red[5], c.red[6], c.red[7]};
+            score = 4;
+            for (int i = 3; i < 5; i++)  {
+                if (this.red[i] == 0 || this.red[i] == 1)  {
+                    score -= 1;
+                }
             }
+            for (int i = 3; i < 5; i++)  {
+                if (this.orange[i] == 0 || this.orange[i] == 1)  {
+                    score -= 1;
+                }
+            }
+            
+            return score;
         }
-
-        return score;
+        
     }
     
-}
-
-/**
-*   References
-*   64 bit int manipulation - https://www.vojtechruzicka.com/bit-manipulation-java-bitwise-bit-shift-operations/
-*
-*/
+    /**
+    *   References
+    *   64 bit int manipulation - https://www.vojtechruzicka.com/bit-manipulation-java-bitwise-bit-shift-operations/
+    *
+    */

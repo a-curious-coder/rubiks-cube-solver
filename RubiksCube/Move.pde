@@ -109,13 +109,15 @@ class Move {
         }
       } else {
         if(dir == 1)  {
-          move += "x";
+          move += "x" + index;
         } else if(dir == -1) {
-          move += "x\'";
+          move += "x\'" + index;
         } else {
-          move += "x2";
+          move += "x" + index + "*2";
         }
       }
+      // Axis -4, 4
+      // If move is on this side > then 'x'index
     } 
 
     if (currentAxis == 'Y') {
