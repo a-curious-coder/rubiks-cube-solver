@@ -1,81 +1,28 @@
 <h2 align = "center"> Computer solution of puzzle game - Rubik's Cube Solver </h2>
 
 ---
-![Rubik's Banner](Images/Banner2.png)
+![Rubik's Banner](Images/Banner3.png)
+<h1>Report links</h1>
 
-<p align = "center">[Live Demo Coming Soon]</p>
+[Dissertation](https://www.overleaf.com/read/zjdyybvqmrqh)
 
----
+[Logbook](https://www.overleaf.com/read/bvgpbdzphwzf)
 
-<h3> Table of contents</h3>
+<h1> Table of contents</h1>
 
-1. [Project Description.](#desc)
-2. [Goals for this project.](#achieve)
-3. [Terminology and Notation](#notation)
-4. [Project background.](#skill)
-5. [Stages of creation.](#stages)
-6. [Issues faced during project creation.](#issues)
+1. [Terminology and Notation](#notation)
+2. [Project Description](#desc)
+3. [Project Goals](#achieve)
+4. [Project Background](#skill)
+5. [Development Stages](#stages)
+6. [Development Issues](#issues)
 7. [How to use the program (Under construction)](#howtouse)
-8. [Creating a 'Faster' cube](#fastercube)
+8. [Creating a 'Faster' Cube](#fastercube)
 9. [Log Book](#logbook)
 
 ---
 
-<h2>Project Description <a name="desc"></a></h2>
-
-> "There is a wide variety of turn-based “solitaire” puzzle games. Often, these puzzles are [amenable](https://dictionary.cambridge.org/dictionary/english/amenable) to solution by computer, either using some kind of [heuristic-guided local search](https://www.youtube.com/watch?v=XUNGtxoBbPQ), or by encoding them as a [constraint-satisfaction problem](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) and using a generic external solver. The goal of this project is to produce a novel solver for such a game and **evaluate its effectiveness**. You might also consider the problem of how to *generate interesting puzzle instances of varying difficulty*. Some idea would be: Solver for "Rush Hour" block-sliding traffic puzzles; Solver and generator for Sokoban (crate pushing) puzzles; and Generator for crossword puzzles."
-
-<h4> How can the 'puzzle instance' difficulty be changed?</h4>
-
-By adding or subtracting [cubies](https://www.yourdictionary.com/cubie) to the overall Rubik's cube; increasing the difficulty and increasing the time in solving the puzzle.
-
----
-
-<h2> Goals for this project <a name="achieve"></a></h2>
-
-The first goal is to create an emulator of the puzzle game in question (Rubik's Cube) in order to be able to work on writing an algorithm for a computer to use in order to solve it. I've chosen [Processing Java](https://en.wikipedia.org/wiki/Processing_(programming_language)) as the language for the creation of this project as I already have some experience using this language. I started off using the [Processing IDE](https://processing.org/) but I discovered random bugs/issues when trying to debug/run my program which greatly lagged my computer so I switched over to using VSCode (a code editor) and imported the java-processing libraries in order for me to debug/run my program (performance has been much better since).
-<h3> Main Objectives </h3>
-
-- [x] Emulation of cube
-- [x] Adding basic moves for cube
-- [x] Scramble function for cube
-- [x] Animation of each move
-- [x] Reverse scramble of cube
-- [ ] Adapt the code to cater for larger cubes - currently facing issues
-- [x] Save computing power by only storing visible cubies
-- [x] Adding [X, Y, Z](https://ruwix.com/the-rubiks-cube/notation/advanced/) rotations to cube.
-- [x] Implement a human algorithm to solve the cube 
-<details><summary>Steps</summary>
-  - [x] Solve first layer's edges (White cross)
-  - [x] Solve the first layer's corners (White face)
-  - [x] Solve second layer of the cube (F2L)
-  - [x] Create a yellow cross on top of the cube
-  - [x] Swap yellow edges to match their partnered colours
-  - [x] Position yellow corners
-  - [x] Orient last layer corners
-  </details>
-
-<h3>Mandatory</h3>
-
-
-- [ ] Use **search algorithm** and/or **constraint solvers** to solve well-specified problems
-- [ ] Evaluate 'empirically' the effectiveness of a solution method for a problem - (This step will be the hardest I believe)
-  - Computing power needed
-  - Number of steps required to solve the cube
-  - Time to solve the cube
-- [x] Develop a computer implementation of a puzzle game.
-
-<h3>Optional</h3>
-
-- [x] Allow user to create custom cube sizes
-- [x] Add a 2D visualisation of the cube
-- [ ] Allow user to create a custom cube scramble
-- [x] Provide output of scramble/solve steps to console for the user
-- [ ] (Unreal expectations right here) Solve the cube from its scrambled state in 20 moves or less - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
-
----
-
-<h2>Terminology and Notation</h2> <a name="notation"></a>
+<h1>Terminology and Notation</h1> <a name="notation"></a>
 <h3>Terminology</h3>
 <table align = "center">
   <tr> 
@@ -160,6 +107,59 @@ The first goal is to create an emulator of the puzzle game in question (Rubik's 
 
 ---
 
+<h1>Project Description <a name="desc"></a></h1>
+
+> "There is a wide variety of turn-based “solitaire” puzzle games. Often, these puzzles are [amenable](https://dictionary.cambridge.org/dictionary/english/amenable) to solution by computer, either using some kind of [heuristic-guided local search](https://www.youtube.com/watch?v=XUNGtxoBbPQ), or by encoding them as a [constraint-satisfaction problem](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) and using a generic external solver. The goal of this project is to produce a novel solver for such a game and **evaluate its effectiveness**. You might also consider the problem of how to *generate interesting puzzle instances of varying difficulty*. Some idea would be: Solver for "Rush Hour" block-sliding traffic puzzles; Solver and generator for Sokoban (crate pushing) puzzles; and Generator for crossword puzzles."
+
+<h4> How can the 'puzzle instance' difficulty be changed?</h4>
+
+By adding or subtracting [cubies](https://www.yourdictionary.com/cubie) to the overall Rubik's cube; increasing the difficulty and increasing the time in solving the puzzle.
+
+---
+
+<h2> Goals for this project <a name="achieve"></a></h2>
+
+The first goal is to create an emulator of the puzzle game in question (Rubik's Cube) in order to be able to work on writing an algorithm for a computer to use in order to solve it. I've chosen [Processing Java](https://en.wikipedia.org/wiki/Processing_(programming_language)) as the language for the creation of this project as I already have some experience using this language. I started off using the [Processing IDE](https://processing.org/) but I discovered random bugs/issues when trying to debug/run my program which greatly lagged my computer so I switched over to using VSCode (a code editor) and imported the java-processing libraries in order for me to debug/run my program (performance has been much better since).
+<h3> Main Objectives </h3>
+
+- [x] Emulation of cube
+- [x] Adding basic moves for cube
+- [x] Scramble function for cube
+- [x] Animation of each move
+- [x] Reverse scramble of cube
+- [ ] Adapt the code to cater for larger cubes - currently facing issues
+- [x] Save computing power by only storing visible cubies
+- [x] Adding [X, Y, Z](https://ruwix.com/the-rubiks-cube/notation/advanced/) rotations to cube.
+- [x] Implement a human algorithm to solve the cube 
+<details><summary>Steps</summary>
+  - [x] Solve first layer's edges (White cross)
+  - [x] Solve the first layer's corners (White face)
+  - [x] Solve second layer of the cube (F2L)
+  - [x] Create a yellow cross on top of the cube
+  - [x] Swap yellow edges to match their partnered colours
+  - [x] Position yellow corners
+  - [x] Orient last layer corners
+  </details>
+
+<h3>Mandatory</h3>
+
+
+- [ ] Use **search algorithm** and/or **constraint solvers** to solve well-specified problems
+- [ ] Evaluate 'empirically' the effectiveness of a solution method for a problem - (This step will be the hardest I believe)
+  - Computing power needed
+  - Number of steps required to solve the cube
+  - Time to solve the cube
+- [x] Develop a computer implementation of a puzzle game.
+
+<h3>Optional</h3>
+
+- [x] Allow user to create custom cube sizes
+- [x] Add a 2D visualisation of the cube
+- [ ] Allow user to create a custom cube scramble
+- [x] Provide output of scramble/solve steps to console for the user
+- [x] (Unreal expectations right here) Solve the cube from its scrambled state in 20 moves or less - [God's number](https://www.cube20.org/#:~:text=New%20results%3A%20God's%20Number%20is,requires%20more%20than%20twenty%20moves) could be a factor used to help determine the efficiency (based on number of moves) of the solve. God's Number is the theory that any traditional 3x3x3 Rubik's cube can be solved in 20 moves or lesss.
+
+---
 
 <h2>Background <a name="skill"></a></h2>
 
@@ -369,9 +369,9 @@ Gonna write this section later on...
 <h2>Log Book<a name="logbook"></a></h2>
 I'll be logging my progress as best as I can in my logbook linked below!
 
-[Logbook](/Logbook/logbook.pdf)
+[Logbook](/misc/logbook.pdf)
 
-[Bonus for you: Here's the current state of my dissertation](/Dissertation/main.pdf)
+[Bonus for you: Here's the current state of my dissertation](/misc/main.pdf)
 
 ---
 
