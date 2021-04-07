@@ -1,7 +1,7 @@
 class Kociemba{
     
     Cube2 cube;
-    int stage, nodes;
+    int stage, nodes, solutionMoves;
     boolean g1, g2;
     String g1Algorithm, g2Algorithm, solution;
     ArrayList<String> allMoves = new ArrayList<String>(
@@ -19,12 +19,14 @@ class Kociemba{
 
     // Need pruning table. Two phases.
     void solve()    {
+        kociembaRunning = true;
         stage++;
         // Phase 1
         // Orient corners, edges and permutate e slice edges to the e slice.
         if(!edgesOriented(cube) && !cornersOriented(cube) && !eSliceEdges(cube))
         {
             getGroup(stage);
+            memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
         } else {
             println("Already achieved stage: " + stage);
         }
@@ -37,12 +39,15 @@ class Kociemba{
         stage++;
         if(!cube.solved())   {
             getGroup(stage);
+            memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
         } else {
             println("solved?");
         }
         // Phase 2
         // Solve cube.
+        memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
         print("Finished running");
+        kociembaRunning = false;
     }
     
     // IDA* - Iterative Deepening A*
@@ -109,6 +114,23 @@ class Kociemba{
                 // g2Algorithm = "";
                 solution += prefix;
                 break;
+        }
+    }
+    void returnSolution(String solution)   {
+        // println(solution);
+        moves = solution;
+        for(int i = 0; i < solution.length(); i++)    {
+            String move = solution.charAt(i) + "";
+            if(i+1 < solution.length())  {
+                if(solution.charAt(i+1) == '\'' || solution.charAt(i+1) == '2') {
+                    move += solution.charAt(i+1) + "";
+                    i++;
+                }
+            }
+            if(move != "")  {
+                addMoveToSequence(move);
+                solutionMoves += 1;
+            }
         }
     }
 

@@ -18,7 +18,7 @@ class Cube {
 	LocalSearch lsAlgorithm;
 	SmallDFS smallDFSSolver;
 	Korfs ksolve;
-	Kociemba optimalsolver;
+	Kociemba kociembaSolver;
 	Thistlethwaite thistlethwaite;
 	Reduction reduce;
 	
@@ -154,12 +154,13 @@ class Cube {
 			}
 		}
 	}
+
 	void ksolve()	{
 		ksolve = new Korfs(this);
 	}
 
 	void optimalSolver()	{
-		optimalsolver = new Kociemba(this);
+		kociembaSolver = new Kociemba(this);
 	}
 	
 	void tsolve()	{

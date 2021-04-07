@@ -344,13 +344,8 @@ class Cube2 {
     boolean positionMatch(PVector a, float x, float y, float z)    {
         if(a.x == x && a.y == y && a.z == z)    return true;
         return false;
-        }
-    /**
-    * If colour array contains colour c
-    * @param array  Array of colours
-    * @param c      A colour
-    * @return boolean   If colour c is in array, return true
-    */
+    }
+    
     boolean contains(color[] array, color c) {
         boolean result = false;
         for(color i : array){
@@ -360,220 +355,14 @@ class Cube2 {
             }
         }
         return result;
-        }
+    }
+    
     /**
-    * Tests a specified algorithm on this FastCube object. Computationally cheaper to test on this than Cube object.
-    * 
-    * @param    algorithm   The algorithm we're testing on this object
-    * @return   this        The FastCube in its new state after applying the algorithm
+    * If colour array contains colour c
+    * @param array  Array of colours
+    * @param c      A colour
+    * @return boolean   If colour c is in array, return true
     */
-    Cube2 testAlgorithm(String algorithm)   {
-        // Goes through each char of the algorithm string
-        for (int i = 0; i < algorithm.length(); i++) {
-            if(algorithm.charAt(i) + "" == " ")  continue;
-			String move = algorithm.charAt(i) + "";
-			// If there are chars left in algorithm string and the next char is a prime: ' or a 2
-			if(i+1 < algorithm.length())	{
-                // Call move function 2 times on top of default call to move to perform anticlockwise move
-				if (algorithm.charAt(i+1) == '\'' || algorithm.charAt(i+1) == '’') {
-                        move(move);
-                        move(move);
-                        i++;
-					}	else if(algorithm.charAt(i+1) == '2')	{
-                        move(move);
-                        i++;
-					}
-				}
-            move(move);
-        }
-        return this;
-    }
-    
-    boolean solved()     {
-        
-        for(int i = 0; i < 8; i++)  {
-            if(corners_p[i] != i+1) {
-                // println("cshould be: " + ctr + "\t actually: " + corners_p[i]);
-                // delay(5000);
-                return false;
-            }
-        }
-        for(int i = 0; i < 12; i++)    {
-            if(edges_p[i] != i+1)
-                // println("eshould be: " + i + "\t actually: " + edges_p[i]);
-                // delay(5000);
-                return false;
-        }
-        for(int i = 0; i < 8; i++)  {
-            if(corners_o[i] != 0)
-                return false;
-        }
-        for(int i = 0; i < 12; i++)    {
-            if(edges_o[i] != 0)    
-                return false;
-        }
-        // this.state();
-        return true;
-    }
-
-    // Return a score to add 'luck' factor
-    byte score() {
-        byte score = 0;
-        int[] tmpcorners_p = {1,2,3,4,5,6,7,8};
-        int[] tmpcorners_o = {1,2,3,4,5,6,7,8};
-        for(int i = 0; i < corners_p.length; i++)  {
-            if(tmpcorners_p[i] != corners_p[i])   {
-                score += 1;
-            }
-            if(tmpcorners_o[i] != corners_o[i])   {
-                score += 2;
-            }
-        }
-        int[] tmpedges_p = {1,2,3,4,5,6,7,8,9,10,11,12};
-        int[] tmpedges_o = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        for(int i = 0; i < edges_o.length; i++)  {
-            if(tmpedges_p[i] != edges_p[i]) {
-                score += 1;
-            }
-            if(tmpedges_o[i] != edges_o[i]) {
-                score += 2;
-            }
-        }
-        return score;
-    }
-
-    String state()    {
-        String state = "Scramble\n";
-        state += "corners\n";
-        for(int i : corners_p)  state += String.valueOf(i) + " ";
-        state += "\n";
-        for(int i : corners_o)  state += String.valueOf(i) + " ";
-        state += "\nedges\n";
-        for(int i : edges_p)  state += String.valueOf(i) + " ";
-        state += "\n";
-        for(int i : edges_o)  state += String.valueOf(i) + " ";
-        state += "\nEnd";
-
-        println(state);
-        return state;
-    }
-
-    void imageState() {
-        byte[] ec = edgeColours;
-        byte[] cc = cornerColours;
-
-        
-        // UP
-        println("\n\t\t" + b2c(cc[1]) + " " + b2c(ec[8]) + " " + b2c(cc[2]));
-        println("\t\t" + b2c(ec[11]) + " " +  b2c((byte)2) + " " + b2c(ec[9]));
-        println("\t\t" + b2c(cc[0]) + " " + b2c(ec[10]) + " " + b2c(cc[3]) + "\n");
-        // L, F, R, B
-        // FIRST ROW
-        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "\t"
-        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "\t"
-        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "\t"
-        +            b2c(cc[14]) + " " + b2c(ec[20]) + " " + b2c(cc[13]) + "\n" );
-        // Second ROW
-        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "\t"
-                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "\t"
-                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "\t"
-                    + b2c(ec[23]) + " " + b2c(byte(5)) + " " + b2c(ec[21]) + "\n");
-        // Third ROW
-        print("\t" + b2c(cc[23]) + " " + b2c(ec[6]) + " " + b2c(cc[20]) + "\t"
-        +            b2c(cc[8]) + " " + b2c(ec[18]) + " " + b2c(cc[11]) + "\t"
-        +            b2c(cc[16]) + " " + b2c(ec[2]) + " " + b2c(cc[19]) + "\t"
-        +            b2c(cc[15]) + " " + b2c(ec[22]) + " " + b2c(cc[12]) + "\n" );
-
-        println("\n\t\t" + b2c(cc[4]) + " " + b2c(ec[12]) + " " + b2c(cc[7]));
-        println("\t\t" + b2c(ec[13]) + " " +  b2c((byte)3) + " " + b2c(ec[15]));
-        println("\t\t" + b2c(cc[5]) + " " + b2c(ec[14]) + " " + b2c(cc[6]) +        "\n");
-    }
-    
-    String b2c(byte s)    {
-        switch(s){
-            case 0:
-                return "\u001b[31m" + "O";
-            case 1:
-                return "\u001b[31;1m" + "R";
-            case 2:
-                return "\u001b[33m" + "Y";
-            case 3:
-                return "\u001b[37m" + "W";
-            case 4:
-                return "\u001b[32m" + "G";
-            case 5:
-                return "\u001b[34m" + "B";
-        }
-        return "i";
-    }
-
-    byte c2b(char face, color[] colours)   {
-        byte col = 0;
-        switch(face)    {
-                    case 'R':
-                        if(colours[0] == red)       col = 1;
-                        if(colours[0] == yellow)    col = 2;
-                        if(colours[0] == white)     col = 3;
-                        if(colours[0] == green)     col = 4;
-                        if(colours[0] == blue)      col = 5;
-                        return col;
-                    case 'L':
-                        if(colours[1] == red)       col = 1;
-                        if(colours[1] == yellow)    col = 2;
-                        if(colours[1] == white)     col = 3;
-                        if(colours[1] == green)     col = 4;
-                        if(colours[1] == blue)      col = 5;
-                        return col;
-                    case 'U':
-                        if(colours[2] == red)       col = 1;
-                        if(colours[2] == yellow)    col = 2;
-                        if(colours[2] == white)     col = 3;
-                        if(colours[2] == green)     col = 4;
-                        if(colours[2] == blue)      col = 5;
-                        return col;
-                    case 'D':
-                        if(colours[3] == red)       col = 1;
-                        if(colours[3] == yellow)    col = 2;
-                        if(colours[3] == white)     col = 3;
-                        if(colours[3] == green)     col = 4;
-                        if(colours[3] == blue)      col = 5;
-                        return col;
-                    case 'F':
-                        if(colours[4] == red)       col = 1;
-                        if(colours[4] == yellow)    col = 2;
-                        if(colours[4] == white)     col = 3;
-                        if(colours[4] == green)     col = 4;
-                        if(colours[4] == blue)      col = 5;
-                        return col;
-                    case 'B':
-                        if(colours[5] == red)       col = 1;
-                        if(colours[5] == yellow)    col = 2;
-                        if(colours[5] == white)     col = 3;
-                        if(colours[5] == green)     col = 4;
-                        if(colours[5] == blue)      col = 5;
-                        return col;
-        }
-        return -1;
-    }
-
-    // Resets this cube object to a solved state.
-    void reset()    {
-        Cube cube = new Cube();
-        corners_o = new int[8];
-        corners_p = new int[8];
-        corners = new Cubie[8];
-        cornerColours = new byte[24];
-        edges_o = new int[(dim-2)*12];
-        edges_p = new int[(dim-2)*12];
-        edges = new Cubie[(dim-2)*12];
-        edgeColours = new byte[((dim-2)*12)*2];
-        ic(cube);
-        getEdgeColours();
-        getCornerColours();
-        ipce();
-        ioe();
-        ioc();
-    }
     /**
     * Prepare move to be applied to this cube object.
     * @param    move    move we're deconstructing to values
@@ -923,8 +712,237 @@ class Cube2 {
         }
     }
 
-    // Returns cube state regarding e slice edges as int
-    int esliceState()  {
+    /**
+    * Tests a specified algorithm on this FastCube object. Computationally cheaper to test on this than Cube object.
+    * 
+    * @param    algorithm   The algorithm we're testing on this object
+    * @return   this        The FastCube in its new state after applying the algorithm
+    */
+    Cube2 testAlgorithm(String algorithm)   {
+        // Goes through each char of the algorithm string
+        for (int i = 0; i < algorithm.length(); i++) {
+            if(algorithm.charAt(i) + "" == " ")  continue;
+			String move = algorithm.charAt(i) + "";
+			// If there are chars left in algorithm string and the next char is a prime: ' or a 2
+			if(i+1 < algorithm.length())	{
+                // Call move function 2 times on top of default call to move to perform anticlockwise move
+				if (algorithm.charAt(i+1) == '\'' || algorithm.charAt(i+1) == '’') {
+                        move(move);
+                        move(move);
+                        i++;
+					}	else if(algorithm.charAt(i+1) == '2')	{
+                        move(move);
+                        i++;
+					}
+				}
+            move(move);
+        }
+        return this;
+    }
+    
+    boolean solved()     {
+        
+        for(int i = 0; i < 8; i++)  {
+            if(corners_p[i] != i+1) {
+                // println("cshould be: " + ctr + "\t actually: " + corners_p[i]);
+                // delay(5000);
+                return false;
+            }
+        }
+        for(int i = 0; i < 12; i++)    {
+            if(edges_p[i] != i+1)
+                // println("eshould be: " + i + "\t actually: " + edges_p[i]);
+                // delay(5000);
+                return false;
+        }
+        for(int i = 0; i < 8; i++)  {
+            if(corners_o[i] != 0)
+                return false;
+        }
+        for(int i = 0; i < 12; i++)    {
+            if(edges_o[i] != 0)    
+                return false;
+        }
+        // this.state();
+        return true;
+    }
+
+    String state()    {
+        String state = "Scramble\n";
+        state += "corners\n";
+        for(int i : corners_p)  state += String.valueOf(i) + " ";
+        state += "\n";
+        for(int i : corners_o)  state += String.valueOf(i) + " ";
+        state += "\nedges\n";
+        for(int i : edges_p)  state += String.valueOf(i) + " ";
+        state += "\n";
+        for(int i : edges_o)  state += String.valueOf(i) + " ";
+        state += "\nEnd";
+
+        println(state);
+        return state;
+    }
+
+    void imageState() {
+        byte[] ec = edgeColours;
+        byte[] cc = cornerColours;
+
+        
+        // UP
+        println("\n\t\t" + b2c(cc[1]) + " " + b2c(ec[8]) + " " + b2c(cc[2]));
+        println("\t\t" + b2c(ec[11]) + " " +  b2c((byte)2) + " " + b2c(ec[9]));
+        println("\t\t" + b2c(cc[0]) + " " + b2c(ec[10]) + " " + b2c(cc[3]) + "\n");
+        // L, F, R, B
+        // FIRST ROW
+        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "\t"
+        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "\t"
+        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "\t"
+        +            b2c(cc[14]) + " " + b2c(ec[20]) + " " + b2c(cc[13]) + "\n" );
+        // Second ROW
+        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "\t"
+                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "\t"
+                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "\t"
+                    + b2c(ec[23]) + " " + b2c(byte(5)) + " " + b2c(ec[21]) + "\n");
+        // Third ROW
+        print("\t" + b2c(cc[23]) + " " + b2c(ec[6]) + " " + b2c(cc[20]) + "\t"
+        +            b2c(cc[8]) + " " + b2c(ec[18]) + " " + b2c(cc[11]) + "\t"
+        +            b2c(cc[16]) + " " + b2c(ec[2]) + " " + b2c(cc[19]) + "\t"
+        +            b2c(cc[15]) + " " + b2c(ec[22]) + " " + b2c(cc[12]) + "\n" );
+
+        println("\n\t\t" + b2c(cc[4]) + " " + b2c(ec[12]) + " " + b2c(cc[7]));
+        println("\t\t" + b2c(ec[13]) + " " +  b2c((byte)3) + " " + b2c(ec[15]));
+        println("\t\t" + b2c(cc[5]) + " " + b2c(ec[14]) + " " + b2c(cc[6]) +        "\n");
+    }
+    
+    String b2c(byte s)    {
+        switch(s){
+            case 0:
+                return "\u001b[31m" + "O";
+            case 1:
+                return "\u001b[31;1m" + "R";
+            case 2:
+                return "\u001b[33m" + "Y";
+            case 3:
+                return "\u001b[37m" + "W";
+            case 4:
+                return "\u001b[32m" + "G";
+            case 5:
+                return "\u001b[34m" + "B";
+        }
+        return "i";
+    }
+
+    byte c2b(char face, color[] colours)   {
+        byte col = 0;
+        switch(face)    {
+                    case 'R':
+                        if(colours[0] == red)       col = 1;
+                        if(colours[0] == yellow)    col = 2;
+                        if(colours[0] == white)     col = 3;
+                        if(colours[0] == green)     col = 4;
+                        if(colours[0] == blue)      col = 5;
+                        return col;
+                    case 'L':
+                        if(colours[1] == red)       col = 1;
+                        if(colours[1] == yellow)    col = 2;
+                        if(colours[1] == white)     col = 3;
+                        if(colours[1] == green)     col = 4;
+                        if(colours[1] == blue)      col = 5;
+                        return col;
+                    case 'U':
+                        if(colours[2] == red)       col = 1;
+                        if(colours[2] == yellow)    col = 2;
+                        if(colours[2] == white)     col = 3;
+                        if(colours[2] == green)     col = 4;
+                        if(colours[2] == blue)      col = 5;
+                        return col;
+                    case 'D':
+                        if(colours[3] == red)       col = 1;
+                        if(colours[3] == yellow)    col = 2;
+                        if(colours[3] == white)     col = 3;
+                        if(colours[3] == green)     col = 4;
+                        if(colours[3] == blue)      col = 5;
+                        return col;
+                    case 'F':
+                        if(colours[4] == red)       col = 1;
+                        if(colours[4] == yellow)    col = 2;
+                        if(colours[4] == white)     col = 3;
+                        if(colours[4] == green)     col = 4;
+                        if(colours[4] == blue)      col = 5;
+                        return col;
+                    case 'B':
+                        if(colours[5] == red)       col = 1;
+                        if(colours[5] == yellow)    col = 2;
+                        if(colours[5] == white)     col = 3;
+                        if(colours[5] == green)     col = 4;
+                        if(colours[5] == blue)      col = 5;
+                        return col;
+        }
+        return -1;
+    }
+
+    // Resets this cube object to a solved state.
+    void reset()    {
+        Cube cube = new Cube();
+        corners_o = new int[8];
+        corners_p = new int[8];
+        corners = new Cubie[8];
+        cornerColours = new byte[24];
+        edges_o = new int[(dim-2)*12];
+        edges_p = new int[(dim-2)*12];
+        edges = new Cubie[(dim-2)*12];
+        edgeColours = new byte[((dim-2)*12)*2];
+        ic(cube);
+        getEdgeColours();
+        getCornerColours();
+        ipce();
+        ioe();
+        ioc();
+    }
+
+
+    //encode state to index
+    //decode index to state
+
+    // Creates binary value representing tetrad
+    int encode_tetrad()   {
+        // 8 corners - 1, 3, 5, 7 and 2, 4, 6, 8
+        String binaryRepresentation = "";
+        for(int i : corners_p)    {
+            // (If the edge belongs in m slice)
+            if(i == 2 || i == 4 || i == 6 || i == 8)  {
+                // tetrad 2, 4, 6, 8
+                binaryRepresentation += "1";
+            } else {
+                binaryRepresentation += "0";
+            }
+        }
+        // println(binaryRepresentation);
+        return Integer.parseInt(binaryRepresentation, 2);
+    }
+
+    void decode_tetrad(int t)  {
+        String binary = Integer.toBinaryString(t);
+        String zeroes = "";
+        for(int i = 0; i <= 8-binary.length()-1; i++)
+            zeroes  += "0";
+        
+        binary = zeroes + binary;
+        // Tetrad 1, 3, 5, 7
+        // Tetrad 2, 4, 6, 8
+        // Repeating corners - no checks
+        for(int i = binary.length()-1; i >= 0; i--) {
+            if(binary.charAt(i) == '0') {
+                corners_p[i] = 1;
+            } else {
+                corners_p[i] = 2;
+            }
+        }
+    }
+
+
+    // Returns lexicographical index
+    int encode_eslice()  {
         String binaryRepresentation = "";
         for(int i : edges_p)    {
             // println(i);
@@ -941,43 +959,10 @@ class Cube2 {
         return Integer.parseInt(binaryRepresentation, 2);
     }
 
-    // Label m slice as 0, s slice will be 1 - 
-    // index 4,5,6,7 of binary are set e slice so will be ignored.
-    int msSliceState()  {
-        String binaryRepresentation = "";
-        for(int i : edges_p)    {
-            // (If the edge belongs in s slice)
-            if(i == 2 || i == 4 || i == 10 || i == 12)  {
-                // S Slice
-                binaryRepresentation += "1";
-            } else {
-                binaryRepresentation += "0";
-            }
-        }
-        // println(binaryRepresentation);
-        // Return binary as base 2 number
-        return Integer.parseInt(binaryRepresentation, 2);
-    }
-
-    int tetradState()   {
-        // 8 corners - 1, 3, 5, 7 and 2, 4, 6, 8
-        String binaryRepresentation = "";
-        for(int i : corners_p)    {
-            // (If the edge belongs in m slice)
-            if(i == 2 || i == 4 || i == 6 || i == 8)  {
-                // tetrad 2, 4, 6, 8
-                binaryRepresentation += "1";
-            } else {
-                binaryRepresentation += "0";
-            }
-        }
-        // println(binaryRepresentation);
-        return Integer.parseInt(binaryRepresentation, 2);
-    }
     // Converts int to binary
     // Replaces index positions of edges_p corresponding to index positions of 1s in the binary to a random e slice edge value.
-    void eSliceIndexToState(int index)   {
-        String binary = Integer.toBinaryString(index);
+    void decode_eslice(int t)   {
+        String binary = Integer.toBinaryString(t);
         String zeroes = "";
         for(int i = 0; i <= 12-binary.length()-1; i++)
             zeroes  += "0";
@@ -987,7 +972,13 @@ class Cube2 {
         int edge = 5;
         for(int i = binary.length()-1; i >= 0; i--) {
             if(binary.charAt(i) == '0') {
-                edges_p[i] = 0;
+                try {
+                    edges_p[i] = 0;
+                } catch (Exception e)   {
+                    println("error: " + binary);
+                    println(binary.length());
+                    println(e);
+                }
                 continue;
             }
             edges_p[i] = edge;
@@ -995,7 +986,29 @@ class Cube2 {
         }
     }
 
-    void msSliceIndexToState(int index) {
+
+    // Label m slice as 0, s slice will be 1 - 
+    // index 4,5,6,7 of binary are set e slice so will be ignored.
+    int encode_ms_slice()  {
+        String binaryRepresentation = "";
+        for(int i : edges_p)    {
+            print(i + ", ");
+            // (If the edge belongs in s slice)
+            if(i == 2 || i == 4 || i == 10 || i == 12)  {
+                // S Slice
+                binaryRepresentation += "1";
+            } else {
+                binaryRepresentation += "0";
+            }
+        }
+        println();
+        // println(binaryRepresentation);
+        // Return binary as base 2 number
+        println(binaryRepresentation);
+        return Integer.parseInt(binaryRepresentation, 2);
+    }
+
+    void decode_ms_slice(int index) {
         String binary = Integer.toBinaryString(index);
         String zeroes = "";
         for(int i = 0; i <= 12-binary.length()-1; i++)
@@ -1005,33 +1018,25 @@ class Cube2 {
         int m = 1; // 1, 3, 9, 11
         int s = 2; // 2, 4, 10, 12
         // No checks for invalid states so can just duplicate permutation values for the sake of generating a table
-        for(int i = binary.length()-1; i >= 0; i--) {
+        println(binary);
+        int counter = 0;
+        for(int i = 0; i < binary.length(); i++)    {
+            counter++;
+        // for(int i = binary.length()-1; i >= 0; i--) {
             if(i == 4 || i == 5 || i == 6 || i == 7) continue; // Skips e slice
             if(binary.charAt(i) == '0') {
-                edges_p[i] = 1;
+                edges_p[i] = m;
+                m = m == 9 ? 11 : m;
+                m = m == 3 ? 9 : m;
+                m = m == 1 ? 3 : m;
             } else {
-                edges_p[i] = 2;
+                edges_p[i] = s;
+                s = s == 10 ? 12 : s;
+                s = s == 4 ? 10 : s;
+                s = s == 2 ? 4 : s;
             }
         }
-    }
-
-    void tetradIndexToState(int index)  {
-        String binary = Integer.toBinaryString(index);
-        String zeroes = "";
-        for(int i = 0; i <= 8-binary.length()-1; i++)
-            zeroes  += "0";
-        
-        binary = zeroes + binary;
-        // Tetrad 1, 3, 5, 7
-        // Tetrad 2, 4, 6, 8
-        // Repeating corners - no checks
-        for(int i = binary.length()-1; i >= 0; i--) {
-            if(binary.charAt(i) == '0') {
-                corners_p[i] = 1;
-            } else {
-                corners_p[i] = 2;
-            }
-        }
+        println(counter);
     }
 
     int encode_corners_p(){
@@ -1096,6 +1101,7 @@ class Cube2 {
         }
     }
 
+    // Return lexicographical index of edge orientations
     int encode_edges_o(){
         int t = 0;
         for(int i=0; i<11; i++){
@@ -1148,3 +1154,29 @@ class Cube2 {
         }
     }
 }
+
+// Return a score to add 'luck' factor
+    // byte score() {
+    //     byte score = 0;
+    //     int[] tmpcorners_p = {1,2,3,4,5,6,7,8};
+    //     int[] tmpcorners_o = {1,2,3,4,5,6,7,8};
+    //     for(int i = 0; i < corners_p.length; i++)  {
+    //         if(tmpcorners_p[i] != corners_p[i])   {
+    //             score += 1;
+    //         }
+    //         if(tmpcorners_o[i] != corners_o[i])   {
+    //             score += 2;
+    //         }
+    //     }
+    //     int[] tmpedges_p = {1,2,3,4,5,6,7,8,9,10,11,12};
+    //     int[] tmpedges_o = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    //     for(int i = 0; i < edges_o.length; i++)  {
+    //         if(tmpedges_p[i] != edges_p[i]) {
+    //             score += 1;
+    //         }
+    //         if(tmpedges_o[i] != edges_o[i]) {
+    //             score += 2;
+    //         }
+    //     }
+    //     return score;
+    // }

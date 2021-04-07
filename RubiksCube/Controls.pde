@@ -52,7 +52,12 @@ void keyPressed() {
         // create_edges_p_table();
         // create_corners_p_table();
         // thread("testThistlethwaite");
-
+        // thread("testKociembas");
+        // create_es_co_table();
+        create_tetrad_ms_table();
+        // create_e_slice_table();
+        // create_ms_slice_table();
+        // e_slice_tables(12, 4);
       break;
     case 'c':
       // Cube2 tmp = new Cube2(cube);

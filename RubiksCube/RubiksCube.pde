@@ -85,6 +85,7 @@ boolean hAlgorithmRunning;
 boolean smallIDDFSRunning;
 boolean ksolveRunning;
 boolean thistlethwaiteRunning;
+boolean kociembaRunning;
 
 boolean thistlethwaiteSolving;
 boolean hSolve;
@@ -128,8 +129,12 @@ color blue  = #0000FF;
 
 // Sets up the Rubik's Cube emulator
 void setup() {
-	 size(600, 600, P3D);
-	//fullScreen(P3D);
+	size(600, 600, P3D);
+	// fullScreen(P3D);
+	// surface.setResizable(true);
+	// surface.setSize(displayWidth, displayHeight);
+	// surface.setLocation(0,0);
+	// registerMethod("pre", this);	
 	surface.setTitle("Rubik's Cube Solver");
 	frameRate(60);
 	init();
@@ -170,6 +175,7 @@ void init()	{
 	smallIDDFSRunning = false;
 	ksolveRunning = false;
 	thistlethwaiteRunning = false;
+	kociembaRunning = false;
 	thistlethwaiteSolving = false;
 	colouring = false;
 	clickedOnce = false;
@@ -1062,6 +1068,7 @@ void updateLists()  {
 		int face = 0;
 
 		rectMode(CORNER);
+		// The face integer represents the index of the colour for that specific face.
 		switch(currentFace)	{
 			case 'L':
 				face = 1;
@@ -1079,15 +1086,19 @@ void updateLists()  {
 				face = 5;
 				break;
 		}
+
 		int cubieNo = 0;
 		boolean clickedOnce = false;
+		// For each cubie on the current face
 		for (int  i = 0; i < cubies.size(); i++) {
 			Cubie c = cubies.get(i);
+			// Initialise x and y
 			x = i % dim == 0 ? resetXPos : x;
 			y = i % dim == 0 ? y + nextCube : y;
-			// Check if cubie has cursor over it / been clicked
+			// Check if cubie has cursor over it and has been clicked
 			if (pointCubie(x+spacer, y, cSize)) {
 				fill(filler, 185);
+				// If cubie has been clicked, replace the colour with selected colour
 				if (mousePressed && mouseButton == LEFT && !clickedOnce) {
 					clickedOnce = true;
 					c.colours[face] = filler;
@@ -1116,7 +1127,6 @@ void updateLists()  {
 			}
 		}
 		}
-
 	/**
 	* Draws the "pallette" containing the 6 cube colours.
 	* This is for the user to select colours from when changing the Rubik's Cubie colours
@@ -1204,9 +1214,19 @@ void updateLists()  {
 					if(c.x == index*axis) faceCubies.add(c);
 				}
 				for(float y = -axis; y <= axis; y++)	{
-					for(float z = -axis; z <= axis; z++)	{
-						for(Cubie c : faceCubies)	{
-							if(c.y == y && c.z == z)	orderedList.add(c);
+					if(index == -axis)	{
+						for(float z = -axis; z <= axis; z++)	{
+							for(Cubie c : faceCubies)	{
+								if(c.y == y && c.z == z)
+									orderedList.add(c);
+							}
+						}
+					} else {
+						for(float z = axis; z >= -axis; z--)	{
+							for(Cubie c : faceCubies)	{
+								if(c.y == y && c.z == z)
+									orderedList.add(c);
+							}
 						}
 					}
 				}
@@ -1215,10 +1235,22 @@ void updateLists()  {
 				for(Cubie c : allCubies)	{
 					if(c.y == index*axis) faceCubies.add(c);
 				}
-				for(float x = -axis; x <= axis; x++)	{
-					for(float z = -axis; z <= axis; z++)	{
-						for(Cubie c : faceCubies)	{
-							if(c.x == x && c.z == z)	orderedList.add(c);
+				if(index == -axis)	{
+				for(float z = -axis; z <= axis; z++)	{
+						for(float x = -axis; x <= axis; x++)	{
+							for(Cubie c : faceCubies)	{
+								if(c.x == x && c.z == z)	
+									orderedList.add(c);
+							}
+						}
+					} 
+				}	else	{
+					for(float z = axis; z >= -axis; z--)	{
+						for(float x = -axis; x <= axis; x++)	{
+							for(Cubie c : faceCubies)	{
+								if(c.x == x && c.z == z)	
+									orderedList.add(c);
+							}
 						}
 					}
 				}
@@ -1228,9 +1260,17 @@ void updateLists()  {
 					if(c.z == index*axis) faceCubies.add(c);
 				}
 				for(float y = -axis; y <= axis; y++)	{
-					for(float x = -axis; x <= axis; x++)	{
-						for(Cubie c : faceCubies)	{
-							if(c.y == y && c.x == x)	orderedList.add(c);
+					if(index == axis)	{
+						for(float x = -axis; x <= axis; x++)	{
+							for(Cubie c : faceCubies)	{
+								if(c.y == y && c.x == x)	orderedList.add(c);
+							}
+						}
+					} else {
+						for(float x = axis; x >= -axis; x--)	{
+							for(Cubie c : faceCubies)	{
+								if(c.y == y && c.x == x)	orderedList.add(c);
+							}
 						}
 					}
 				}
@@ -1249,7 +1289,119 @@ void updateLists()  {
 		down.clear();
 	}
 // End Region: 2D View
+void testKociembas()	{
+	Random r = new Random();
+    String directory = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
+    Writer output;
+	boolean headersInFile = false;
+	// Region: Headers
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(directory + "TestResults.txt"));
+			try {
+				String line = "";
+				while((line = br.readLine()) != null)
+				{
+					//System.out.println(line);
+					String[] words = line.split(" ");
 
+					for (String word : words) {
+						if (word.equals(headers)) {
+							headersInFile = true;
+						}
+					}
+				}
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	// End Region: Headers
+	if(!headersInFile)	{
+	// Appending headers to file
+		try {
+			output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
+		} catch (FileNotFoundException e) {
+			println(e);
+			return;
+		} catch (IOException e)	{
+			println(e);
+			return;
+		}
+		try {
+			output.append(headers + "\n");
+			output.close();
+		} catch(IOException e)	{
+			println("Err >> " + e + "\nAborting file appending");
+			return;
+		}
+	// Appended headers to file
+	}
+	int tests = 1;
+	String out = "";
+    int nMoves = 17;
+	// numberOfMoves = 10;
+	println("Test\tScramble\tSolve\tTime\tMemory Consumption");
+	while(tests < 50) {	
+		nMoves += 1;
+		numberOfMoves = nMoves;
+		out = "";
+
+		try {
+			output =  new BufferedWriter(new FileWriter(directory+"TestResults.txt", true));
+		} catch (FileNotFoundException e) {
+			println(e);
+			return;
+		} catch (IOException e)	{
+			println(e);
+			return;
+		}
+
+		cube.scrambleCube(); // Scramble cube with x amount of moves
+		while(scrambling)	delay(200);
+		// While scramble is not done... wait.
+		
+		cube.optimalSolver(); // Get current cube state to solver
+		long start = System.currentTimeMillis();
+
+		cube.kociembaSolver.solve();
+
+		while(kociembaRunning)	{
+			delay(200);
+		}
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+
+		while(sequence.size() > 0 || sequenceRunning)	delay(200);
+
+		duringFunctionExecution = 0;
+		for(long j : memConsumptionArray)	{
+			duringFunctionExecution += j;
+		}
+		duringFunctionExecution = duringFunctionExecution/memConsumptionArray.size();
+		memConsumptionArray.clear();
+
+		if(duringFunctionExecution != 0)	actualMemUsed = duringFunctionExecution - beforeFunctionIsCalled;
+		duringFunctionExecution = 0;
+
+		// Once cube is solved
+		//   Append scramble and solution
+		long memconsum = actualMemUsed;
+		println(tests + "\t" + numberOfMoves + "\t" + cube.kociembaSolver.solutionMoves + "\t" + duration + "\t" + memconsum);
+		out += "3," + numberOfMoves + "," + cube.kociembaSolver.solutionMoves + "," + duration + "," + memconsum + "\n";
+		try {
+			output.append(out);
+			output.close();
+		} catch(IOException e)	{
+			println("Err >> " + e + "\nAborting file appending");
+			return;
+		}
+		resetCube();
+		tests += 1;
+    }
+	testing = false;
+}
 // Scramble & solves cube x amount of times adhering to various requirements / conditions
 void testKorfs()	{
 	Random r = new Random();
@@ -1493,7 +1645,7 @@ void thistlethwaiteAlgorithm()	{
 	}
 void kociembaAlgorithm()	{
 	cube.optimalSolver();
-	cube.optimalsolver.solve();
+	cube.kociembaSolver.solve();
 }
 
 void testSmallDFS()	{
