@@ -1,5 +1,6 @@
 import java.io.*; 
 import java.util.*;
+
 class SmallDFS  {
     // Permutation value guide
     // UFL= 0, ULB = 1, UBR = 2, URF = 3, DLF = 4, DFR = 5, DRB = 6
@@ -9,12 +10,15 @@ class SmallDFS  {
     int[] o = new int[7];
     Cube cube;
     String solution;
+    int moveCount;
     boolean oriented = false;
     Stack<Integer> path = new Stack<Integer>();
-    int[][] movearr = {{0,3,2,1} ,{0,0,0,0} ,{0,4,5,3} ,{2,1,2,1} ,{2,3,5,6} ,{1,2,1,2} };
+    int[][] movearr = {{0,3,2,1} ,{0,0,0,0} ,{0,4,5,3} ,{2,1,2,1} ,{2,3,5,6} ,{1,2,1,2}};
+
     SmallDFS(Cube cube)  {
         this.cube = cube;
     }
+
     // Solve the cube
     void solve()    {
         if (cube.dimensions == 2)    {
@@ -23,24 +27,22 @@ class SmallDFS  {
             // Start timer
             long start = System.currentTimeMillis();
             // Need to orient cube so White/Blue/Red cubie is DBL (Correctly permutated and oriented - locked in place)
-            while(!oriented)    oriented = orientCube(); // Doesn't work
+            while(!oriented)    {
+                oriented = orientCube();
+            }
             // Initialises permutation/orientation values from cube object
             iPermutations();
             iOrientations();
-            // println("Permutations");
-            // printPermutations();
-            // println("\nOrientations");
-            // printOrientations();
-            // println("\nDepth");
+
             println("Searching for solution...");
             println("Depth");
             for (int d = 0; d <= 11; d++)    {
-                println(d + " ");
+                print(d + ", ");
                 if (dfs(d, - 1)) break;
             }
             long end = System.currentTimeMillis();
             float duration = (end - start) / 1000F;
-            println("Duration\tNumMoves");
+            println("Duration\tMoves");
             print(duration + "s\t\t");
             if (solution != "") returnSolution(solution);
         } else {
@@ -59,15 +61,15 @@ class SmallDFS  {
         // if(turns.length() > 0) return false;
         for (Cubie cubie : cube.getCubies())    {
             // Region: faces
-            color right = cubie.colours[0];
-            color left = cubie.colours[1];
-            color up = cubie.colours[2];
-            color down = cubie.colours[3];
-            color front = cubie.colours[4];
-            color back = cubie.colours[5];
+                color right = cubie.colours[0];
+                color left = cubie.colours[1];
+                color up = cubie.colours[2];
+                color down = cubie.colours[3];
+                color front = cubie.colours[4];
+                color back = cubie.colours[5];
             // End Region: faces
+            // If the cubie contains white, blue and yellow
             if (contains(cubie.colours, white) && contains(cubie.colours, blue) && contains(cubie.colours, red))   {
-                // println("Found cubie");
                 // While bottom colour is not white OR position is wrong
                 if (down != white || !positionMatch(cubie.getPosition(), - axis, axis, - axis)) {
                     String move = "";
@@ -75,8 +77,16 @@ class SmallDFS  {
                     if (down == white) move += "Y";
                     if (front == white) move += "X";
                     if (back == white) move += "X\'";
-                    // println("adding " + move);
-                    if (move != "")  cube.testAlgorithm(move);
+                    if (move != "")    {   
+                        boolean matchfound = false;
+                        for (Move m : allMoves)  {
+                            if (matchfound) continue;
+                            if (m.toString().equals(move))  {
+                                matchfound = true;
+                                sequence.add(m);
+                            }
+                        }
+                    }
                 } else {
                     return true;
                 }
@@ -99,51 +109,53 @@ class SmallDFS  {
                     move += solution.charAt(i+1) + "";
                     i++;
                 }
-                }
-                    if(move != "")  {
-                    addMoveToSequence(move);
-                    counter++;
-                }
-                }
-                    print(counter);
-                    println("\n"+ solution);
-                }
-                    /**
-                    * Adds move to sequence for applying to cube
-                    *@param move   Move being applied to cube
-                    */
-                    void addMoveToSequence(String move)  {
-                    // turns += move;
-                    boolean matchfound = false;
-                    for (Move m : allMoves)  {
-                    if (matchfound) continue;
-                    if (m.toString().equals(move))  {
-                    matchfound = true;
-                    sequence.add(m);
-                }
-                }
-                }
-                    /**
-                    *Permutates permutation/orientation arrays according to what move is needed.
-                    * @param    a   an array of indexes corresponding to the move we're applying from movearr - permutations
-                    * @param    b   an array of indexes corresponding to the move we're applying from movearr - orientations
-                    */
-                    void perm(int[] a, int[] b) {
-                    // Store first element to x
-                    int x = p[a[0]];
-                    // Re-order rest of elements
-                    for(int i = 0; i < 3; i++)  {
-                    p[a[i]] = p[a[i+1]];
-                }
-                    // Last element becomes x
-                    p[a[3]] = x;
-                    
-                    x = o[a[0]];
-                    for(int i = 0; i < 3; i++)  {
-                    o[a[i]] = (o[a[i+1]] + b[i]) % 3;
-                }
-                    o[a[3]] = (x+ b[3])%3;
-                }
+            }
+            if(move != "")  {
+                addMoveToSequence(move);
+            }
+        }
+        println(moveCount);
+        println("\n"+ solution);
+    }
+    
+    /**
+    * Adds move to sequence for applying to cube
+    *@param move   Move being applied to cube
+    */
+    void addMoveToSequence(String move)  {
+        // turns += move;
+        boolean matchfound = false;
+        for (Move m : allMoves)  {
+            if (matchfound) continue;
+            if (m.toString().equals(move))  {
+                matchfound = true;
+                sequence.add(m);
+                moveCount++;
+            }
+        }
+    }
+
+    /**
+    *Permutates permutation/orientation arrays according to what move is needed.
+    * @param    a   an array of indexes corresponding to the move we're applying from movearr - permutations
+    * @param    b   an array of indexes corresponding to the move we're applying from movearr - orientations
+    */
+    void perm(int[] a, int[] b) {
+        // Store first element to x
+        int x = p[a[0]];
+        // Re-order rest of elements
+        for(int i = 0; i < 3; i++)  {
+            p[a[i]] = p[a[i+1]];
+        }
+        // Last element becomes x
+        p[a[3]] = x;
+        
+        x = o[a[0]];
+        for(int i = 0; i < 3; i++)  {
+            o[a[i]] = (o[a[i+1]] + b[i]) % 3;
+        }
+        o[a[3]] = (x+ b[3])%3;
+    }
                     /**
                     * Applies move to the permutation and orientation arrays.
                     *@param m move as represented by a number (The index of the move)

@@ -8,23 +8,18 @@ class Thistlethwaite  {
     
     Cube2 cube;
     Stack<Integer> soln = new Stack<Integer>();
-    // String newPrefix;
+    // Arraylist since we need to successively remove sets of move after each solving stage.
     ArrayList<String> allMoves = new ArrayList<String>(
         Arrays.asList("U", "U2", "U'", "L", "L2", "L'", "F", "F2", "F'", "R", "R2", "R'", "B", "B2", "B'", "D", "D2", "D'")
     );
-    // String[] allMoves = {"U", "U2", "U'", "L", "L2", "L'", "F", "F2", "F'", "R", "R2", "R'", "B", "B2", "B'", "D", "D2", "D'"};
-    
     int nodes = 0;
     int stage = 1;
     int moveCount = 0;
-    
     String g1Algorithm = "";
     String g2Algorithm = "";
     String g3Algorithm = "";
     String g4Algorithm = "";
-    
     String solution = "";
-    
     boolean g1 = false;
     boolean g2 = false;
     boolean g3 = false;
@@ -40,10 +35,11 @@ class Thistlethwaite  {
         thistlethwaiteRunning = true;
         String t = "    ";
         String gts = "Group" + t + "Time(s)" + t + "Solution\n";
-        outputBox.append(gts);
+        outputBox.append(gts); // Appends to GUI
         println("Group\tTime(s)\tSolution");
-        // Stage 1 Of Solve
+
         long start = System.currentTimeMillis();
+        // Stage 1 Of Solve
         if (!edgesOriented(cube))    {
             getGroup(stage); // Orient all the edges on the cube according to these rules: 
         } else {
@@ -55,10 +51,10 @@ class Thistlethwaite  {
         float duration = (end - start) / 1000F;
         println("G1\t" + duration + "s\t" + g1Algorithm);
         t = "           ";
-        outputBox.append("G1" + t + duration + "s" + t + g1Algorithm + "\n");
         memConsumptionArray.add(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()); // Appends memory usage to array when collecting stats.
-        cube.imageState();
+        outputBox.append("G1" + t + duration + "s" + t + g1Algorithm + "\n");
         outputBox.append("\n");
+
         // Stage 2 Of Solve
         if (!cornersOriented(cube) && !eSliceEdges(cube))  {
             getGroup(stage); // Orient corners and place appropriate edges to E slice, between U and D, of cube.
@@ -81,6 +77,10 @@ class Thistlethwaite  {
             getGroup(stage); // Permutate cubies until F/B colours are on F/B faces and U/D colours are on U/D faces. 
         } else {
             println("Already achieved stage: " + stage);
+        }
+        if(!g3) {
+            println("Didn't find a solution for G3; exiting solving algorithm");
+            return;
         }
         removeRedundantMoves();
         stage++;
@@ -109,7 +109,7 @@ class Thistlethwaite  {
         solved = true;
         return;
     }
-    
+
     /**
     * Keeps track of what requirements should be fulfilled for stage x
     * @param    tmp Cube we're evaluating requirements for each stage
@@ -344,6 +344,7 @@ class Thistlethwaite  {
                 //"BDL", "BUL", "BUR", "BDR",
                 //"RDF", "RUF", "RUB", "RDB",
                 //"LDF", "LUF", "LUB", "LDB"};
+        // Extract the colours of the corresponding facelets.
         byte UFL = tmp.cornerColours[0];
         byte LUF = tmp.cornerColours[21];
         
@@ -368,15 +369,16 @@ class Thistlethwaite  {
         byte DFR = tmp.cornerColours[7];
         byte RDF = tmp.cornerColours[16];
         
+        // Do some fat boolean equation to figure out if the corners are in their tetrads
         boolean r = 
-       ((UFL == 2 || UFL == 3) && (LUF == 0 || LUF == 1)) &&
-           ((UBL == 2 || UBL == 3) && (LUB == 0 || LUB == 1)) &&
-           ((UBR == 2 || UBR == 3) && (RUB == 0 || RUB == 1)) &&
-           ((UFR == 2 || UFR == 3) && (RUF == 0 || RUF == 1)) &&
-           ((DFL == 2 || DFL == 3) && (LDF == 0 || LDF == 1)) &&
-           ((DBL == 2 || DBL == 3) && (LDB == 0 || LDB == 1)) &&
-           ((DBR == 2 || DBR == 3) && (RDB == 0 || RDB == 1)) &&
-           ((DFR == 2 || DFR == 3) && (RDF == 0 || RDF == 1));
+        ((UFL == 2 || UFL == 3) && (LUF == 0 || LUF == 1)) &&
+            ((UBL == 2 || UBL == 3) && (LUB == 0 || LUB == 1)) &&
+            ((UBR == 2 || UBR == 3) && (RUB == 0 || RUB == 1)) &&
+            ((UFR == 2 || UFR == 3) && (RUF == 0 || RUF == 1)) &&
+            ((DFL == 2 || DFL == 3) && (LDF == 0 || LDF == 1)) &&
+            ((DBL == 2 || DBL == 3) && (LDB == 0 || LDB == 1)) &&
+            ((DBR == 2 || DBR == 3) && (RDB == 0 || RDB == 1)) &&
+            ((DFR == 2 || DFR == 3) && (RDF == 0 || RDF == 1));
         
         return r;
     }

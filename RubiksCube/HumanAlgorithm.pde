@@ -4,7 +4,7 @@ class HumanAlgorithm {
   int stage = 0;
   int completedCorners = 0;
   int completedEdges = 0;
-  int solutionMoves = 0;
+  int moveCount = 0;
   String faces = "RLUDFB";
   String[] cols = {"Orange", "Red", "Yellow", "White", "Green", "Blue"};
   boolean nextStep = false;
@@ -65,10 +65,10 @@ class HumanAlgorithm {
           println("Rubik's cube\nSolved in " + moveCounter + " moves.\nSolved in " + duration + " seconds.");
           outputBox.append("Rubik's cube\nSolved in " + moveCounter + " moves.\nSolved in " + duration + " seconds.\n");
         }
-        solutionMoves = moveCounter;
+        moveCount = moveCounter;
         counterReset = true;
         hAlgorithmRunning = false;
-        moveCounter = solutionMoves;
+        moveCounter = moveCount;
       } else {
         if(captionsOn)  println("Something went wrong during solve - try solving again.");
       }

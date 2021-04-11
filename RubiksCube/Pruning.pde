@@ -14,7 +14,7 @@ int[] eslice_table = new int[495];
 int[] comb_to_index = new int[4096];
 ArrayList<Integer> index_to_comb = new ArrayList();
 
-int[] ms_slice_table = new int[495];
+int[] ms_slice_table = new int[70];
 int[] ms_comb_to_index = new int[4096];
 ArrayList<Integer> ms_index_to_comb = new ArrayList(); // Custom size
 
@@ -29,50 +29,73 @@ int[] double_turn_table = new int[663552];
 
 // Kociemba
 byte[] es_co_table;
-byte[] tetrad_ms_table;
+byte[] corner_p_ms_table;
 
 int[] tableDepths = new int[3];
 
-String directory = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
+String directory = System.getProperty("user.dir");
 
 // Load the pruning tables to the corresponding byte arrays
 void loadPruningTables() {
+    println(System.getProperty("user.dir"));
+    String path = "\\pruningtables\\";
+    File dir = new File(path);
+    if(!dir.exists())   {
+        if(dir.mkdir())   {
+            println("Directory \"" + path + "\" created successfully.");
+        } else {
+            println("Directory \"" + path + "\" NOT created successfully.");
+        }
+    } else {
+        println("Pruning table folder: \"" + path + "\" already exists");
+    }
+    println(directory);
+    directory += path;
+    println(directory);
     // Load file for each edge/corner permutation/orientation
     // If file is empty, create appropriate table and save to file
     // If file has contents, store them to appropriate array
     long start = System.currentTimeMillis();
-    if (read_table_to_array("co", "corners_o.txt"))  {
+    if (read_table_to_array("co"))  {
         println("Loaded Corner Orientation Table");
     } else {
         println("Creating corners_o.txt");
         create_corners_o_table();
     }
-    if (read_table_to_array("eo", "edges_o.txt"))    {
+    if (read_table_to_array("eo"))    {
         println("Loaded edges_o.txt");
     } else {
         println("Creating edges_o.txt");
         create_edges_o_table();
     }
     
-    if (read_table_to_array("cop", "corner_op.txt")) {
+    if (read_table_to_array("cop")) {
         println("Loaded corners_op.txt");
     } else {
         println("Creating corners_op.txt");
         create_corners_op_table();
     }
     
-    if (read_table_to_array("ep", "edges_p.txt"))    {
+    if (read_table_to_array("ep"))    {
         println("Loaded edges_p.txt");
     } else  {
         println("Creating edges_p.txt");
         create_edges_p_table();
     }
 
-    if(read_table_to_array("es_co", "es_co_table.txt")) {
+    if(read_table_to_array("es_co")) {
         println("Loaded es_co_table.txt");
     } else {
         println("Creating es_co_table.txt");
         create_es_co_table();
+    }
+
+    if(read_table_to_array("cp_ms")) {
+        println("Loaded corner_p_ms_table.txt");
+    } else {
+        println("Creating corner_p_ms_table.txt");
+        println("at: " + directory + "corner_p_ms_table.txt");
+        create_corner_p_ms_table();
     }
 
     // Thistlethwaite's Pruning Tables
@@ -364,7 +387,7 @@ void create_e_slice_table()  {
     println(counter + " eslice unique states");
 }
 
-// Thistle G2 -> G3
+// Thistle G2 -> G3 INEFFICIENT
 void create_ms_slice_table()    {
     String[] moves = {
         "U", "U2", "U'", 
@@ -373,31 +396,30 @@ void create_ms_slice_table()    {
     
     int depth = 0, totalStates = 0, newStates = 1;
     Cube2 c = new Cube2();
-    ms_slice_tables(12, 4);
+    ms_slice_tables(8, 4);
     
     // Initialise table default values
-    for (int i = 0; i < eslice_table.length; i++)  {
+    for (int i = 0; i < ms_slice_table.length; i++)  {
         ms_slice_table[i] = - 1;
     }
     // 010100000101 - solved state ms slice
     println("Index: " + ms_comb_to_index[c.encode_ms_slice()] + "\tStore: " + c.encode_ms_slice());
     ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] = 0;
+
     while(newStates != 0)    {
         newStates = 0;
 
-        for (int i = 0; i < ms_slice_table.length;i++)   {
-
+        for (int i = 0; i < ms_slice_table.length; i++)   {
             if (ms_slice_table[i] != depth)  continue;
 
             for (String move : moves)    {
-
                 c.decode_ms_slice(ms_index_to_comb.get(i));
-
                 c.testAlgorithm(move);
-                if (ms_comb_to_index[c.encode_ms_slice()] == - 1)    continue;
-                if (ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] == - 1)   {
+                int ms_index = ms_comb_to_index[c.encode_ms_slice()];
+
+                if (ms_slice_table[ms_index] == - 1)   {
                     // Set distance val
-                    ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] = depth + 1;
+                    ms_slice_table[ms_index] = depth + 1;
                     newStates++;
                 }
                 c = new Cube2();
@@ -416,15 +438,12 @@ void create_ms_slice_table()    {
         }
     }
     println(counter + " M/S Slice Unique States");
-    
 }
-// Thistle G2 -> G3
+
+// Thistle G2 -> G3 OLD
 void create_tetrad_table()  {
-    tetrad_table = new int[40320];
-    String[] moves = {
-        "U", "U2", "U'", 
-        "L2", "F2", "R2", "B2", 
-        "D", "D2", "D'"};
+    tetrad_table = new int[96];
+    String[] moves = { "U2", "L2", "F2", "R2", "B2", "D2"};
     
     int depth = 0, totalStates = 0, newStates = 1;
     Cube2 c = new Cube2();
@@ -437,6 +456,7 @@ void create_tetrad_table()  {
     // println(tetrad_comb_to_index[c.encode_tetrad()]);
     long start = System.currentTimeMillis();
     tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] = 0;
+    println(tetrad_comb_to_index[c.encode_tetrad()], 0);
     println("Generating complete pruning table \"tetrad_table\"\n");
     println("Depth\tNew\tTotal\tTime\n0\t1\t1\tN/A");
     while(newStates != 0)   {
@@ -445,7 +465,7 @@ void create_tetrad_table()  {
         for (int i = 0; i < tetrad_table.length; i++)    {
 
             if (tetrad_table[i] != depth) continue;
-
+            println("got one");
             for (String move : moves)    {
                 
                 c.decode_tetrad(tetrad_index_to_comb.get(i));
@@ -477,30 +497,6 @@ void create_tetrad_table()  {
     }
     println(counter + " unique states");
 }
-// Thistle G3 -> G4 (663,552	(4!^5/12))
-// void create_double_turn_table() {
-//     String[] moves = {"U2", "L2", "F2", "R2", "B2", "D2"};
-//     int depth = 0, totalStates = 0, newStates = 1;
-//     Cube2 c = new Cube2();
-//     double_turn_table = new int[663552];
-//     for(int i = 0; i < double_turn_table.length; i++)   {
-//         double_turn_table[i] = -1;
-//     }
-
-//     double_turn_table[0] = 0;
-//     while(newStates != 0)   {
-//         newStates = 0;
-//         for(int i = 0; i < double_turn_table.length; i++)   {
-//             if(double_turn_table[i] != depth) continue;
-//             for(String move : moves)    {
-                
-//                 if(double_turn_table[] == -1)   continue;
-
-//             }
-//         }
-//     }
-
-// }
 
 // Thistle G1 -> G2
 void create_es_co_table()   {
@@ -583,38 +579,39 @@ void create_es_co_table()   {
 }
 
 // Thistle G2 -> G3
-void create_tetrad_ms_table()   {
+void create_corner_p_ms_table()   {
     // 40320 - tetrad
     // 70 - ms slice 8C4
-    tetrad_ms_table = new byte[40320*70];
+    corner_p_ms_table = new byte[40320*70];
     int depth = 0, totalStates = 0, newStates = 1;
     String[] moves = {"U", "U2", "U'", "L2", "F2", "R2", "B2", "D", "D2", "D'"};
-    for(int i = 0; i < tetrad_ms_table.length; i++) {
-        tetrad_ms_table[i] = -1;
+    for(int i = 0; i < corner_p_ms_table.length; i++) {
+        corner_p_ms_table[i] = -1;
     }
     // Initialises comb to index and index to comb arrays to retrieve lexi indexes.
     create_ms_slice_table();
+    create_tetrad_table();
     // Fresh cube
     Cube2 c = new Cube2();
-    int tetrad_index = c.encode_corners_p();
+    int corner_p_index = c.encode_corners_p();
     int ms_slice_index = ms_comb_to_index[c.encode_ms_slice()];
-    tetrad_ms_table[tetrad_index * 70 + ms_slice_index] = 0;
-
-    for(int i = 0; i < ms_slice_table.length; i++) {
-        if(i != -1) {
-            println(i, ms_slice_table[i]);
-        }
+    // Create 96 tetrad permutations
+    for(int i = 0; i < tetrad_table.length; i++)    {
+        // Calculate their indexes and set their distance values to 0.
+        c.decode_corners_p(tetrad_table[i]);
+        corner_p_ms_table[c.encode_corners_p() * 70 + ms_slice_index] = 0;
     }
+    corner_p_ms_table[corner_p_index * 70 + ms_slice_index] = 0;
+
     long start = System.currentTimeMillis();
-    println("Generating complete pruning table \"tetrad_ms_table\"\n");
+    println("Generating pruning table \"corner_p_ms_table\"\n");
     println("Depth\tNew\tTotal\tTime\n0\t1\t1\tN/A");
 
     while(newStates != 0)   {
         newStates = 0;
-        for(int i = 0; i < 70; i++)  {
-            for(int j = 0; j < 40320; j++)  {
-                if(tetrad_ms_table[j * 70 + i] != depth)    continue;
-                // println("Got one");
+        for(int i = 0; i < 70; i++)  { // ms-slice
+            for(int j = 0; j < 40320; j++)  { // corners
+                if(corner_p_ms_table[j * 70 + i] != depth)    continue;
                 for(String move : moves)    {
 
                     c.decode_ms_slice(ms_index_to_comb.get(i));
@@ -622,17 +619,15 @@ void create_tetrad_ms_table()   {
 
                     c.testAlgorithm(move);
 
-                    ms_slice_index = c.encode_ms_slice();
-                    if(ms_slice_index == -1)    
-                        ms_slice_index = 0;
-                    tetrad_index = c.encode_corners_p();
-                    // println(tetrad_index + " * 70 + " + ms_slice_index + "\t" + (tetrad_index * 70 + ms_slice_index));
-                    int combined_index = tetrad_index * 70 + ms_slice_index;
+                    ms_slice_index = ms_comb_to_index[c.encode_ms_slice()];
+                    corner_p_index = c.encode_corners_p();
+                    // println(corner_p_index + " * 70 + " + ms_slice_index + "\t" + (corner_p_index * 70 + ms_slice_index));
+                    int combined_index = corner_p_index * 70 + ms_slice_index;
 
-                    if(tetrad_ms_table[combined_index] == -1)   {
+                    if(corner_p_ms_table[combined_index] == -1)   {
                         int result = depth+1;
                         byte bresult = (byte)result;
-                        tetrad_ms_table[combined_index] = bresult;
+                        corner_p_ms_table[combined_index] = bresult;
                         newStates++;
                     }
                     c = new Cube2();
@@ -647,12 +642,80 @@ void create_tetrad_ms_table()   {
         println((int)depth + "\t" + newStates + "\t" + totalStates + "\t" + duration + "s");
     }
     try {
-        FileOutputStream stream = new FileOutputStream(directory + "tetrad_ms_table.txt");
-        stream.write(tetrad_ms_table);
-        println("Saved tetrad_ms_table.txt");
+        FileOutputStream stream = new FileOutputStream(directory + "corner_p_ms_table.txt");
+        stream.write(corner_p_ms_table);
+        println("Saved corner_p_ms_table.txt");
     } catch(Exception e) {
         print(e);
     }
+}
+
+// Thistle G3 -> G4
+void create_double_turn_table() {
+    // Initialising the moveset
+    String[] moves = {"U2", "L2", "F2", "R2", "B2", "D2"};
+    // Initialising depth, total number of cube states and newly found states values.
+    int depth = 0, totalStates = 0, newStates = 1;
+    // Initialise blank complete cube
+    Cube2 c = new Cube2();
+    // Initialise the pruning table at a predetermined size according to: 96 * 6912 (Corner perms * even edge perms)
+    double_turn_table = new int[663552];
+
+    // Initialise all array index values to -1 acting a placeholders.
+    for(int i = 0; i < double_turn_table.length; i++)   {
+        double_turn_table[i] = -1;
+    }
+    // Store distance value 0 for the current complete cube state.
+    double_turn_table[c.encode_edges_p() * 96 + c.encode_corners_p()] = 0;
+
+    long start = System.currentTimeMillis();
+    println("Generating pruning table \"create_double_turn_table\"\n");
+    println("Depth\tNew\tTotal\tTime\n0\t1\t1\tN/A");
+
+    // While there are cube sub-states left to be discovered
+    while(newStates != 0)   {
+        // Reset new states found to 0
+        newStates = 0;
+        // For each possible set of corner permutations
+        for(int i = 0; i < 96; i++) {
+            // For each set of edge perms (bit confused where this num came from?) my guess is the number of perms for the m and s slice arrangements within their own slices?
+            for(int j = 0; j < 6912; j++)   {
+                // if the table at the specified index is NOT equal to the current depth we're searching, skip this loop.
+                if(double_turn_table[j * 96 + i] != depth)  continue;
+                // For each available move
+                for(String move : moves)    {
+                    // Converts cube corner permutations to the corresponding sub state according to the provided lexicographical index
+                    c.decode_corners_p(i);
+                    // Converts cube edge permutations to the corresponding sub state according to the provided lexicographical index
+                    c.decode_edges_p(j);
+                    // Calculate the combined index of these substates.
+                    int combined_index = c.encode_edges_p() * 96 + c.encode_corners_p();
+                    // If the pruning table does not have a valid distance value
+                    if(double_turn_table[combined_index] == -1) {
+                        // Initialise distance value as byte datatype for cheaper storage
+                        int result = depth + 1;
+                        byte bresult = (byte) result;
+                        // Store the distance value at the combined_index in the pruning table
+                        double_turn_table[combined_index] = bresult;
+                        // Iterate new states discovered by 1
+                        newStates++;
+                    }
+                    // Reset cube state
+                    c = new Cube2();
+                }
+            }
+        }
+        // Iterate depth for next stage of search
+        depth++;
+        // Append number of new states discovered to total states found
+        totalStates += newStates;
+        long end = System.currentTimeMillis();
+        float duration = (end - start) / 1000F;
+        start = System.currentTimeMillis();
+        // Print some stats for debugging and visualisation of numbers of pruning table generation...
+        println((int)depth + "\t" + newStates + "\t" + totalStates + "\t" + duration + "s");
+    }
+    // Intentions here would be to save the pruning table array to a file which can be read in to a byte array via other functions I've made.
 }
 
 // Primarily for kociemba's but can be used for thistlethwaite's
@@ -689,13 +752,14 @@ void ms_slice_tables(int n, int k)   {
 
     for (int i = 0; i < n - 1; i++)
         size *= 2;
-    
+    println("Size: " + size);
     ms_comb_to_index = new int[size];
     ms_index_to_comb = new ArrayList(); // Custom size
 
     int j = 0;
     for (int i = 0; i < size; i++)   {
         if (bitcount(i) == k) { // if edge_count has four 1s, save the index, save the combination.
+            // Save 
             ms_comb_to_index[i] = j;
             ms_index_to_comb.add(i);
             j++;
@@ -771,8 +835,9 @@ boolean prune(int method, Cube2 c, int depth, int stage)  {
                 case 3:
                 // M/S slice - 70
                 // Tetrad - 40,320
-                    if (ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] > depth || 
-                    tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] > depth)   
+                    // if (ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] > depth || 
+                    // tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] > depth)
+                    if(corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] > depth)
                         return true;
                     break;
                 case 4:
@@ -821,36 +886,36 @@ boolean prune(int method, Cube2 c, int depth, int stage)  {
 * @param    filename    The file we're reading from
 * @return   param       If the file has been read, return true
 */
-boolean read_table_to_array(String pieceType, String filename) {
+boolean read_table_to_array(String pieceType) {
     byte[] tmp;
     switch(pieceType)  {
         case "eo":
-        File edges_o_file = new File(directory + "edges_o.txt");
-        tmp = readBytesToArray(edges_o_file);
-        if (tmp.length == 0) {
-            return false;
-        } else {
-            edges_o_table = tmp;
-        }
-        break;
+            File edges_o_file = new File(directory + "edges_o.txt");
+            tmp = readBytesToArray(edges_o_file);
+            if (tmp.length == 0) {
+                return false;
+            } else {
+                edges_o_table = tmp;
+            }
+            break;
         case "ep":
-        File edges_p_file = new File(directory + "edges_p.txt");
-        tmp = readBytesToArray(edges_p_file);
-        if (tmp.length == 0) {
-            return false;
-        } else {
-            edges_p_table = tmp;
-        }
-        break;
+            File edges_p_file = new File(directory + "edges_p.txt");
+            tmp = readBytesToArray(edges_p_file);
+            if (tmp.length == 0) {
+                return false;
+            } else {
+                edges_p_table = tmp;
+            }
+            break;
         case "cop":
-        File corners_op_file = new File(directory + "corners_op.txt");
-        tmp = readBytesToArray(corners_op_file);
-        if (tmp.length == 0) {
-            return false;
-        } else {
-            corners_p_corners_o_table = tmp;
-        }
-        break;
+            File corners_op_file = new File(directory + "corners_op.txt");
+            tmp = readBytesToArray(corners_op_file);
+            if (tmp.length == 0) {
+                return false;
+            } else {
+                corners_p_corners_o_table = tmp;
+            }
+            break;
         case "co":
             File corners_o_file = new File(directory + "corners_o.txt");
             tmp = readBytesToArray(corners_o_file);
@@ -859,7 +924,7 @@ boolean read_table_to_array(String pieceType, String filename) {
             } else {
                 corners_o_table = tmp;
             }
-        break;
+            break;
         case "es_co":
             File es_co_file = new File(directory + "es_co_table.txt");
             tmp = readBytesToArray(es_co_file);
@@ -868,6 +933,16 @@ boolean read_table_to_array(String pieceType, String filename) {
             } else {
                 es_co_table = tmp;
             }
+            break;
+        case "cp_ms":
+            File corner_p_ms_file = new File(directory + "corner_p_ms_table.txt");
+            tmp = readBytesToArray(corner_p_ms_file);
+            if (tmp.length == 0) {
+                return false;
+            } else {
+                corner_p_ms_table = tmp;
+            }
+            break;
     }
     return true;
 }

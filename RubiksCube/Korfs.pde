@@ -2,7 +2,7 @@ class Korfs {
     
     long nodes = 0; // Needs to be a long data type because node count gets bigger than the max value an int can hold.
     int numSolutions = 0;
-    int solutionMoves = 0;
+    int moveCount = 0;
     Stack<Integer> soln = new Stack<Integer>();
     Cubie[] corners;
     Cubie[] edges;
@@ -299,11 +299,11 @@ class Korfs {
             if(soln.size() == 0) return true;
             Stack<Integer> soln2 = soln;
             solution = printableMoveNames[soln2.peek()];
-            solutionMoves += 1;
+            moveCount += 1;
             soln2.pop();
             while(!soln2.empty())   {
                 solution = printableMoveNames[soln2.peek()] + " " + solution;
-                solutionMoves += 1;
+                moveCount += 1;
                 soln2.pop();
             }
             println("\nSolution: " + solution);

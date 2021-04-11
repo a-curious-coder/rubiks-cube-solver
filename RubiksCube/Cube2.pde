@@ -908,10 +908,8 @@ class Cube2 {
     int encode_tetrad()   {
         // 8 corners - 1, 3, 5, 7 and 2, 4, 6, 8
         String binaryRepresentation = "";
-        for(int i : corners_p)    {
-            // (If the edge belongs in m slice)
-            if(i == 2 || i == 4 || i == 6 || i == 8)  {
-                // tetrad 2, 4, 6, 8
+        for(int i = 0; i < corners_p.length; i++)    {
+            if(i == 1 || i == 3 || i == 5 || i == 7)  {
                 binaryRepresentation += "1";
             } else {
                 binaryRepresentation += "0";
@@ -931,7 +929,8 @@ class Cube2 {
         // Tetrad 1, 3, 5, 7
         // Tetrad 2, 4, 6, 8
         // Repeating corners - no checks
-        for(int i = binary.length()-1; i >= 0; i--) {
+        for(int i = 0; i < binary.length(); i++)    {
+        // for(int i = binary.length()-1; i >= 0; i--) {
             if(binary.charAt(i) == '0') {
                 corners_p[i] = 1;
             } else {
@@ -991,52 +990,45 @@ class Cube2 {
     // index 4,5,6,7 of binary are set e slice so will be ignored.
     int encode_ms_slice()  {
         String binaryRepresentation = "";
-        for(int i : edges_p)    {
-            print(i + ", ");
-            // (If the edge belongs in s slice)
-            if(i == 2 || i == 4 || i == 10 || i == 12)  {
-                // S Slice
+        for(int i = 0; i < edges_p.length; i++)    {
+            if(i == 4 || i == 5 || i ==6 || i == 7) continue;
+            //  S Slice
+            if(edges_p[i] == 1 || edges_p[i] == 3 || edges_p[i] == 9 || edges_p[i] == 11)  {
                 binaryRepresentation += "1";
             } else {
                 binaryRepresentation += "0";
             }
         }
-        println();
+        // println();
         // println(binaryRepresentation);
         // Return binary as base 2 number
-        println(binaryRepresentation);
+        // println(binaryRepresentation);
         return Integer.parseInt(binaryRepresentation, 2);
     }
 
     void decode_ms_slice(int index) {
         String binary = Integer.toBinaryString(index);
         String zeroes = "";
-        for(int i = 0; i <= 12-binary.length()-1; i++)
+        for(int i = 0; i <= 8-binary.length()-1; i++)
             zeroes  += "0";
-        
         binary = zeroes + binary;
+        // println(index, binary);
         int m = 1; // 1, 3, 9, 11
         int s = 2; // 2, 4, 10, 12
         // No checks for invalid states so can just duplicate permutation values for the sake of generating a table
-        println(binary);
+        // println(binary);
         int counter = 0;
         for(int i = 0; i < binary.length(); i++)    {
-            counter++;
-        // for(int i = binary.length()-1; i >= 0; i--) {
-            if(i == 4 || i == 5 || i == 6 || i == 7) continue; // Skips e slice
+            // println(counter);
             if(binary.charAt(i) == '0') {
-                edges_p[i] = m;
-                m = m == 9 ? 11 : m;
-                m = m == 3 ? 9 : m;
-                m = m == 1 ? 3 : m;
+                edges_p[counter] = m;
             } else {
-                edges_p[i] = s;
-                s = s == 10 ? 12 : s;
-                s = s == 4 ? 10 : s;
-                s = s == 2 ? 4 : s;
+                edges_p[counter] = s;
             }
+            // If counter is 3, add 4, else add 1
+            counter += counter == 3 ? 5 : 1;
         }
-        println(counter);
+        // println(counter);
     }
 
     int encode_corners_p(){

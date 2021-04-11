@@ -67,8 +67,10 @@ int displayHeight = 450;
 
 // Cube attributes
 int dim = 3;
+int method = 1;
 int moveCounter;
 int numberOfMoves;
+int availableMoves = 0;
 float middle;
 float axis;
 float speed;
@@ -124,8 +126,6 @@ color white = #FFFFFF;
 color yellow = #FFFF00;
 color green = #00FF00;
 color blue  = #0000FF;
-
-
 
 // Sets up the Rubik's Cube emulator
 void setup() {
@@ -413,7 +413,9 @@ void guiButtons()	{
 						;
 	List l = Arrays.asList("Human Algorithm", 
 							"Thistlethwaite's Algorithm", 
+							"Kociemba's Algorithm",
 							"Korf's Algorithm", 
+							"God's Algorithm : Pocket Cube",
 							"More Coming Soon")
 							;
 	dropdown = cp5.addScrollableList("dropdown")
@@ -529,6 +531,30 @@ void dropdown(int n) {
 
 void controlEvent(ControlEvent theEvent) {
 	switch(theEvent.getController().getId())	{
+		case 0:
+			if(allMoves.size() > availableMoves)	{
+				removeWholeCubeRotations();
+			}
+			switch(selected)	{
+				case "Human Algorithm":
+					method = 1;
+					break;
+				case "Thistlethwaite's Algorithm":
+					method = 2;
+					break;
+				case "Kociemba's Algorithm":
+					method = 3;
+					break;
+				case "Korf's Algorithm":
+					method = 4;
+					break;
+				case "God's Algorithm : Pocket Cube":
+					method = 5;
+					initialiseWholeCubeRotations();
+					break;
+			}
+			println("Method: " + method);
+			break;
 		case 1:
 			numberOfMoves = 14;
 			// cube.scrambleCube();
@@ -537,30 +563,58 @@ void controlEvent(ControlEvent theEvent) {
 			break;
 		case 2:
 			println(selected);
-			if(selected == "Human Algorithm")	{
-				outputBox.setText("");
-				outputBox.append("Human Algorithm\n");
-				thread("humanAlgorithm");
-				solving = true;
-			}
-			if(selected == "Thistlethwaite's Algorithm")	{
-				outputBox.setText("");
-				outputBox.append("Thistlethwaite's Algorithm\n");
-				threadRunning = true;
-				thread("thistlethwaiteAlgorithm");
-				threadRunning = false;
-				solving = true;
-			}
-			if(selected == "Korf's Algorithm")	{
-				outputBox.setText("");
-				outputBox.append("Korf's Algorithm\n");
-				threadRunning = true;
-				thread("korfsAlgorithm");
-				threadRunning = false;
-				solving = true;
-			}
-			if(selected != "")	{
-				outputBox.setText(selected + "\n");
+			switch(selected)	{
+				case "Human Algorithm":
+					outputBox.setText("");
+					outputBox.append("Human Algorithm\n");
+					thread("humanAlgorithm");
+					solving = true;
+					method = 1;
+					break;
+
+				case "Thistlethwaite's Algorithm":
+					outputBox.setText("");
+					outputBox.append("Thistlethwaite's Algorithm\n");
+					threadRunning = true;
+					thread("thistlethwaiteAlgorithm");
+					threadRunning = false;
+					solving = true;
+					method = 2;
+					break;
+
+				case "Kociemba's Algorithm":
+					outputBox.setText("");
+					outputBox.append("Kociemba's Algorithm\n");
+					threadRunning = true;
+					thread("kociembaAlgorithm");
+					threadRunning = false;
+					solving = true;
+					method = 3;
+					break;
+
+				case "Korf's Algorithm":
+					outputBox.setText("");
+					outputBox.append("Korf's Algorithm\n");
+					threadRunning = true;
+					thread("korfsAlgorithm");
+					threadRunning = false;
+					solving = true;
+					method = 4;
+					break;
+
+				case "God's Algorithm : Pocket Cube":
+					if(dim < 3)	{
+						outputBox.setText("");
+						outputBox.append("God's Algorithm : Pocket Cube\n");
+						threadRunning = true;
+						thread("pocketCubeGodAlgorithm");
+						threadRunning = false;
+						solving = true;
+						method = 5;
+						break;
+					}
+				default:
+					outputBox.setText(selected + "\n");
 			}
 			break;
 		case 3:
@@ -807,15 +861,63 @@ void InitialiseMoves() {
 			allMoves.add(new Move('Z', i, - 1));  // F'  B'
 		}
 	}
+	availableMoves = allMoves.size();
+	println("There are " + allMoves.size() + " available moves");
+}
+
+void initialiseWholeCubeRotations()	{
 	// Region: Whole Cube Rotations
-		// allMoves.add(new Move('X', 1));
-		// allMoves.add(new Move('X', - 1));
-		// allMoves.add(new Move('Y', 1));
-		// allMoves.add(new Move('Y', - 1));
-		// allMoves.add(new Move('Z', 1));
-		// allMoves.add(new Move('Z', - 1));
+	// Required for pocket cube if you want to solve it
+		allMoves.add(new Move('X', 1));
+		allMoves.add(new Move('X', - 1));
+		allMoves.add(new Move('Y', 1));
+		allMoves.add(new Move('Y', - 1));
+		allMoves.add(new Move('Z', 1));
+		allMoves.add(new Move('Z', - 1));
+	// End Region: Whole Cube Rotations
+	println("There are " + allMoves.size() + " available moves");
+}
+
+void removeWholeCubeRotations()	{
+	// Region: Whole Cube Rotations
+	// Required for pocket cube if you want to solve it
+	for(int i = 0; i < 6; i++)	{
+		allMoves.remove(allMoves.size()-1);
+	}
+	println("There are " + allMoves.size() + " available moves");
 	// End Region: Whole Cube Rotations
 }
+
+/**
+* Generates a specified number of scrambles at a specified length saved to a file.
+* @param	nScrambles
+* @param	lengthScrambles
+*/
+void generateScrambles(int nScrambles, int lengthScrambles)	{
+	String[] scrambles = new String[nScrambles];
+
+	for (int  i = 0; i < nScrambles; i++)	{
+		for(int  j = 0; j < lengthScrambles; j++)	{
+			if(j == 0)	{
+				scrambles[i] = allMoves.get(int(random(allMoves.size()))).toString() + " "; //Random Move.
+			} else {
+				scrambles[i] += allMoves.get(int(random(allMoves.size()))).toString() + " "; //Random Move.
+			}
+		}
+		// println(scrambles[i]);
+	}
+	try{
+		FileWriter writer = new FileWriter(directory + "/" + "scrambles.txt");
+		for (int i = 0; i < scrambles.length; i++) {
+			writer.write(scrambles[i] + "\n");
+		}
+		writer.close();
+		println("Generated scrambles, saved as scrambles.txt");
+	} catch(Exception e) {
+        print(e);
+    }
+}
+
 // Checks for valid quantities of each colour of the cube - E.g. 3x3x3 cube would have 9 of each colour. No more, no less.
 boolean verifyCube() {
 	boolean cubeValid = true;
@@ -1388,8 +1490,8 @@ void testKociembas()	{
 		// Once cube is solved
 		//   Append scramble and solution
 		long memconsum = actualMemUsed;
-		println(tests + "\t" + numberOfMoves + "\t" + cube.kociembaSolver.solutionMoves + "\t" + duration + "\t" + memconsum);
-		out += "3," + numberOfMoves + "," + cube.kociembaSolver.solutionMoves + "," + duration + "," + memconsum + "\n";
+		println(tests + "\t" + numberOfMoves + "\t" + cube.kociembaSolver.moveCount + "\t" + duration + "\t" + memconsum);
+		out += "3," + numberOfMoves + "," + cube.kociembaSolver.moveCount + "," + duration + "," + memconsum + "\n";
 		try {
 			output.append(out);
 			output.close();
@@ -1501,8 +1603,8 @@ void testKorfs()	{
 		// Once cube is solved
 		//   Append scramble and solution
 		long memconsum = actualMemUsed;
-		println(tests + "\t" + numberOfMoves + "\t" + cube.ksolve.solutionMoves + "\t" + duration + "\t" + memconsum);
-		out += "2," + numberOfMoves + "," + cube.ksolve.solutionMoves + "," + duration + "," + memconsum + "\n";
+		println(tests + "\t" + numberOfMoves + "\t" + cube.ksolve.moveCount + "\t" + duration + "\t" + memconsum);
+		out += "2," + numberOfMoves + "," + cube.ksolve.moveCount + "," + duration + "," + memconsum + "\n";
 		try {
 			output.append(out);
 			output.close();
@@ -1614,7 +1716,7 @@ void testHumanAlgorithmSolver()	{
 			while(sequence.size() > 0 || sequenceRunning)	delay(200);
 			// println("Test " + i + " completed. Solution: " + cube.hAlgorithm.solution);
 			long memconsum = actualMemUsed;
-			out += "1," + numberOfMoves + "," + cube.hAlgorithm.solutionMoves + "," + duration + "," + memconsum + "\n";
+			out += "1," + numberOfMoves + "," + cube.hAlgorithm.moveCount + "," + duration + "," + memconsum + "\n";
 			// Region: append data to file
 				try {
 					output.append(out);
@@ -1630,29 +1732,197 @@ void testHumanAlgorithmSolver()	{
     numberOfMoves++;
     }
 	testing = false;
+}
+
+void testAlgorithm()	{
+	String[] methodNames = {"Human Algorithm", "Thistlethwaite's Algorithm", "Kociemba's Algorithm", "Korf's Algorithm", "Pocket Cube God's Algorithm"};
+	
+	println(methodNames[method-1]);
+    String directory = System.getProperty("user.dir");
+
+    Writer output;
+	boolean headersInFile = false;
+	// Region: Read file and check for headers
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(directory + "/TestResults.txt"));
+			try {
+				String line = "";
+				while((line = br.readLine()) != null)
+				{
+					String[] words = line.split(" ");
+					for (String word : words) {
+						if (word.equals(headers)) {
+							headersInFile = true;
+						}
+					}
+				}
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	// End Region: Read file and check for headers
+	// Region: If there aren't any headers in the csv file, append them.
+		if(!headersInFile)	{
+		// Appending headers to file
+			try {
+				output =  new BufferedWriter(new FileWriter(directory+"/TestResults.txt", false));
+			} catch (FileNotFoundException e) {
+				println(e);
+				return;
+			} catch (IOException e)	{
+				println(e);
+				return;
+			}
+			try {
+				output.append(headers + "\n");
+				output.close();
+			} catch(IOException e)	{
+				println("Err >> " + e + "\nAborting file appending");
+				return;
+			}
+		}
+	// End Region: If there aren't any headers in the csv file, append them.
+	
+	ArrayList<String> moves = new ArrayList();
+	try{
+		FileReader fileReader = new FileReader(directory + "/scramble.txt");
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+			moves.add(line);
+		}
+		bufferedReader.close();
+	} catch(Exception e)	{
+		println(e);
 	}
+
+	int tests = 0;
+    while(tests < 50) {
+		String out = "";
+		numberOfMoves += new Random().nextInt(2);
+		for(int i = 0; i < 3; i++)  {
+			println("Test " + (tests+1));
+			// Region: Prepare file for writing data.
+				try {
+					output =  new BufferedWriter(new FileWriter(directory+"/TestResults.txt", true));
+				} catch (FileNotFoundException e) {
+					println(e);
+					return;
+				} catch (IOException e)	{
+					println(e);
+					return;
+				}
+			// End Region: Prepare file for writing data.
+
+			// Scramble cube with specified num of moves
+			// cube.scrambleCube();
+			cube.testAlgorithm(moves.get(tests));
+			// Wait for cube to finish scrambling
+			while(scrambling)	delay(200);
+			println("Scrambled");
+			// Start timer (to see how long solver takes)
+			long start = System.currentTimeMillis();
+			int moveCount = 0;
+			println("Solving... " + method);
+			switch(method)	{
+				case 1:
+					// Set human solve boolean to true - main loop should start solving cube
+					hSolve = true;
+					// While human solver is running, wait.
+					while(hAlgorithmRunning || hSolve)	delay(200);
+					moveCount = cube.hAlgorithm.moveCount;
+					break;
+				case 2:
+					cube.tsolve();
+					cube.thistlethwaite.solve();
+					while(thistlethwaiteRunning)	delay(200);
+					moveCount = cube.thistlethwaite.moveCount;
+					break;
+				case 3:
+					// Initialise solving method
+					println("Kociemba: " + tests);
+					cube.optimalSolver();
+					cube.kociembaSolver.solve();
+					while(kociembaRunning)	delay(200);
+					moveCount = cube.kociembaSolver.moveCount;
+					break;
+				case 4:
+					cube.ksolve.solve();
+					while(ksolveRunning)	delay(200);
+					moveCount = cube.ksolve.moveCount;
+					break;
+				case 5:
+					cube.iSmallSolver();
+					cube.smallDFSSolver.solve();
+					moveCount = cube.smallDFSSolver.moveCount;
+					break;
+			}
+			
+			// Get average value from array of memory consumption data.
+			for(long j : memConsumptionArray)	{
+				duringFunctionExecution += j;
+			}
+			// Store average mem consumption for this solve to variable
+			duringFunctionExecution = duringFunctionExecution/memConsumptionArray.size();
+			// Clear the array for next solve.
+			memConsumptionArray.clear();
+			// Calculate memory used/total 
+			if(duringFunctionExecution != 0)	actualMemUsed = duringFunctionExecution - beforeFunctionIsCalled;
+			duringFunctionExecution = 0;
+			// If algorithm is running, sequence has moves left or sequence has moves being performed.
+			while(sequence.size() > 0 || sequenceRunning)	delay(200);
+
+			long end = System.currentTimeMillis();
+			float duration = (end - start) / 1000F;
+
+			long memconsum = actualMemUsed;
+			out += method + "," + numberOfMoves + "," + moveCount + "," + duration + "," + memconsum + "\n";
+			// Region: append data to file
+				try {
+					output.append(out);
+					output.close();
+				} catch(IOException e)	{
+					println("Err >> " + e + "\nAborting file appending");
+					return;
+				}
+			// Region: append data to file
+			resetCube();
+			tests += 1;
+		}
+    numberOfMoves++;
+    }
+	testing = false;
+}
+
 void humanAlgorithm()	{
 	hAlgorithmRunning = true;
 }
-void korfsAlgorithm()	{
-	cube.ksolve();
-	cube.ksolve.solve();
-	}
+
 void thistlethwaiteAlgorithm()	{
 	while(sequence.size() > 0 || sequenceRunning)	delay(200);
 	cube.tsolve();
 	cube.thistlethwaite.solve();
 	}
+
 void kociembaAlgorithm()	{
 	cube.optimalSolver();
 	cube.kociembaSolver.solve();
 }
 
-void testSmallDFS()	{
+void korfsAlgorithm()	{
+	cube.ksolve();
+	cube.ksolve.solve();
+	}
+
+void pocketCubeGodAlgorithm()	{
 	if(dim != 2)	return;
 	cube.iSmallSolver();
 	cube.smallDFSSolver.solve();
 }
+
 /**
 * Returns factorial result starting from num
 * @param	num	number factorial starts at.

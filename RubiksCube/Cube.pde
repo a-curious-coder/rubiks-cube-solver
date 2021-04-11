@@ -374,6 +374,7 @@ class Cube {
 		println(pMoves + " " + numMoves + " moves applied");
 		return scramble;
 	}
+
 	// Scrambles the cube
 	void scrambleCube() {
 		scrambling = true;
@@ -428,11 +429,6 @@ class Cube {
 		moveCounter = 0;
 		Move copy = new Move();
 		
-		// String[] hardMoves = {"R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"};
-		// String[] hardMoves = {"D'", "L2", "U2", "L2", "D", "B", "D", "L", "B'", "R2"};
-		
-    	// String[] hardMoves = {"U", "B", "F'", "U'", "R", "B'", "L", "F2", "B2", "R'", "L2", "D", "R2", "L", "D'", "F", "R", "F'", "U2", "B'", "D2", "U'", "L2", "B2", "D2", "R", "L'", "F2", "L'", "R"};
-		// String[] hardMoves = {"B2", "D2", "R", "U2", "F'", "F'", "U'", "F'", "U", "F", "D2", "R", "R'", "U'", "R'", "D", "B", "D" , "R\'", "B2"};
 		String[] hardMoves = {"F2", "L2", "F2", "B2", "D2", "L2", "R2", "F2", "L2", "D2", "U2", "R2", "U2", "L2", "R2", "F2", "R2", "U2", "F2", "R2", "U2", "R2", "U2", "R2", "U2", "F2", "L2", "U2", "B2", "L2"};
 		// Superflip
 		// String[] hardMoves = {"U","R2","F","B","R","B2","R","U2","L","B2","R","U'","D'","R2","F","R'","L","B2","U2","F2"};
