@@ -170,6 +170,7 @@ class Cube {
 	void iSmallSolver()	{
 		smallDFSSolver = new SmallDFS(this);
 	}
+	
 	/**
 	* Turns the face of the cube
 	*
@@ -530,26 +531,39 @@ class Cube {
 					i++;
 				}
 			} 
+			Move m = new Move();
 			// Call a turn on the cube according to the move we have here.
 			switch(move) {
 				case 'L':
-					this.turn('X', axis, dir);
-				break;
+					// this.turn('X', axis, dir);
+					m = new Move('X', axis, dir);
+					sequence.add(m);
+					break;
 				case 'R':
-					this.turn('X', - axis, dir);
-				break;
+					// this.turn('X', - axis, dir);
+					m = new Move('X', - axis, dir);
+					sequence.add(m);
+					break;
 				case 'U':
-					this.turn('Y', -axis, dir);
-				break;
+					// this.turn('Y', -axis, dir);
+					m = new Move('Y', -axis, dir);
+					sequence.add(m);
+					break;
 				case 'D':
-					this.turn('Y', axis, -dir);
-				break;
+					// this.turn('Y', axis, -dir);
+					m = new Move('Y', axis, -dir);
+					sequence.add(m);
+					break;
 				case 'F':
-					this.turn('Z', axis, dir);
-				break;
+					// this.turn('Z', axis, dir);
+					m = new Move('Z', axis, dir);
+					sequence.add(m);
+					break;
 				case 'B':
-					this.turn('Z', - axis, dir);
-				break;
+					// this.turn('Z', - axis, dir);
+					m = new Move('Z', - axis, dir);
+					sequence.add(m);
+					break;
 			}
 		}
 		sequenceRunning = false;

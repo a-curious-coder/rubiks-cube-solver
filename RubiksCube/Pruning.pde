@@ -6,8 +6,8 @@ import java.lang.Object;
 import java.util.HashMap;
 
 // Korf's Pruning Tables
-byte[] corners_p_corners_o_table = new byte[88179840];
-byte[] edges_p_table = new byte[479001600];
+byte[] corners_p_corners_o_table = new byte[88179840]; // 88,179,840
+byte[] edges_p_table = new byte[479001600]; // 479, 001, 600
 byte[] edges_o_table = new byte[2048];
 // Thistlethwaite tables
 int[] eslice_table = new int[495];
@@ -103,7 +103,7 @@ void loadPruningTables() {
 
     create_ms_slice_table();
 
-    create_tetrad_table();
+    // create_half_turn_table();
 
     long end = System.currentTimeMillis();
     float duration = (end - start) / 1000F;
@@ -441,24 +441,23 @@ void create_ms_slice_table()    {
 }
 
 // Thistle G2 -> G3 OLD
-void create_tetrad_table()  {
+void create_half_turn_table()  {
     tetrad_table = new int[96];
     String[] moves = { "U2", "L2", "F2", "R2", "B2", "D2"};
     
     int depth = 0, totalStates = 0, newStates = 1;
     Cube2 c = new Cube2();
-    tetrad_tables(8, 4);
     // Inititialise table default values
     for (int i = 0; i < tetrad_table.length; i++)  {
         tetrad_table[i] = - 1;
     }
 
-    // println(tetrad_comb_to_index[c.encode_tetrad()]);
-    long start = System.currentTimeMillis();
-    tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] = 0;
-    println(tetrad_comb_to_index[c.encode_tetrad()], 0);
+    tetrad_table[0] = 0;
+    
     println("Generating complete pruning table \"tetrad_table\"\n");
     println("Depth\tNew\tTotal\tTime\n0\t1\t1\tN/A");
+
+    long start = System.currentTimeMillis();
     while(newStates != 0)   {
         newStates = 0;
 
@@ -467,15 +466,12 @@ void create_tetrad_table()  {
             if (tetrad_table[i] != depth) continue;
             println("got one");
             for (String move : moves)    {
-                
-                c.decode_tetrad(tetrad_index_to_comb.get(i));
-
-                c.testAlgorithm(move);
-
-                if (tetrad_comb_to_index[c.encode_tetrad()] == -1) continue;
-                
-                if (tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] == - 1)   {
-                    tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] = depth + 1;
+                // Get corner sub state correlating with index i for the cube.
+                // c.decode_corner_p();
+                c.testAlgorithm(move); // Apply move to this cube state
+                // If the specified element of the table has a default value, replace it with a valid distance value.
+                if (tetrad_table[i] == - 1)   {
+                    tetrad_table[i] = depth + 1;
                     newStates++; 
                 }
                 c = new Cube2();
@@ -590,7 +586,7 @@ void create_corner_p_ms_table()   {
     }
     // Initialises comb to index and index to comb arrays to retrieve lexi indexes.
     create_ms_slice_table();
-    create_tetrad_table();
+    create_half_turn_table();
     // Fresh cube
     Cube2 c = new Cube2();
     int corner_p_index = c.encode_corners_p();
