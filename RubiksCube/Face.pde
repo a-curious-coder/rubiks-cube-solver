@@ -66,19 +66,6 @@ class Face {
         this.value = s;
     }
     
-    //byte[][] vertices() {
-    //  byte[][] vertices = new byte[4][2];
-    //  vertices[0][0] = 0;
-    //  vertices[0][1] = 0;
-    //  vertices[1][0] = 1;
-    //  vertices[1][1] = 0;
-    //  vertices[2][0] = 1;
-    //  vertices[2][1] = 1;
-    //  vertices[3][0] = 0;
-    //  vertices[3][1] = 1;
-    //  return vertices;
-// }
-    
     color getColour() {
         return c;
     }

@@ -14,14 +14,9 @@ class LocalSearch   {
 	float cubeScore;
 	String pAlgorithm = "";
 	float[] faceScores = new float[6];
-	int depth = 6;
+	int depth = 5;
 	int globalCounter = 0;
 
-	// Depth 5   271,452
-	// Depth 6   3,257,436
-	// Depth 7   39,089,244
-	// Depth 8   469,070,940
-	// Depth 9   5,628,851,292
 	boolean generateAlgorithms = true;
 	boolean whiteFaceSolved = false;
 	boolean redFaceSolved = false;
@@ -677,7 +672,6 @@ class LocalSearch   {
 
 	/**
 	* Best algorithm for white face
-	*
 	* @return	bestAlgo	The algorithm that's closest to solving white face
 	*/
 	String bestWhiteFaceAlgorithm()	{

@@ -794,14 +794,14 @@ class Cube2 {
         println("\t\t" + b2c(cc[0]) + " " + b2c(ec[10]) + " " + b2c(cc[3]) + "\n");
         // L, F, R, B
         // FIRST ROW
-        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "\t"
-        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "\t"
-        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "\t"
+        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "    "
+        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "    "
+        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "    "
         +            b2c(cc[14]) + " " + b2c(ec[20]) + " " + b2c(cc[13]) + "\n" );
         // Second ROW
-        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "\t"
-                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "\t"
-                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "\t"
+        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "    "
+                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "    "
+                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "    "
                     + b2c(ec[23]) + " " + b2c(byte(5)) + " " + b2c(ec[21]) + "\n");
         // Third ROW
         print("\t" + b2c(cc[23]) + " " + b2c(ec[6]) + " " + b2c(cc[20]) + "\t"
@@ -1038,6 +1038,14 @@ class Cube2 {
             for(int j=i+1; j<8; j++){
                 if(corners_p[i] > corners_p[j]) t++;
             }
+        }
+        if(b2c(cornerColours[15]) == "\u001b[31m" + "O" && b2c(edgeColours[22]) == "\u001b[31m" + "O"&&  b2c(cornerColours[12]) == "\u001b[31m" + "O")  {
+            imageState();
+            for(int i : corners_p)  {
+                print(i + "\t");
+            }
+            println();
+            println("ABOVE IS APPARENTLY: " + t);
         }
         return t;
     }

@@ -18,9 +18,9 @@ int[] ms_slice_table = new int[70];
 int[] ms_comb_to_index = new int[4096];
 ArrayList<Integer> ms_index_to_comb = new ArrayList(); // Custom size
 
-int[] tetrad_table;
-int[] tetrad_comb_to_index;
-ArrayList<Integer> tetrad_index_to_comb;
+int[] half_turn_table;
+int[] half_turn_comb_to_index;
+ArrayList<Integer> half_turn_index_to_comb;
 
 byte[] corners_o_table = new byte[2187];
 byte[] corners_p_table = new byte[96];
@@ -102,6 +102,7 @@ void loadPruningTables() {
     create_e_slice_table();
 
     create_ms_slice_table();
+
 
     // create_half_turn_table();
 
@@ -442,36 +443,44 @@ void create_ms_slice_table()    {
 
 // Thistle G2 -> G3 OLD
 void create_half_turn_table()  {
-    tetrad_table = new int[96];
+    half_turn_table = new int[40320];
+
+    // half_turn_comb_to_index = new int[40320];
+    // half_turn_index_to_comb = new ArrayList();
+
     String[] moves = { "U2", "L2", "F2", "R2", "B2", "D2"};
     
-    int depth = 0, totalStates = 0, newStates = 1;
+    int depth = 0, totalStates = 0, newStates = 1, ctr = 0;
     Cube2 c = new Cube2();
     // Inititialise table default values
-    for (int i = 0; i < tetrad_table.length; i++)  {
-        tetrad_table[i] = - 1;
+    for (int i = 0; i < half_turn_table.length; i++)  {
+        half_turn_table[i] = - 1;
     }
 
-    tetrad_table[0] = 0;
-    
-    println("Generating complete pruning table \"tetrad_table\"\n");
+    half_turn_table[c.encode_corners_p()] = 0;
+    // half_turn_index_to_comb.add(c.encode_corners_p());
+    // half_turn_comb_to_index[half_turn_index_to_comb.get(ctr)] = 0;
+    // ctr++;
+    // half_turn_table[half_turn_comb_to_index[c.encode_corners_p()]] = 0;
+    // println(half_turn_comb_to_index[c.encode_corners_p()] + "\t" + 0);
+
+    println("Generating complete pruning table \"half_turn_table\"\n");
     println("Depth\tNew\tTotal\tTime\n0\t1\t1\tN/A");
 
     long start = System.currentTimeMillis();
     while(newStates != 0)   {
         newStates = 0;
 
-        for (int i = 0; i < tetrad_table.length; i++)    {
-
-            if (tetrad_table[i] != depth) continue;
-            println("got one");
+        for (int i = 0; i < half_turn_table.length; i++)    {
+            if (half_turn_table[i] != depth) continue;
             for (String move : moves)    {
                 // Get corner sub state correlating with index i for the cube.
-                // c.decode_corner_p();
+                c.decode_corners_p(i);
                 c.testAlgorithm(move); // Apply move to this cube state
+                int half_turn_index = c.encode_corners_p();
                 // If the specified element of the table has a default value, replace it with a valid distance value.
-                if (tetrad_table[i] == - 1)   {
-                    tetrad_table[i] = depth + 1;
+                if (half_turn_table[half_turn_index] == - 1)   {
+                    half_turn_table[half_turn_index] = depth + 1;
                     newStates++; 
                 }
                 c = new Cube2();
@@ -486,8 +495,9 @@ void create_half_turn_table()  {
     }
     int counter = 0;
     // For debugging purposes.
-    for (int i = 0; i < tetrad_table.length; i++)   {
-        if (tetrad_table[i] != - 1)   {
+    for (int i = 0; i < half_turn_table.length; i++)   {
+        if (half_turn_table[i] != - 1)   {
+            println(counter + "\t[" + i + "]\t" + half_turn_table[i]);
             counter++;
         }
     }
@@ -579,7 +589,7 @@ void create_corner_p_ms_table()   {
     // 40320 - tetrad
     // 70 - ms slice 8C4
     corner_p_ms_table = new byte[40320*70];
-    int depth = 0, totalStates = 0, newStates = 1;
+    int depth = 0, totalStates = 0, newStates = 0;
     String[] moves = {"U", "U2", "U'", "L2", "F2", "R2", "B2", "D", "D2", "D'"};
     for(int i = 0; i < corner_p_ms_table.length; i++) {
         corner_p_ms_table[i] = -1;
@@ -589,37 +599,46 @@ void create_corner_p_ms_table()   {
     create_half_turn_table();
     // Fresh cube
     Cube2 c = new Cube2();
-    int corner_p_index = c.encode_corners_p();
-    int ms_slice_index = ms_comb_to_index[c.encode_ms_slice()];
-    // Create 96 tetrad permutations
-    for(int i = 0; i < tetrad_table.length; i++)    {
-        // Calculate their indexes and set their distance values to 0.
-        c.decode_corners_p(tetrad_table[i]);
-        corner_p_ms_table[c.encode_corners_p() * 70 + ms_slice_index] = 0;
+
+    // Half turn table is populated with 96 unique corner perms
+    // Assign the 96 corner permutations a distance of 0
+    for(int i = 0; i < half_turn_table.length; i++)    {
+        if(half_turn_table[i] == -1)   continue;
+        c.decode_corners_p(i);
+        corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] = 0;
+        println(c.encode_corners_p(), ms_comb_to_index[c.encode_ms_slice()]);
+        newStates++;
     }
-    corner_p_ms_table[corner_p_index * 70 + ms_slice_index] = 0;
+
+    totalStates += newStates;
 
     long start = System.currentTimeMillis();
     println("Generating pruning table \"corner_p_ms_table\"\n");
-    println("Depth\tNew\tTotal\tTime\n0\t1\t1\tN/A");
-
+    println("Depth\tNew\tTotal\tTime\n0\t" + newStates + "\t" + totalStates + "\tN/A");
+    ArrayList<Integer> co = new ArrayList();
+    int count = 0;
     while(newStates != 0)   {
         newStates = 0;
         for(int i = 0; i < 70; i++)  { // ms-slice
             for(int j = 0; j < 40320; j++)  { // corners
                 if(corner_p_ms_table[j * 70 + i] != depth)    continue;
+                count++;
                 for(String move : moves)    {
-
+                    
                     c.decode_ms_slice(ms_index_to_comb.get(i));
                     c.decode_corners_p(j);
-
+                    
+                    // Test move on new cube state
                     c.testAlgorithm(move);
 
-                    ms_slice_index = ms_comb_to_index[c.encode_ms_slice()];
-                    corner_p_index = c.encode_corners_p();
-                    // println(corner_p_index + " * 70 + " + ms_slice_index + "\t" + (corner_p_index * 70 + ms_slice_index));
-                    int combined_index = corner_p_index * 70 + ms_slice_index;
-
+                    // Calculate index values
+                    int ms_slice_index = ms_comb_to_index[c.encode_ms_slice()];
+                    int corner_p_index = c.encode_corners_p();
+                    // println(j, "\t", move , "\t", corner_p_index);
+                    // c.imageState();
+                    // Combine index
+                    int combined_index = corner_p_index * 70 +  ms_slice_index;
+                    // If distance value is default : -1 then set it to depth+1
                     if(corner_p_ms_table[combined_index] == -1)   {
                         int result = depth+1;
                         byte bresult = (byte)result;
@@ -628,6 +647,7 @@ void create_corner_p_ms_table()   {
                     }
                     c = new Cube2();
                 }
+
             }
         }
         depth++;
@@ -763,27 +783,6 @@ void ms_slice_tables(int n, int k)   {
             ms_comb_to_index[i] = -1;
         }
     }
-    
-}
-
-
-void tetrad_tables(int n, int k) {
-    int size = 2;
-    for (int i = 0; i < n - 1; i++)
-        size *= 2;
-    
-    tetrad_comb_to_index = new int[size];
-    tetrad_index_to_comb = new ArrayList(); // Custom size
-    int j = 0;
-    for (int i = 0; i < size; i++)   {
-        if (bitcount(i) == k) { // if edge_count has four 1s, save the index, save the combination.
-            tetrad_comb_to_index[i] = j;
-            tetrad_index_to_comb.add(i);
-            j++;
-        } else {
-            tetrad_comb_to_index[i] = - 1;
-        }
-    }
 }
 
 // Returns bits of number passed in
@@ -832,7 +831,7 @@ boolean prune(int method, Cube2 c, int depth, int stage)  {
                 // M/S slice - 70
                 // Tetrad - 40,320
                     // if (ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] > depth || 
-                    // tetrad_table[tetrad_comb_to_index[c.encode_tetrad()]] > depth)
+                    // half_turn_table[tetrad_comb_to_index[c.encode_tetrad()]] > depth)
                     if(corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] > depth)
                         return true;
                     break;

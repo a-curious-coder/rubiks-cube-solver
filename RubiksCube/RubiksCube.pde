@@ -65,6 +65,10 @@ long actualMemUsed = 0;
 int displayWidth = 720;
 int displayHeight = 450;
 
+boolean graycube = false; // For illustrations
+boolean cornersOnly = false;
+boolean edgesOnly = false;
+boolean centersOnly = false;
 // Cube attributes
 int dim = 3;
 int method = 1;
@@ -126,6 +130,7 @@ color white = #FFFFFF;
 color yellow = #FFFF00;
 color green = #00FF00;
 color blue  = #0000FF;
+color grey = #808080;
 
 // Sets up the Rubik's Cube emulator
 void setup() {
@@ -520,6 +525,7 @@ void statusBoxText()	{
 	delay(1000); // Refreshes text every second
 	refreshText = false;
 }
+
 //ControlP5 callback - method name must be the same as the string parameter of cp5.addScrollableList()
 void dropdown(int n) {
 	try{
@@ -723,7 +729,7 @@ void setupCamera() {
 
 // Updates the camera view
 void updateCam() {
-	rotateX(- 0.3);
+	rotateX(- 0.4);
 	rotateY(0.6);
 	//----- perspective -----
 	float fov      = PI / 3;  // field of view
@@ -1589,6 +1595,9 @@ void pocketCubeGodAlgorithm()	{
 	if(dim != 2)	return;
 	cube.iSmallSolver();
 	cube.smallDFSSolver.solve();
+}
+void lsSolve()	{
+	cube.lsAlgorithm.solve();
 }
 
 /**

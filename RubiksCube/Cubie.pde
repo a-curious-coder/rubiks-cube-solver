@@ -26,6 +26,8 @@ class Cubie {
     for (color c : colours) {
       nCols += c != black ? 1 : 0;
     }
+    setColoursGray();
+
     // Sets each face to their required colours
     faces[0] = new Face(new PVector(1, 0, 0), colours[0]); // Orange / Right
     faces[1] = new Face(new PVector(-1, 0, 0), colours[1]); // Red   / Left
@@ -78,6 +80,46 @@ class Cubie {
     }
   }
   
+  void setColoursGray() {
+    if(graycube)  {
+      for(int i = 0; i < colours.length; i++) {
+        colours[i] = grey;
+      }
+    }
+    if(cornersOnly) {
+      int colCounter = 0;
+      for(int i = 0; i < colours.length; i++) {
+        colCounter += colours[i] != black ? 1 : 0;
+      }
+      if(colCounter != 3) {
+        for(int i = 0; i < colours.length; i++) {
+          colours[i] = grey;
+        }
+      }
+    }
+    if(edgesOnly) {
+      int colCounter = 0;
+      for(int i = 0; i < colours.length; i++) {
+        colCounter += colours[i] != black ? 1 : 0;
+      }
+      if(colCounter != 2) {
+        for(int i = 0; i < colours.length; i++) {
+          colours[i] = grey;
+        }
+      }
+    }
+    if(centersOnly) {
+      int colCounter = 0;
+      for(int i = 0; i < colours.length; i++) {
+        colCounter += colours[i] != black ? 1 : 0;
+      }
+      if(colCounter != 1) {
+        for(int i = 0; i < colours.length; i++) {
+          colours[i] = grey;
+        }
+      }
+    }
+  }
   boolean mouseIsOver() {
     return false;
   }
