@@ -787,21 +787,20 @@ class Cube2 {
         byte[] ec = edgeColours;
         byte[] cc = cornerColours;
 
-        
         // UP
         println("\n\t\t" + b2c(cc[1]) + " " + b2c(ec[8]) + " " + b2c(cc[2]));
         println("\t\t" + b2c(ec[11]) + " " +  b2c((byte)2) + " " + b2c(ec[9]));
         println("\t\t" + b2c(cc[0]) + " " + b2c(ec[10]) + " " + b2c(cc[3]) + "\n");
         // L, F, R, B
         // FIRST ROW
-        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "    "
-        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "    "
-        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "    "
+        print("\t" + b2c(cc[22]) + " " + b2c(ec[4]) + " " + b2c(cc[21]) + "\t"
+        +            b2c(cc[9]) + " " + b2c(ec[16]) + " " + b2c(cc[10]) + "\t"
+        +            b2c(cc[17]) + " " + b2c(ec[0]) + " " + b2c(cc[18]) + "\t"
         +            b2c(cc[14]) + " " + b2c(ec[20]) + " " + b2c(cc[13]) + "\n" );
         // Second ROW
-        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "    "
-                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "    "
-                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "    "
+        print("\t"  + b2c(ec[7]) + " " + b2c(byte(1)) + " " + b2c(ec[5]) + "\t"
+                    + b2c(ec[17]) + " " + b2c(byte(4)) + " " + b2c(ec[19]) + "\t"
+                    + b2c(ec[1]) + " " + b2c(byte(0)) + " " + b2c(ec[3]) + "\t"
                     + b2c(ec[23]) + " " + b2c(byte(5)) + " " + b2c(ec[21]) + "\n");
         // Third ROW
         print("\t" + b2c(cc[23]) + " " + b2c(ec[6]) + " " + b2c(cc[20]) + "\t"
@@ -817,17 +816,23 @@ class Cube2 {
     String b2c(byte s)    {
         switch(s){
             case 0:
-                return "\u001b[31m" + "O";
+                return "O";
+                // return "\u001b[31m" + "O";
             case 1:
-                return "\u001b[31;1m" + "R";
+                return "R";
+                // return "\u001b[31;1m" + "R";
             case 2:
-                return "\u001b[33m" + "Y";
+                return "Y";
+                // return "\u001b[33m" + "Y";
             case 3:
-                return "\u001b[37m" + "W";
+                return "W";
+                // return "\u001b[37m" + "W";
             case 4:
-                return "\u001b[32m" + "G";
+                return "G";
+                // return "\u001b[32m" + "G";
             case 5:
-                return "\u001b[34m" + "B";
+                return "B";
+                // return "\u001b[34m" + "B";
         }
         return "i";
     }
@@ -1029,6 +1034,10 @@ class Cube2 {
             counter += counter == 3 ? 5 : 1;
         }
         // println(counter);
+        // for(int i : edges_p)    {
+        //     print(i, ", ");
+        // }
+        // println();
     }
 
     int encode_corners_p(){
@@ -1038,14 +1047,6 @@ class Cube2 {
             for(int j=i+1; j<8; j++){
                 if(corners_p[i] > corners_p[j]) t++;
             }
-        }
-        if(b2c(cornerColours[15]) == "\u001b[31m" + "O" && b2c(edgeColours[22]) == "\u001b[31m" + "O"&&  b2c(cornerColours[12]) == "\u001b[31m" + "O")  {
-            imageState();
-            for(int i : corners_p)  {
-                print(i + "\t");
-            }
-            println();
-            println("ABOVE IS APPARENTLY: " + t);
         }
         return t;
     }

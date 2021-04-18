@@ -198,7 +198,12 @@ class Cube {
 			rotatingCubies.addAll(cubieLists.get(i)); 
 		}
 	}
-	
+
+	void lturn()	{
+		// R Turn
+		turn('X', axis, -1);
+	}
+
 	/**
 	* Turns the entire cube along the specified axis
 	*

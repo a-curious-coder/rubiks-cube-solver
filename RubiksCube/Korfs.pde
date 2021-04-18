@@ -1,6 +1,7 @@
 class Korfs {
     
     long nodes = 0; // Needs to be a long data type because node count gets bigger than the max value an int can hold.
+    int currentDepth = 0;
     int numSolutions = 0;
     int moveCount = 0;
     Stack<Integer> soln = new Stack<Integer>();
@@ -57,6 +58,8 @@ class Korfs {
         outputBox.append("Depth" + t + "Nodes" + t + "Time\n");
         long start = System.currentTimeMillis(); // Start timer
         for(int i = 1 ; i <= 20 ;i++ ){
+            currentDepth = i;
+            println("CurrentDepth = " + i);
             if(solved && slackCounter == 1) break;
             if(solved) slackCounter++;
             // To track mem consumption when testing

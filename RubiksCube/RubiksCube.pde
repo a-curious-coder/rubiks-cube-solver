@@ -14,6 +14,7 @@ PeasyCam cam;
 ControlP5 cp5;
 int currentScreen;
 
+CheckBox checkbox;
 Textfield enterMoves;
 Textarea outputBox;
 boolean outputLog;
@@ -32,6 +33,8 @@ Button decreaseSize;
 Button submitMoves;
 Button loadPruneTables;
 Button twodimView;
+Button pruningChecklist;
+
 ScrollableList dropdown;
 String selected = ""; // Selected Algorithm
 String enteredMoves = "";
@@ -50,8 +53,10 @@ boolean solving;
 boolean solved;
 boolean refreshText;
 boolean loadedPruningTables;
+boolean checklistOpen;
 
-
+int lAxis;
+int layers;
 // Testing algorithm for csv data variables
 String headers = "method,scramble,solve,time,memconsum";
 
@@ -162,6 +167,7 @@ void draw() {
 }
 
 void init()	{
+	checklistOpen = false;
 	outputLog = false;
 	slowCube = false;
 	back = new ArrayList();
@@ -170,7 +176,7 @@ void init()	{
 	right = new ArrayList();
 	top = new ArrayList();
 	down = new ArrayList();
-	pfont = createFont("Arial", 14,true); // use true/false 
+	pfont = createFont("BitFont", 14 ,true);
 	currentScreen = 0;
 	cp5 = new ControlP5(this);
 	cp5.setAutoDraw(false);
@@ -224,7 +230,7 @@ void init()	{
 	// smooth(8);
 	// cam.reset();
 	setupCamera();
-	guiButtons();
+	guiElements();
 	updateLists();
 	if (dim > 1)  InitialiseMoves();
 	currentMove = new Move('X', 0, 0);
@@ -317,6 +323,7 @@ void theCube()	{
 	if(display2D)	updateLists(); // For 2D Display
 }
 
+
 void smallgui()	{
 	textFont(pfont);
 	String fps = "FPS : " + nf(frameRate, 1, 1);
@@ -353,7 +360,7 @@ void gui() {
 		float y = tSize;
 		textSize(tSize);
 		x += 20;
-		y += 20;
+		y += 50;
 		text(ctr, x, y);
 		y += 20;
 		text(fps, x, y);
@@ -382,21 +389,21 @@ void gui() {
 	hint(ENABLE_DEPTH_TEST);
 }
 
-void guiButtons()	{
+void guiElements()	{
 	// x, y, width, height
-	int textfieldHeight = height > 600 ? 40 : 25;
-	int fontSize = height > 600 ? 25 : 14;
-	ControlFont font = new ControlFont(pfont, fontSize);
+	int textfieldHeight = height/40;
+	// int fontSize = height/45;
+	// ControlFont font = new ControlFont(pfont, fontSize);
 	enterMoves = cp5.addTextfield("")
 				.setPosition(20, height-45)
 				.setSize(width-185, textfieldHeight)
-				.setFont(font)
+				// .setFont(font)
 				.setText("Enter scramble here")
 				.setAutoClear(false)
 				;
 	submitMoves= cp5.addButton("Submit moves")
-				.setPosition(width-130, height-45)
-				.setSize(110, textfieldHeight)
+				.setPosition(width-150, height-45)
+				.setSize(130, textfieldHeight)
 				.setId(11)
 				;
 	slider = cp5.addSlider("speed")
@@ -437,73 +444,95 @@ void guiButtons()	{
 						.setSize(95, 20)
 						.setId(2)
 						;
-		color background = color(8, 44, 92, 0);
-		float x = width;
-		float y = height;
-		if(outputLog)	{
-			background = color(8, 44, 92, 255);
-			x = width-240;
-			y = height-(height/2+height/4);
-		}
+
+		color background = color(8, 44, 92, 200);
+
 		outputBox		= cp5.addTextarea("Output")
-						.setPosition(x,y)
+						.setPosition(width-240, height-(height/2+height/4))
 						.setSize(200, 200)
 						.setLineHeight(14)
 						.setColorBackground(background)
 						.setColorForeground(background)
 						;
+		if(!outputLog)	outputBox.setVisible(false);
 		statusBox		= cp5.addTextarea("Status")
-						.setPosition(x,y+200)
+						.setPosition(width-240,height-(height/2+height/4)-20)
 						.setSize(200, 20)
 						.setFont(pfont)
 						.setLineHeight(14)
 						.setColorBackground(color(0))
 						.setColorForeground(color(0))
 						;
+
 	loadPruneTables = cp5.addButton("Load Pruning Tables")
 						.setPosition(width-135, 45)
 						.setSize(95, 20)
 						.setId(10)
 						;
 	exitButton		= cp5.addButton("Exit")
-						.setPosition(20, height-70)
+						.setPosition(20, 20)
 						.setSize(30, 20)
 						.setId(6);
 	helpButton		= cp5.addButton("Help")
-						.setPosition(60, height-70)
+						.setPosition(60, 20)
 						.setSize(30, 20)
 						.setId(3)
 						;
 	aboutButton		= cp5.addButton("About")
-						.setPosition(100, height-70)
+						.setPosition(100, 20)
 						.setSize(30, 20)
 						.setId(4)
 						;
 	resetButton		= cp5.addButton("Reset")
-						.setPosition(140, height-70)
+						.setPosition(140, 20)
 						.setSize(30, 20)
 						.setId(7)
 						;
-	decreaseSize	= cp5.addButton("Decrease cube size")
-						.setPosition(width-220, height-70)
-						.setSize(90, 20)
+	decreaseSize	= cp5.addButton("-")
+						.setPosition(width-70, height-70)
+						.setSize(20, 20)
 						.setId(8)
 						;
-	increaseSize	= cp5.addButton("Increase cube size")
-						.setPosition(width-120, height-70)
-						.setSize(90, 20)
+	increaseSize	= cp5.addButton("+")
+						.setPosition(width-40, height-70)
+						.setSize(20, 20)
 						.setId(9)
 						;
-	twodimView		= cp5.addButton("2D View Of Cube")
-						.setPosition(width-320, height-70)
-						.setSize(90, 20)
+	twodimView		= cp5.addButton("2D View")
+						.setPosition(width-150, height-70)
+						.setSize(60, 20)
 						.setId(12)
 						;
-	outputBoxOn		= cp5.addButton("Turn off log")
+	outputBoxOn		= cp5.addButton("Turn on log")
 						.setPosition(width - 380, height -70)
 						.setSize(60, 20)
 						.setId(13)
 						;
+	
+	checkbox		= cp5.addCheckBox("checkBox")
+									.setSize(20, 20)
+									.setItemsPerRow(1)
+									.setSpacingColumn(10)
+									.addItem("EO", 0)
+									.addItem("EP", 0)
+									.addItem("CO", 0)
+									.addItem("CO Merge CP", 50)
+									.addItem("E-Slice and CO Table", 100)
+									.addItem("CP and MS-Slice Table", 150)
+									.addItem("E-Slice Table", 200)
+									.addItem("MS-Slice Table", 255)
+									;
+	if(!checklistOpen)	checkbox.setVisible(false);
+	int items = 0;
+	for(Toggle i : checkbox.getItems())	{
+		items += 20;
+	}
+	checkbox.setPosition(20, height-80-items);
+
+	pruningChecklist=cp5.addButton("Open Pruning Checklist")
+									.setPosition(20, height-70)
+									.setSize(120, 20)
+									.setId(14);
 }
 
 void statusBoxText()	{
@@ -536,6 +565,19 @@ void dropdown(int n) {
 }
 
 void controlEvent(ControlEvent theEvent) {
+	if (theEvent.isFrom(checkbox)) {
+		// print("got an event from "+checkbox.getName()+"\t\n");
+		// checkbox uses arrayValue to store the state of 
+		// individual checkbox-items. usage:
+		// println(checkbox.getArrayValue());
+		// int col = 0;
+		// for (int i=0;i<checkbox.getArrayValue().length;i++) {
+		// 	int n = (int)checkbox.getArrayValue()[i];
+		// 	print(n);
+		// }
+		// println();
+		return;
+	}
 	switch(theEvent.getController().getId())	{
 		case 0:
 			if(allMoves.size() > availableMoves)	{
@@ -649,10 +691,8 @@ void controlEvent(ControlEvent theEvent) {
 			init();
 			break;
 		case 10:
-			if(!loadedPruningTables)	{
-				loadedPruningTables = true;
-				thread("loadPruningTables");
-			}
+			// Load pruning tables based on ticked boxes in checkbox
+			thread("loadPruningTables");
 			break;
 		case 11:
 			cube.testAlgorithm(enterMoves.getText());
@@ -661,10 +701,26 @@ void controlEvent(ControlEvent theEvent) {
 			display2D = !display2D;
 			break;
 		case 13:
-			// outputBox.value(0);
-			// guiButtons();
-			// outputBoxOn("")
+			if(!outputLog)	{
+				outputLog = true;
+				outputBox.setVisible(true);
+				outputBoxOn.setLabel("Turn Off Log");
+			} else {
+				outputLog = false;
+				outputBox.setVisible(false);
+				outputBoxOn.setLabel("Turn On Log");
+			}
 			break;
+		case 14:
+			if(checklistOpen)	{
+				checklistOpen = false;
+				checkbox.setVisible(false);
+				pruningChecklist.setLabel("Open Pruning Checklist");
+			} else {
+				checklistOpen = true;
+				checkbox.setVisible(true);
+				pruningChecklist.setLabel("Close Pruning Checklist");
+			}
 	}
 }
 
@@ -1560,7 +1616,7 @@ void testAlgorithm()	{
     }
 	testing = false;
 }
-
+// Testing Performance Data Functions
 void nodesPerSecond()	{
 	long nodes1 = 0;
 	long nodes2 = 0;
@@ -1571,6 +1627,39 @@ void nodesPerSecond()	{
 		println("Number of nodes this second: " + (nodes2 - nodes1));
 	}
 }
+
+// Saves performance stats of the solving algorithm every 10 seconds to a file.
+
+void oneMinuteSearchStats()	{
+	// Nodes traverse 
+	// Depth
+	// Solution Boolean
+	// Pruning tables used?
+	int second = 0;
+	String stats = "Depth\tTime\n";
+	long start = System.currentTimeMillis();
+	int cDepth = 0;
+
+	while(cDepth <21)	{
+		delay(10);
+		if(cube.ksolve.currentDepth > cDepth)	{
+			cDepth = cube.ksolve.currentDepth;
+			second++;
+			long end = System.currentTimeMillis();
+			long duration = end-start;
+			stats += cube.ksolve.currentDepth + "\t" + duration + "\n";
+			println("[" + second + "]\tTracked: " + cube.ksolve.currentDepth + "\t" + duration + "\n");
+		}
+		long e = System.currentTimeMillis();
+		long d = e-start;
+		if(d == 200000 % 20000)	println(d);	
+		if(d >= 200000)	break;
+	}
+	println("Done");
+	stringToFile(directory+"stats.txt", stats);
+}
+// End Testing Performance Data Functions
+
 void humanAlgorithm()	{
 	hAlgorithmRunning = true;
 }
@@ -1623,7 +1712,26 @@ void msgBox(String msg, String title){
 		javax.swing.JOptionPane.showMessageDialog(null, "Error occurred with this dialogue box 😬" + e);
 	}
 }
+// Global Print - Prints string to console and outputbox in GUI
+void gPrint(String s)	{
+	println(s);
+	outputBox.append(s + "\n");
+}
 
+void stringToFile(String destination,  String s)	{
+	try {
+		BufferedWriter outputWriter = null;
+		outputWriter = new BufferedWriter(new FileWriter(destination));
+		
+		outputWriter.write(s);
+		outputWriter.newLine();
+
+		outputWriter.flush();  
+		outputWriter.close(); 
+	} catch(Exception e) {
+		print(e);
+	}
+}
 void pixBox(String title)	{
 	String dir = "/Users/callummclennan/Desktop/Sync-Folder/rubiks-cube-solver/RubiksCube/";
 	try{

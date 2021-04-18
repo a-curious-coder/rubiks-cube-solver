@@ -60,8 +60,12 @@ void keyPressed() {
         // create_e_slice_table();
         // create_double_turn_table();
         // thread("testAlgorithm");
-        create_half_turn_table();
+        // create_corner_p_ms_table();
         // thread("korfsAlgorithm");
+        // thread("oneMinuteSearchStats");
+        // create_half_turn_table();
+        // thread("create_corner_p_ms_table");
+        // create_corner_p_g3_table();
         // thread("nodesPerSecond");
         // create_ms_slice_table();
         // e_slice_tables(12, 4);

@@ -164,15 +164,15 @@ class Thistlethwaite  {
             println("branching factor: " + allMoves.size());
         }
         if (x == 2)  {
-            depth = 13;
+            depth = 10;
             println("branching factor: " + allMoves.size());
         }
         if (x == 3)  {
-            depth = 13;
+            depth = 15;
             println("branching factor: " + allMoves.size());
         }
         if (x == 4)  {
-            depth = 15;
+            depth = 17;
             println("branching factor: " + allMoves.size());
         }
         // Takes 1 - 7 moves to orient all edges to fulfil G1 requirements.
@@ -249,10 +249,6 @@ class Thistlethwaite  {
                 nodes++;
             } 
         }
-    }
-    
-    void hello()  {
-        println("Hi");
     }
     
     void appendSolution(String prefix)    {
