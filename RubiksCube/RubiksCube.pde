@@ -137,9 +137,9 @@ color green = #00FF00;
 color blue  = #0000FF;
 color grey = #808080;
 
-// Sets up the Rubik's Cube emulator
+// Sets up the Rubik's Cube simulator
 void setup() {
-	size(600, 600, P3D);
+	size(900, 600, P3D);
 	// fullScreen(P3D);
 	// surface.setResizable(true);
 	// surface.setSize(displayWidth, displayHeight);
@@ -1505,13 +1505,14 @@ void testAlgorithm()	{
 			}
 		}
 	// End Region: If there aren't any headers in the csv file, append them.
-	
+	int lines = 0;
 	ArrayList<String> moves = new ArrayList();
 	try{
 		FileReader fileReader = new FileReader(directory + "/scramble.txt");
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
 		String line = null;
 		while ((line = bufferedReader.readLine()) != null) {
+			lines++;
 			moves.add(line);
 		}
 		bufferedReader.close();
@@ -1520,99 +1521,96 @@ void testAlgorithm()	{
 	}
 
 	int tests = 0;
-    while(tests < 50) {
+	numberOfMoves = 100;
+    while(tests < lines) {
+		delay(10);
 		String out = "";
-		numberOfMoves += new Random().nextInt(2);
-		for(int i = 0; i < 3; i++)  {
-			println("Test " + (tests+1));
-			// Region: Prepare file for writing data.
-				try {
-					output =  new BufferedWriter(new FileWriter(directory+"/TestResults.txt", true));
-				} catch (FileNotFoundException e) {
-					println(e);
-					return;
-				} catch (IOException e)	{
-					println(e);
-					return;
-				}
-			// End Region: Prepare file for writing data.
-
-			// Scramble cube with specified num of moves
-			// cube.scrambleCube();
-			cube.testAlgorithm(moves.get(tests));
-			// Wait for cube to finish scrambling
-			while(scrambling || sequence.size() != 0)	delay(200);
-			println("Scrambled");
-			// Start timer (to see how long solver takes)
-			long start = System.currentTimeMillis();
-			int moveCount = 0;
-			println("Solving... " + method);
-			switch(method)	{
-				case 1:
-					// Set human solve boolean to true - main loop should start solving cube
-					hSolve = true;
-					// While human solver is running, wait.
-					while(hAlgorithmRunning || hSolve)	delay(200);
-					moveCount = cube.hAlgorithm.moveCount;
-					break;
-				case 2:
-					cube.tsolve();
-					cube.thistlethwaite.solve();
-					while(thistlethwaiteRunning)	delay(200);
-					moveCount = cube.thistlethwaite.moveCount;
-					break;
-				case 3:
-					// Initialise solving method
-					println("Kociemba: " + tests);
-					cube.optimalSolver();
-					cube.kociembaSolver.solve();
-					while(kociembaRunning)	delay(200);
-					moveCount = cube.kociembaSolver.moveCount;
-					break;
-				case 4:
-					cube.ksolve.solve();
-					while(ksolveRunning)	delay(200);
-					moveCount = cube.ksolve.moveCount;
-					break;
-				case 5:
-					cube.iSmallSolver();
-					cube.smallDFSSolver.solve();
-					moveCount = cube.smallDFSSolver.moveCount;
-					break;
+		println("Test " + (tests+1) + " / " + lines);
+		// Region: Prepare file for writing data.
+			try {
+				output =  new BufferedWriter(new FileWriter(directory+"/TestResults.txt", true));
+			} catch (FileNotFoundException e) {
+				println(e);
+				return;
+			} catch (IOException e)	{
+				println(e);
+				return;
 			}
-			
-			// Get average value from array of memory consumption data.
-			for(long j : memConsumptionArray)	{
-				duringFunctionExecution += j;
-			}
-			// Store average mem consumption for this solve to variable
-			duringFunctionExecution = duringFunctionExecution/memConsumptionArray.size();
-			// Clear the array for next solve.
-			memConsumptionArray.clear();
-			// Calculate memory used/total 
-			if(duringFunctionExecution != 0)	actualMemUsed = duringFunctionExecution - beforeFunctionIsCalled;
-			duringFunctionExecution = 0;
-			// If algorithm is running, sequence has moves left or sequence has moves being performed.
-			while(sequence.size() > 0 || sequenceRunning)	delay(200);
+		// End Region: Prepare file for writing data.
 
-			long end = System.currentTimeMillis();
-			float duration = (end - start) / 1000F;
-
-			long memconsum = actualMemUsed;
-			out += method + "," + numberOfMoves + "," + moveCount + "," + duration + "," + memconsum + "\n";
-			// Region: append data to file
-				try {
-					output.append(out);
-					output.close();
-				} catch(IOException e)	{
-					println("Err >> " + e + "\nAborting file appending");
-					return;
-				}
-			// Region: append data to file
-			resetCube();
-			tests += 1;
+		// Scramble cube with specified num of moves
+		// cube.scrambleCube();
+		cube.testAlgorithm(moves.get(tests));
+		// Wait for cube to finish scrambling
+		while(scrambling || sequence.size() != 0)	delay(200);
+		println("Scrambled");
+		// Start timer (to see how long solver takes)
+		long start = System.currentTimeMillis();
+		int moveCount = 0;
+		println("Solving... " + method);
+		switch(method)	{
+			case 1:
+				// Set human solve boolean to true - main loop should start solving cube
+				hSolve = true;
+				// While human solver is running, wait.
+				while(hAlgorithmRunning || hSolve)	delay(200);
+				moveCount = cube.hAlgorithm.moveCount;
+				break;
+			case 2:
+				cube.tsolve();
+				cube.thistlethwaite.solve();
+				while(thistlethwaiteRunning)	delay(200);
+				moveCount = cube.thistlethwaite.moveCount;
+				break;
+			case 3:
+				// Initialise solving method
+				cube.optimalSolver();
+				cube.kociembaSolver.solve();
+				while(kociembaRunning)	delay(200);
+				moveCount = cube.kociembaSolver.moveCount;
+				break;
+			case 4:
+				cube.ksolve.solve();
+				while(ksolveRunning)	delay(200);
+				moveCount = cube.ksolve.moveCount;
+				break;
+			case 5:
+				cube.iSmallSolver();
+				cube.smallDFSSolver.solve();
+				moveCount = cube.smallDFSSolver.moveCount;
+				break;
 		}
-    numberOfMoves++;
+		
+		// Get average value from array of memory consumption data.
+		for(long j : memConsumptionArray)	{
+			duringFunctionExecution += j;
+		}
+		// Store average mem consumption for this solve to variable
+		duringFunctionExecution = duringFunctionExecution/memConsumptionArray.size();
+		// Clear the array for next solve.
+		memConsumptionArray.clear();
+		// Calculate memory used/total 
+		if(duringFunctionExecution != 0)	actualMemUsed = duringFunctionExecution - beforeFunctionIsCalled;
+		duringFunctionExecution = 0;
+		// If algorithm is running, sequence has moves left or sequence has moves being performed.
+		while(sequence.size() > 0 || sequenceRunning)	delay(200);
+
+		long end = System.currentTimeMillis();
+		float duration = (end - start) / 1000F;
+
+		long memconsum = actualMemUsed;
+		out += method + "," + numberOfMoves + "," + moveCount + "," + duration + "," + memconsum + "\n";
+		// Region: append data to file
+			try {
+				output.append(out);
+				output.close();
+			} catch(IOException e)	{
+				println("Err >> " + e + "\nAborting file appending");
+				return;
+			}
+		// Region: append data to file
+		// resetCube();
+		tests += 1;
     }
 	testing = false;
 }

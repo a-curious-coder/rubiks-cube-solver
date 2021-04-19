@@ -59,9 +59,10 @@ void keyPressed() {
         // create_ms_slice_table();
         // create_e_slice_table();
         // create_double_turn_table();
-        // thread("testAlgorithm");
+        thread("testAlgorithm");
         // create_corner_p_ms_table();
         // thread("korfsAlgorithm");
+        // thread("thistlethwaitesAlgorithm")
         // thread("oneMinuteSearchStats");
         // create_half_turn_table();
         // thread("create_corner_p_ms_table");

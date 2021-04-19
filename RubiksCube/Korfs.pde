@@ -59,7 +59,6 @@ class Korfs {
         long start = System.currentTimeMillis(); // Start timer
         for(int i = 1 ; i <= 20 ;i++ ){
             currentDepth = i;
-            println("CurrentDepth = " + i);
             if(solved && slackCounter == 1) break;
             if(solved) slackCounter++;
             // To track mem consumption when testing

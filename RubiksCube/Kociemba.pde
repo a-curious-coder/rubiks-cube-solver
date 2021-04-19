@@ -1,7 +1,7 @@
 class Kociemba{
     
     Cube2 cube;
-    int stage, nodes, moveCount;
+    int stage, nodes, moveCount, currentDepth;
     boolean g1, g2;
     String g1Algorithm, g2Algorithm, solution;
     ArrayList<String> allMoves = new ArrayList<String>(

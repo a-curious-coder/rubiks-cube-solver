@@ -120,8 +120,8 @@ void loadPruningTables() {
             create_corners_op_table();
         }
     } else {
-        gPrint("Unloading corners_op pruning table.");
-        for(byte b : corners_op_table) {
+        gPrint("Unloading corners_p_corners_o_table pruning table.");
+        for(byte b : corners_p_corners_o_table) {
             b = -1;
         }
     }
@@ -219,13 +219,7 @@ void create_corners_op_table()   {
         println((int)depth + "\t" + newPositions + "\t" + totalPositions + "\t" + duration + "s");
     }
     tableDepths[1] = depth;
-    try {
-        FileOutputStream stream = new FileOutputStream(directory + "corners_op.txt");
-        stream.write(corners_p_corners_o_table);
-        gPrint("Saved corners_op.txt");
-    } catch(Exception e) {
-        print(e);
-    }
+    writeBytesToFile(directory + "corners_op.txt", corners_p_corners_o_table);
 }
 
 void create_edges_p_table() {
@@ -724,10 +718,13 @@ void create_corner_p_ms_table()   {
     // Assign the 96 corner permutations a distance of 0
     for(int i = 0; i < half_turn_table.length; i++)    {
         if(half_turn_table[i] == -1)   continue;
-        // println(i, " ", half_turn_table[i]);
+        // Index to corner sub-state
         c.decode_corners_p(i);
-        corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] = 0;
-        newStates++;
+        for(int j = 0; j < 70; j++) {
+            c.decode_ms_slice(ms_index_to_comb.get(j));
+            corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] = 0;
+            newStates++;
+        }
     }
     // corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] = 0;
     // newStates++;
@@ -749,6 +746,7 @@ void create_corner_p_ms_table()   {
                     c.decode_ms_slice(ms_index_to_comb.get(i));
                     // Get corner perms from j
                     c.decode_corners_p(j);
+                    int reEncodeJ = c.encode_corners_p();
                     // Test move on resulting cube state
                     c.testAlgorithm(move);
 
@@ -767,7 +765,7 @@ void create_corner_p_ms_table()   {
                         for(int p : c.corners_p)  {
                             perms += p + ", ";
                         }
-                        // wank[count] = count + "\t" + i + "\t" + j + "\t" + move + "\t" + ms_slice_index + "\t" + corner_p_index + "\t\t" + perms;
+                        // wank[count] = count + "\t" + i + "\t" + j + "\t" + reEncodeJ + "\t" + move + "\t" + ms_slice_index + "\t" + corner_p_index + "\t\t" + perms;
                         perms = "";
                         count++;
                         // println(count, "\t", move, " ", ms_slice_index, ",  ", j);
@@ -784,7 +782,7 @@ void create_corner_p_ms_table()   {
         //     BufferedWriter outputWriter = null;
         //     outputWriter = new BufferedWriter(new FileWriter(directory+"wank.txt"));
         //     for (int i = 0; i < wank.length; i++) {
-        //         if(i == 0)  wank[i] = "State\ti\tj\tmove\tmsindex\tcornerpindex\tcorner_perms\n" + wank[i];
+        //         if(i == 0)  wank[i] = "State\ti\tj\tre_j\tmove\tmsindex\tcornerpindex\tcorner_perms\n" + wank[i];
         //         // Maybe:
         //         outputWriter.write(wank[i]+"");
         //         outputWriter.newLine();
@@ -802,13 +800,7 @@ void create_corner_p_ms_table()   {
         start = System.currentTimeMillis();
         println((int)depth + "\t" + newStates + "\t" + totalStates + "\t" + duration + "s");
     }
-    try {
-        FileOutputStream stream = new FileOutputStream(directory + "corner_p_ms_table.txt");
-        stream.write(corner_p_ms_table);
-        println("Saved corner_p_ms_table.txt");
-    } catch(Exception e) {
-        print(e);
-    }
+    writeBytesToFile(directory + "corner_p_ms_table.txt", corner_p_ms_table);
 }
 
 // Thistle G3 -> G4
@@ -975,7 +967,7 @@ boolean prune(int method, Cube2 c, int depth, int stage)  {
                 case 3:
                 // M/S slice - 70
                 // Tetrad - 40,320
-                    if (ms_slice_table[ms_comb_to_index[c.encode_ms_slice()]] > depth || corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] > depth)
+                    if (corner_p_ms_table[c.encode_corners_p() * 70 + ms_comb_to_index[c.encode_ms_slice()]] > depth)
                         return true;
                     break;
                 case 4:
@@ -991,7 +983,7 @@ boolean prune(int method, Cube2 c, int depth, int stage)  {
             switch(stage)   {
                 case 1:
                     if(edges_o_table[c.encode_edges_o()] > depth ||
-                        corners_o_table[c.encode_corners_o()] > depth || eslice_table[comb_to_index[c.encode_eslice()]] > depth
+                        es_co_table[comb_to_index[c.encode_eslice()] * 2187 + c.encode_corners_o()] > depth
                         )
                         return true;
                     break;

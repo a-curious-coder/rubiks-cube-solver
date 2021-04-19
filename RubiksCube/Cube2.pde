@@ -178,39 +178,39 @@ class Cube2 {
     // Intialise permutation of edges and corners of cube.
     void ipce()  {
 
-        int ctr = 0;
+        int index = 0;
         // Corner permutations
         for(int i = 0; i < corners.length; i++)    {
             Cubie c = corners[i];
-            if(contains(c.colours, yellow) && contains(c.colours, red) && contains(c.colours, green))     corners_p[ctr] = 1;
-            if(contains(c.colours, yellow) && contains(c.colours, red) && contains(c.colours, blue))      corners_p[ctr] = 2;
-            if(contains(c.colours, yellow) && contains(c.colours, orange) && contains(c.colours, blue))   corners_p[ctr] = 3;
-            if(contains(c.colours, yellow) && contains(c.colours, orange) && contains(c.colours, green))  corners_p[ctr] = 4;
-            if(contains(c.colours, white) && contains(c.colours, red) && contains(c.colours, blue))       corners_p[ctr] = 5;
-            if(contains(c.colours, white) && contains(c.colours, red) && contains(c.colours, green))      corners_p[ctr] = 6;
-            if(contains(c.colours, white) && contains(c.colours, orange) && contains(c.colours, green))   corners_p[ctr] = 7;
-            if(contains(c.colours, white) && contains(c.colours, orange) && contains(c.colours, blue))    corners_p[ctr] = 8;
-            ctr++;
+            if(contains(c.colours, yellow) && contains(c.colours, red) && contains(c.colours, green))          corners_p[index] = 1;
+            if(contains(c.colours, yellow) && contains(c.colours, red) && contains(c.colours, blue))            corners_p[index] = 2;
+            if(contains(c.colours, yellow) && contains(c.colours, orange) && contains(c.colours, blue))      corners_p[index] = 3;
+            if(contains(c.colours, yellow) && contains(c.colours, orange) && contains(c.colours, green))  corners_p[index] = 4;
+            if(contains(c.colours, white) && contains(c.colours, red) && contains(c.colours, blue))       corners_p[index] = 5;
+            if(contains(c.colours, white) && contains(c.colours, red) && contains(c.colours, green))      corners_p[index] = 6;
+            if(contains(c.colours, white) && contains(c.colours, orange) && contains(c.colours, green))   corners_p[index] = 7;
+            if(contains(c.colours, white) && contains(c.colours, orange) && contains(c.colours, blue))    corners_p[index] = 8;
+            index++;
         }
 
-        ctr = 0;
+        index = 0;
         // Edge permutations
         for(Cubie c : edges)    {
-            if(contains(c.colours, yellow) && contains(c.colours, green)) edges_p[ctr] = 1;
-            if(contains(c.colours, yellow) && contains(c.colours, red)) edges_p[ctr] = 2;
-            if(contains(c.colours, yellow) && contains(c.colours, blue)) edges_p[ctr] = 3;
-            if(contains(c.colours, yellow) && contains(c.colours, orange)) edges_p[ctr] = 4;
+            if(contains(c.colours, yellow) && contains(c.colours, green)) edges_p[index] = 1;
+            if(contains(c.colours, yellow) && contains(c.colours, red)) edges_p[index] = 2;
+            if(contains(c.colours, yellow) && contains(c.colours, blue)) edges_p[index] = 3;
+            if(contains(c.colours, yellow) && contains(c.colours, orange)) edges_p[index] = 4;
 
-            if(contains(c.colours, red) && contains(c.colours, blue)) edges_p[ctr] = 5;
-            if(contains(c.colours, red) && contains(c.colours, green)) edges_p[ctr] = 6;
-            if(contains(c.colours, orange) && contains(c.colours, green)) edges_p[ctr] = 7;
-            if(contains(c.colours, orange) && contains(c.colours, blue)) edges_p[ctr] = 8;
+            if(contains(c.colours, red) && contains(c.colours, blue)) edges_p[index] = 5;
+            if(contains(c.colours, red) && contains(c.colours, green)) edges_p[index] = 6;
+            if(contains(c.colours, orange) && contains(c.colours, green)) edges_p[index] = 7;
+            if(contains(c.colours, orange) && contains(c.colours, blue)) edges_p[index] = 8;
 
-            if(contains(c.colours, white) && contains(c.colours, blue)) edges_p[ctr] = 9;
-            if(contains(c.colours, white) && contains(c.colours, red)) edges_p[ctr] = 10;
-            if(contains(c.colours, white) && contains(c.colours, green)) edges_p[ctr] = 11;
-            if(contains(c.colours, white) && contains(c.colours, orange)) edges_p[ctr] = 12;
-            ctr++;
+            if(contains(c.colours, white) && contains(c.colours, blue)) edges_p[index] = 9;
+            if(contains(c.colours, white) && contains(c.colours, red)) edges_p[index] = 10;
+            if(contains(c.colours, white) && contains(c.colours, green)) edges_p[index] = 11;
+            if(contains(c.colours, white) && contains(c.colours, orange)) edges_p[index] = 12;
+            index++;
         }
         }
     // Initialise orientation of edges - http://cube.rider.biz/zz.php?p=eoline#eo_detection
@@ -999,9 +999,9 @@ class Cube2 {
             if(i == 4 || i == 5 || i ==6 || i == 7) continue;
             //  S Slice
             if(edges_p[i] == 1 || edges_p[i] == 3 || edges_p[i] == 9 || edges_p[i] == 11)  {
-                binaryRepresentation += "1";
-            } else {
                 binaryRepresentation += "0";
+            } else {
+                binaryRepresentation += "1";
             }
         }
         // println();
@@ -1155,29 +1155,3 @@ class Cube2 {
         }
     }
 }
-
-// Return a score to add 'luck' factor
-    // byte score() {
-    //     byte score = 0;
-    //     int[] tmpcorners_p = {1,2,3,4,5,6,7,8};
-    //     int[] tmpcorners_o = {1,2,3,4,5,6,7,8};
-    //     for(int i = 0; i < corners_p.length; i++)  {
-    //         if(tmpcorners_p[i] != corners_p[i])   {
-    //             score += 1;
-    //         }
-    //         if(tmpcorners_o[i] != corners_o[i])   {
-    //             score += 2;
-    //         }
-    //     }
-    //     int[] tmpedges_p = {1,2,3,4,5,6,7,8,9,10,11,12};
-    //     int[] tmpedges_o = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    //     for(int i = 0; i < edges_o.length; i++)  {
-    //         if(tmpedges_p[i] != edges_p[i]) {
-    //             score += 1;
-    //         }
-    //         if(tmpedges_o[i] != edges_o[i]) {
-    //             score += 2;
-    //         }
-    //     }
-    //     return score;
-    // }

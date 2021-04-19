@@ -132,7 +132,7 @@ class Cube {
 	void update() {
 		if (animating) {
 			if (rotationAngle < HALF_PI) {
-				float scrambleMultiplier = 0.005;
+				float scrambleMultiplier = 0.05;
 				int turningEaseCoeff = 3;
 				if (rotationAngle < HALF_PI / 4) {
 					rotationAngle += scrambleMultiplier * speed / map(rotationAngle, 0, HALF_PI / 4, turningEaseCoeff, 1);

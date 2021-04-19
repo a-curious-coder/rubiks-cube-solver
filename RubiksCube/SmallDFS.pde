@@ -37,6 +37,7 @@ class SmallDFS  {
             println("Searching for solution...");
             println("Depth");
             for (int d = 0; d <= 11; d++)    {
+                memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
                 print(d + ", ");
                 if (dfs(d, - 1)) break;
             }
