@@ -46,6 +46,7 @@ class Kociemba{
         // Phase 2
         // Solve cube.
         memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
+        enterMoves.setValue("Solution:\t" + solution);
         print("Finished running");
         kociembaRunning = false;
     }
@@ -62,14 +63,14 @@ class Kociemba{
         if (depth == 0)  {
             // Test if cube has a valid solution for this stage.
             if (stage(tmp))  
-                appendSolution(prefix);
+                appendSolution(prefix + " ");
             return;
         } else {
             // One by one add all characters from set and recursively call for depth equals to depth-1
             for (String move : allMoves)   {
                 if ((stage == 1 && g1) || (stage == 2 && g2))
                     return;
-                search(prefix + move, depth - 1);
+                search(prefix + " " +  move, depth - 1);
                 nodes++;
             } 
         }
@@ -87,7 +88,7 @@ class Kociemba{
                 //tmp.imageState();
                 // Check if it's worth continuing the search at this depth
                 if (prune(2, tmp, depth, stage)) continue; //<>//
-                if (stage(tmp))  appendSolution(s);
+                if (stage(tmp))  appendSolution(s + " ");
                 nodes++;
             }
         } else {

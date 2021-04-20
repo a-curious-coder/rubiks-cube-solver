@@ -168,7 +168,7 @@ void draw() {
 
 void init()	{
 	checklistOpen = false;
-	outputLog = false;
+	outputLog = true;
 	slowCube = false;
 	back = new ArrayList();
 	front = new ArrayList();
@@ -313,7 +313,18 @@ void theCube()	{
 		scrambleTheCube.isMouseOver() ||
 		slider.isMouseOver() ||
 		pauseButton.isMouseOver() ||
-		solveTheCube.isMouseOver()) {
+		solveTheCube.isMouseOver() ||
+		outputBox.isMouseOver() ||
+		enterMoves.isMouseOver() ||
+		helpButton.isMouseOver() ||
+		aboutButton.isMouseOver() ||
+		increaseSize.isMouseOver() ||
+		decreaseSize.isMouseOver() ||
+		loadPruneTables.isMouseOver() ||
+		twodimView.isMouseOver() ||
+		pruningChecklist.isMouseOver() ||
+		solveTheCube.isMouseOver() ||
+		scrambleTheCube.isMouseOver()) {
 		cam.setActive(false);
 	} else {
 		cam.setActive(true);
@@ -448,20 +459,20 @@ void guiElements()	{
 		color background = color(8, 44, 92, 200);
 
 		outputBox		= cp5.addTextarea("Output")
-						.setPosition(width-240, height-(height/2+height/4))
-						.setSize(200, 200)
+						.setPosition(width-240, height/3+20)
+						.setSize(200, height/3-20)
 						.setLineHeight(14)
 						.setColorBackground(background)
 						.setColorForeground(background)
 						;
 		if(!outputLog)	outputBox.setVisible(false);
 		statusBox		= cp5.addTextarea("Status")
-						.setPosition(width-240,height-(height/2+height/4)-20)
+						.setPosition(width-240, height/3)
 						.setSize(200, 20)
 						.setFont(pfont)
 						.setLineHeight(14)
-						.setColorBackground(color(0))
-						.setColorForeground(color(0))
+						.setColorBackground(color(0, 0, 0, 125))
+						.setColorForeground(color(0, 0, 0, 125))
 						;
 
 	loadPruneTables = cp5.addButton("Load Pruning Tables")
@@ -503,7 +514,7 @@ void guiElements()	{
 						.setSize(60, 20)
 						.setId(12)
 						;
-	outputBoxOn		= cp5.addButton("Turn on log")
+	outputBoxOn		= cp5.addButton("Turn off log")
 						.setPosition(width - 380, height -70)
 						.setSize(60, 20)
 						.setId(13)
@@ -513,14 +524,16 @@ void guiElements()	{
 									.setSize(20, 20)
 									.setItemsPerRow(1)
 									.setSpacingColumn(10)
-									.addItem("EO", 0)
-									.addItem("EP", 0)
-									.addItem("CO", 0)
-									.addItem("CO Merge CP", 50)
-									.addItem("E-Slice and CO Table", 100)
-									.addItem("CP and MS-Slice Table", 150)
+									.addItem("Edge Orientations", 0)
+									.addItem("Edge Permutations", 0)
+									.addItem("Corner Orientations", 0)
+									.addItem("Corner Orientations and Corner Permutations", 50)
+									.addItem("E-Slice and Corner Orientations Table", 100)
+									.addItem("Corner Permutations and MS-Slice Table", 150)
 									.addItem("E-Slice Table", 200)
 									.addItem("MS-Slice Table", 255)
+									.addItem("E-Slice and Edge Orientations", 300)
+									.addItem("Edge Orientations and Corner Orientations", 350)
 									;
 	if(!checklistOpen)	checkbox.setVisible(false);
 	int items = 0;
@@ -604,9 +617,9 @@ void controlEvent(ControlEvent theEvent) {
 			println("Method: " + method);
 			break;
 		case 1:
-			numberOfMoves = 14;
-			// cube.scrambleCube();
-			cube.hardcodedScrambleCube();
+			numberOfMoves = 100;
+			cube.scrambleCube();
+			// cube.hardcodedScrambleCube();
 			enterMoves.setValue(" " + moves);
 			break;
 		case 2:
@@ -785,7 +798,7 @@ void setupCamera() {
 
 // Updates the camera view
 void updateCam() {
-	rotateX(- 0.4);
+	rotateX(-0.4);
 	rotateY(0.6);
 	//----- perspective -----
 	float fov      = PI / 3;  // field of view

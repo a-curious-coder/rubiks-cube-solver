@@ -43,6 +43,7 @@ class Thistlethwaite  {
         if (!edgesOriented(cube))    {
             getGroup(stage); // Orient all the edges on the cube according to these rules: 
         } else {
+            g1 = true;
             println("Already achieved stage:" + stage);
         }
         removeRedundantMoves();
@@ -59,12 +60,13 @@ class Thistlethwaite  {
         if (!cornersOriented(cube) && !eSliceEdges(cube))  {
             getGroup(stage); // Orient corners and place appropriate edges to E slice, between U and D, of cube.
         } else {
+            g2 = true;
             println("Already achieved stage: " + stage);
         }
         removeRedundantMoves();
         outputBox.append("\n");
         stage++; // 3
-        end = System.currentTimeMillis(); //<>//
+        end = System.currentTimeMillis(); 
         duration = (end - start) / 1000F;
         println("G2\t" + duration + "s\t" + g2Algorithm);
         outputBox.append("G2" + t + duration + "s" + t + g2Algorithm + "\n");
@@ -76,11 +78,8 @@ class Thistlethwaite  {
             println("Trying to get G3");
             getGroup(stage); // Permutate cubies until F/B colours are on F/B faces and U/D colours are on U/D faces. 
         } else {
+            g3 = true;
             println("Already achieved stage: " + stage);
-        }
-        if(!g3) {
-            println("Didn't find a solution for G3; exiting solving algorithm");
-            return;
         }
         removeRedundantMoves();
         stage++;
@@ -115,12 +114,12 @@ class Thistlethwaite  {
     * @param    tmp Cube we're evaluating requirements for each stage
     * @return   boolean If stage requirements are fulfilled for given cube, return true; else false.
     */
-    boolean stage(Cube2 tCube) { //<>//
+    boolean stage(Cube2 tCube) { 
         switch(stage)   {
             case 1:
             if (!g1) {
                 if (edgesOriented(tCube))  {
-                    g1 = true; //<>//
+                    g1 = true; 
                     return true;
                 }
             }
@@ -136,7 +135,7 @@ class Thistlethwaite  {
             case 3:
             if (!g3) {
                 if (cornersPermutated(tCube) && allEdgesInCorrectSlice(tCube))    {
-                    g3 = true; //<>//
+                    g3 = true; 
                     return true;
                 }
             }
@@ -168,11 +167,11 @@ class Thistlethwaite  {
             println("branching factor: " + allMoves.size());
         }
         if (x == 3)  {
-            depth = 15;
+            depth = 13;
             println("branching factor: " + allMoves.size());
         }
         if (x == 4)  {
-            depth = 17;
+            depth = 15;
             println("branching factor: " + allMoves.size());
         }
         // Takes 1 - 7 moves to orient all edges to fulfil G1 requirements.
@@ -202,7 +201,7 @@ class Thistlethwaite  {
     * @param    depth   Depth we're searching at for IDDFS
     */
     void searchAllAtDepth(int depth) {
-        Cube2 tmp = new Cube2(cube); //<>//
+        Cube2 tmp = new Cube2(cube); 
         if (depth == 1)  {
             for (String s : allMoves)    {
                 // Reset cube
@@ -212,13 +211,13 @@ class Thistlethwaite  {
                 tmp.testAlgorithm(s);
                 //tmp.imageState();
                 // Check if it's worth continuing the search at this depth
-                if (prune(1, tmp, depth, stage)) continue; //<>//
+                if (prune(1, tmp, depth, stage)) continue; 
                 if (stage(tmp))  appendSolution(s);
                 nodes++;
             }
         } else {
             search("", depth);
-        } //<>//
+        } 
         return;
     }
     
@@ -341,42 +340,26 @@ class Thistlethwaite  {
                 //"RDF", "RUF", "RUB", "RDB",
                 //"LDF", "LUF", "LUB", "LDB"};
         // Extract the colours of the corresponding facelets.
-        byte UFL = tmp.cornerColours[0];
-        byte LUF = tmp.cornerColours[21];
-        
-        byte UBL = tmp.cornerColours[1];
-        byte LUB = tmp.cornerColours[22];
-        
-        byte UBR = tmp.cornerColours[2];
-        byte RUB = tmp.cornerColours[18];
-        
-        byte UFR = tmp.cornerColours[3];
-        byte RUF = tmp.cornerColours[17];
-        
-        byte DFL = tmp.cornerColours[4];
-        byte LDF = tmp.cornerColours[20];
-        
-        byte DBL = tmp.cornerColours[5];
-        byte LDB = tmp.cornerColours[23];
-        
-        byte DBR = tmp.cornerColours[6];
-        byte RDB = tmp.cornerColours[19];
-        
-        byte DFR = tmp.cornerColours[7];
-        byte RDF = tmp.cornerColours[16];
-        
-        // Do some fat boolean equation to figure out if the corners are in their tetrads
-        boolean r = 
-        ((UFL == 2 || UFL == 3) && (LUF == 0 || LUF == 1)) &&
-            ((UBL == 2 || UBL == 3) && (LUB == 0 || LUB == 1)) &&
-            ((UBR == 2 || UBR == 3) && (RUB == 0 || RUB == 1)) &&
-            ((UFR == 2 || UFR == 3) && (RUF == 0 || RUF == 1)) &&
-            ((DFL == 2 || DFL == 3) && (LDF == 0 || LDF == 1)) &&
-            ((DBL == 2 || DBL == 3) && (LDB == 0 || LDB == 1)) &&
-            ((DBR == 2 || DBR == 3) && (RDB == 0 || RDB == 1)) &&
-            ((DFR == 2 || DFR == 3) && (RDF == 0 || RDF == 1));
-        
-        return r;
+        // byte UFL = tmp.cornerColours[0];
+        // byte LUF = tmp.cornerColours[21];
+        int UFL = tmp.corners_p[0];
+        int UBL = tmp.corners_p[1];
+        int UBR = tmp.corners_p[2];
+        int UFR = tmp.corners_p[3];
+
+        int DFL = tmp.corners_p[4];
+        int DBL = tmp.corners_p[5];
+        int DBR = tmp.corners_p[6];
+        int DFR = tmp.corners_p[7];
+        if((UFL == 1 || UFL == 3 || UFL == 6 || UFL == 8) &&
+            (UBL == 2 || UBL == 4 || UBL == 5 || UBL == 7) &&
+            (UBR == 1 || UBR == 3 || UBR == 6 || UBR == 8) &&
+            (UFR == 2 || UFR == 4 || UFR == 5 || UFR == 7) &&
+            (DFL == 5 || DFL == 7 || DFL == 2 || DFL == 4) &&
+            (DBL == 1 || DBL == 3 || DBL == 6 || DBL == 8) &&
+            (DBR == 5 || DBR == 7 || DBR == 2 || DBR == 4) &&
+            (DFR == 1 || DFR == 3 || DFR == 6 || DFR == 8)) return true;
+        return false;
     }
     
     /**
