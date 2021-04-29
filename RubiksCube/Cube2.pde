@@ -357,6 +357,60 @@ class Cube2 {
         return result;
     }
     
+    void visualiseCube()    {
+        // char[] facelets = new char[dim*dim*6];
+        // int ctr = 0;
+        // // U, F, L, B, R, D
+        // for(int i = 0; i < corners_p.length; i++)  {
+        //     // Corner o and p arrays are same size and relate to eachother
+        //     int corner_p = corners_p[i];
+        //     int corner_o = corners_o[i];
+            
+        //     switch(corner_p)   {
+        //         case 1: // Yellow, Red, Green
+        //             facelets[ctr] = 'Y';
+        //             if(corner_o == 1)
+        //                 facelets[ctr] = 'R';
+        //             else if (corner_o == 2)
+        //                 facelets[ctr] = 'G';
+        //             break;
+        //         case 2: // Yellow, Red, Blue
+        //             facelets[ctr] = 'Y';
+        //             if(corner_o == 1)
+
+        //             else if(corner_o == 2)
+
+        //             break;
+        //         case 3: // Yellow, Orange, Blue
+        //             facelets[ctr] = 'Y';
+        //             if(corner_o == 1)
+
+        //             else if(corner_o == 2)
+
+        //             break;
+        //         case 4: // Yellow, Orange, Green
+        //             facelets[ctr] = 'Y';
+        //             if(corner_o == 1)
+
+        //             else if(corner_o == 2)
+
+        //             break;
+        //         case 5: // White, Red, Blue
+
+        //             break;
+        //         case 6: // White, Red, Green
+
+        //             break;
+        //         case 7: // White, Orange, Green
+
+        //             break;
+        //         case 8: // White, Orange, Blue
+
+        //             break;
+        //     }
+        //     ctr++;
+        // }
+    }
     /**
     * If colour array contains colour c
     * @param array  Array of colours
@@ -718,7 +772,7 @@ class Cube2 {
     * @param    algorithm   The algorithm we're testing on this object
     * @return   this        The FastCube in its new state after applying the algorithm
     */
-    Cube2 testAlgorithm(String algorithm)   {
+    Cube2 applyAlgorithm(String algorithm)   {
         // Goes through each char of the algorithm string
         for (int i = 0; i < algorithm.length(); i++) {
             if(algorithm.charAt(i) + "" == " ")  continue;
@@ -1038,6 +1092,14 @@ class Cube2 {
         //     print(i, ", ");
         // }
         // println();
+    }
+
+    void encode_eslice_perms()  {
+        // Index from 0 to 23
+        // For e-slice edges 1, 3, 9, 11
+        String es_combo = edges_p[0] + "" + edges_p[2] + "" + edges_p[8] + "" + edges_p[10] + "";
+        
+        //println(es_combo);
     }
 
     int encode_corners_p(){

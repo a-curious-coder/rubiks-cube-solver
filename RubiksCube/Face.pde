@@ -44,7 +44,9 @@ class Face {
     void show() {
         if (c == black) return; // Colour is still stored to face, just doesn't draw it - saves memory
         push();
+        fill(black);
         stroke(black);
+        strokeWeight(0.1);
         rectMode(CENTER);
         translate(0.5 * normal.x, 0.5 * normal.y, 0.5 * normal.z);
         rotate(HALF_PI, normal.y, normal.x, normal.z);

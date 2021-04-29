@@ -16,8 +16,8 @@ def getGroup(method):
         print(f"No {algos[method-1]}\nRemoving")
         legends.remove(algos[method-1])
 
-algos = ["Human Algorithm", "Korfs Algorithm", "Kociemba's Algorithm", "Pocket Cube : God's Algorithm"]
-legends = ["Human Algorithm", "Korfs Algorithm", "Kociemba's Algorithm", "Pocket Cube : God's Algorithm"]
+algos = ["Human Algorithm", "Thistlethwaite's Algorithm", "Kociemba's Algorithm", "Korfs Algorithm", "Pocket Cube : God's Algorithm"]
+legends = ["Human Algorithm", "Thistlethwaite's Algorithm", "Kociemba's Algorithm", "Korfs Algorithm", "Pocket Cube : God's Algorithm"]
 
 os.chdir("c:\\Users\\callu\\Desktop\\Sync-Folder\\rubiks-cube-solver\\pythondata\\")
 filename = "data2.csv"
@@ -27,15 +27,18 @@ df = pd.read_csv(filename)
 
 plt.style.use('seaborn')
 plt.rcParams['animation.ffmpeg_path'] = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
+
 fig = plt.gcf()
-fig.set_size_inches(11,8)
+# fig = plt.figure(figsize = (14, 7))
+fig.set_size_inches(16,9)
 fig.canvas.set_window_title('Rubik\'s Cube Solving Methodology Performance Graph')
 fig.patch.set_facecolor('xkcd:gray')
 ax = fig.add_subplot(111, projection='3d')
+# ax = plt.gcf()
 
 # https://stackoverflow.com/questions/14088687/how-to-change-plot-background-color
 ax.set_facecolor('xkcd:grey')
-# plt.title('Solver Methodology Performance Graph', fontsize= 14, color="black")
+plt.title('Solver Methodology Performance Graph', fontsize= 14, color="black")
 
 
 # Collect all memory consumption values from csv file
@@ -53,17 +56,18 @@ methods = []
 getGroup(1)
 getGroup(2)
 getGroup(3)
+getGroup(4)
 getGroup(5)
 
 # print(methods)
 
 cmap = c.LinearSegmentedColormap.from_list("", ["green","yellow","red"])
 # Different marker for each method
-markers = ["v", "o", "x", "P"]
+markers = ["H", "D", "d", "*", "X"]
 # Same colour for all plots. Alpha value (Transparency) should be based on how much memory a method consumed during operation.
 # colours = ["red", "blue"]
 # To select the index for each method being plotted in scatter plot graph
-colours = ["red", "green", "blue", "cyan"]
+# colours = ["red", "green", "blue", "cyan", "black"]
 ctr = 0
 for m in methods:
     method = m['method'] # Colour
@@ -79,9 +83,13 @@ for m in methods:
     # print(solve, time)
 
 # Methods used
-ax.legend(legends, fontsize=10, bbox_to_anchor=(1.3, 1.1), loc='upper right') # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
+ax.legend(legends, facecolor = 'blue', labelspacing = 1, fontsize=10, bbox_to_anchor=(-0.02, 1.0), loc='upper left') # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
+leg = ax.get_legend()
+for legend in leg.legendHandles:
+    legend.set_color('green')
+
 # plt.legend([len(methods[0]), " : Human", "Korf"], fontsize=10, loc=('upper left')) # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
-# cbaxes = fig.add_axes([0.8, 0.1, 0.03, 0.8])
+
 axins = inset_axes(ax,
                 width="5%",  # width = 5% of parent_bbox width
                 height="75%",  # height : 50%
@@ -93,9 +101,10 @@ axins = inset_axes(ax,
 cbar=plt.colorbar(p, cax = axins, ticks= [0, 10])
 cbar.set_label("Memory Consumption")
 
-ax.set_xlabel("Moves to solve")
-ax.set_ylabel("Time (s)")
+ax.set_xlabel("Solution Length")
+ax.set_ylabel("CPU Time (s)")
 ax.set_zlabel("Moves to scramble")
+
 # Get rid of colored axes planes
 # First remove fill
 ax.xaxis.pane.fill = True
@@ -113,11 +122,12 @@ ax.zaxis.pane.set_edgecolor('grey')
 #     # for 360 frames, azim will take 360 values for a round display of the 3D plot
 #     ax.view_init(elev=10., azim=i)
 #     return fig,
-
+ax.set_xlim([0, 320])
+ax.set_xticks(np.arange(0, 320, 20))
 # anim = animation.FuncAnimation(fig, animate, init_func=None, frames=720, interval=20, blit=True)
-
+ax.set_yscale('linear')
 # anim.save('3D_animated_plot.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
-
+plt.tight_layout()
 plt.show()
 
 

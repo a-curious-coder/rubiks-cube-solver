@@ -10,26 +10,6 @@ Cubie[] upperEdges = new Cubie[4];
 Cubie[] lowerEdges = new Cubie[4];
 
 /**
-* Returns the solution to the main thread to be applied to the graphical cube object
-* @param solution   The solution to solving the cube.
-*/
-void returnSolution(String solution)   {
-    // println(solution);
-    moves = solution;
-    for(int i = 0; i < solution.length(); i++)    {
-        String move = solution.charAt(i) + "";
-        if(i+1 < solution.length())  {
-            if(solution.charAt(i+1) == '\'' || solution.charAt(i+1) == '2') {
-                move += solution.charAt(i+1) + "";
-                i++;
-            }
-        }
-        if(move != "")  {
-            addMoveToSequence(move);
-        }
-    }
-}
-/**
 * Adds move to sequence for applying to cube
 * @param move   Move being applied to cube
 */

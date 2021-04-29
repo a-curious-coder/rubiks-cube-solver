@@ -2,11 +2,13 @@
 
 ---
 ![Rubik's Banner](Images/Banner3.png)
-<h1>Report links</h1>
+<h1>Final Year Project Links</h1>
 
 [Dissertation](https://www.overleaf.com/read/zjdyybvqmrqh)
 
 [Logbook](https://www.overleaf.com/read/bvgpbdzphwzf)
+
+[![](http://img.youtube.com/vi/mErxPqnGuog/0.jpg)](http://www.youtube.com/watch?v=mErxPqnGuog "Rubik's Cube Solver Presentation and Demo")
 
 <h1> Table of contents</h1>
 

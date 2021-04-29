@@ -1,6 +1,7 @@
 import peasy.*;
 import controlP5.*;
 import processing.opengl.*;
+import processing.sound.*;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -13,6 +14,7 @@ import controlP5.BitFont;
 PeasyCam cam;
 ControlP5 cp5;
 int currentScreen;
+SoundFile soundFile;
 
 CheckBox checkbox;
 Textfield enterMoves;
@@ -135,7 +137,8 @@ color white = #FFFFFF;
 color yellow = #FFFF00;
 color green = #00FF00;
 color blue  = #0000FF;
-color grey = #808080;
+// color grey = #808080;
+color grey = color(0,0,0,255);
 
 // Sets up the Rubik's Cube simulator
 void setup() {
@@ -199,7 +202,6 @@ void init()	{
 	numberOfMoves = 15;
 	axis = dim % 2 == 0 ? floor(dim / 2) - 0.5 : floor(dim / 2);
 	middle = (axis) + (-axis);
-	speed = 50;
 	scramble = false;
 	hSolve = false;
 	lsSolve = false;
@@ -211,7 +213,12 @@ void init()	{
 	hud = true;
 	display2D = false;
 	loadedPruningTables = false;
-	
+	try{
+		soundFile = new SoundFile(this, directory + "\\sample.mp3");
+	} catch(Exception e)	{
+		println("Tried loading sound file: sample.mp3 but couldn't find file.\n It's not an essential part of the program, just used it for debugging purposes to let me know when certain operations were finished");
+	}
+
 	// Region: Cubie Arrays for 2D View
 		corners = new ArrayList<Cubie>();
 		edges = new ArrayList<Cubie>();
@@ -284,7 +291,15 @@ void theCube()	{
 				cube.hAlgorithm.solve();
 			}
 		}
-		
+		// if (hSolve) {
+		// 	if (turns.length() == 0 && !cube.animating)  {
+		// 		if (counterReset)  {
+		// 			moveCounter = 0;
+		// 			counterReset = false;
+		// 		}
+		// 		cube.hAlgorithm.solve();
+		// 	}
+		// }
 		// If we want to solve with search algorithm...
 		if (lsSolve) {
 			if (turns.length() == 0 && !cube.animating)  {
@@ -420,8 +435,8 @@ void guiElements()	{
 	slider = cp5.addSlider("speed")
 				.setPosition(width-240, 20)
 				.setSize(200, 20)
-				.setRange(1, 100)
-				.setValue(50)
+				.setRange(1, 10000)
+				.setValue(5000)
 				.setColorCaptionLabel(color(20,20,20))
 				;
 	scrambleTheCube = cp5.addButton("Scramble")
@@ -708,7 +723,7 @@ void controlEvent(ControlEvent theEvent) {
 			thread("loadPruningTables");
 			break;
 		case 11:
-			cube.testAlgorithm(enterMoves.getText());
+			cube.applyAlgorithm(enterMoves.getText());
 			break;
 		case 12:
 			display2D = !display2D;
@@ -970,24 +985,32 @@ void removeWholeCubeRotations()	{
 */
 void generateScrambles(int nScrambles, int lengthScrambles)	{
 	String[] scrambles = new String[nScrambles];
-
+	int pyramidScrambles = 0;
+	// nScrambles = 100;
+	int count = 0;
 	for (int  i = 0; i < nScrambles; i++)	{
-		for(int  j = 0; j < lengthScrambles; j++)	{
+		pyramidScrambles++;
+		for(int j = 0; j < pyramidScrambles; j++)	{
+		// for(int  j = 0; j < lengthScrambles; j++)	{
 			if(j == 0)	{
 				scrambles[i] = allMoves.get(int(random(allMoves.size()))).toString() + " "; //Random Move.
 			} else {
 				scrambles[i] += allMoves.get(int(random(allMoves.size()))).toString() + " "; //Random Move.
 			}
+			count++;
 		}
+		println(count);
+		count = 0;
+		algorithmLength(scrambles[i]);
 		// println(scrambles[i]);
 	}
 	try{
-		FileWriter writer = new FileWriter(directory + "/" + "scrambles.txt");
+		FileWriter writer = new FileWriter(directory + "/" + "pyramidscrambles.txt");
 		for (int i = 0; i < scrambles.length; i++) {
 			writer.write(scrambles[i] + "\n");
 		}
 		writer.close();
-		println("Generated scrambles, saved as scrambles.txt");
+		println("Generated scrambles, saved as pyramidscrambles.txt");
 	} catch(Exception e) {
         print(e);
     }
@@ -1467,11 +1490,11 @@ void updateLists()  {
 	}
 // End Region: 2D View
 
-void testAlgorithm()	{
+void applyAlgorithm()	{
 	String[] methodNames = {"Human Algorithm", "Thistlethwaite's Algorithm", "Kociemba's Algorithm", "Korf's Algorithm", "Pocket Cube God's Algorithm"};
 	
 	println(methodNames[method-1]);
-    String directory = System.getProperty("user.dir");
+    directory = System.getProperty("user.dir");
 
     Writer output;
 	boolean headersInFile = false;
@@ -1521,7 +1544,8 @@ void testAlgorithm()	{
 	int lines = 0;
 	ArrayList<String> moves = new ArrayList();
 	try{
-		FileReader fileReader = new FileReader(directory + "/scramble.txt");
+		// pyramidscrambles.txt
+		FileReader fileReader = new FileReader(directory + "/pyramidscrambles.txt");
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
 		String line = null;
 		while ((line = bufferedReader.readLine()) != null) {
@@ -1534,9 +1558,8 @@ void testAlgorithm()	{
 	}
 
 	int tests = 0;
-	numberOfMoves = 100;
     while(tests < lines) {
-		delay(10);
+		numberOfMoves = algorithmLength(moves.get(tests));
 		String out = "";
 		println("Test " + (tests+1) + " / " + lines);
 		// Region: Prepare file for writing data.
@@ -1553,9 +1576,10 @@ void testAlgorithm()	{
 
 		// Scramble cube with specified num of moves
 		// cube.scrambleCube();
-		cube.testAlgorithm(moves.get(tests));
+		cube.applyAlgorithm(moves.get(tests));
+		println("Scramble sent");
 		// Wait for cube to finish scrambling
-		while(scrambling || sequence.size() != 0)	delay(200);
+		while(sequence.size() != 0)	delay(200);
 		println("Scrambled");
 		// Start timer (to see how long solver takes)
 		long start = System.currentTimeMillis();
@@ -1564,9 +1588,9 @@ void testAlgorithm()	{
 		switch(method)	{
 			case 1:
 				// Set human solve boolean to true - main loop should start solving cube
-				hSolve = true;
+				hAlgorithmRunning = true;
 				// While human solver is running, wait.
-				while(hAlgorithmRunning || hSolve)	delay(200);
+				while(hAlgorithmRunning)	delay(200);
 				moveCount = cube.hAlgorithm.moveCount;
 				break;
 			case 2:
@@ -1583,6 +1607,7 @@ void testAlgorithm()	{
 				moveCount = cube.kociembaSolver.moveCount;
 				break;
 			case 4:
+				cube.ksolve();
 				cube.ksolve.solve();
 				while(ksolveRunning)	delay(200);
 				moveCount = cube.ksolve.moveCount;
@@ -1624,7 +1649,9 @@ void testAlgorithm()	{
 		// Region: append data to file
 		// resetCube();
 		tests += 1;
+		moveCounter = 0;
     }
+	soundFile.play();
 	testing = false;
 }
 // Testing Performance Data Functions
@@ -1637,6 +1664,31 @@ void nodesPerSecond()	{
 		nodes2 = cube.ksolve.nodes;
 		println("Number of nodes this second: " + (nodes2 - nodes1));
 	}
+}
+
+int algorithmLength(String algorithm)	{
+	int count = 0;
+
+	for(int i = 0; i < algorithm.length(); i++)    {
+		String move = algorithm.charAt(i) + "";
+		if(i+1 < algorithm.length())  {
+			if(algorithm.charAt(i+1) == '\'' || algorithm.charAt(i+1) == '2') {
+				move += algorithm.charAt(i+1) + "";
+				i++;
+			}
+		}
+		if(i+1 < algorithm.length())	{
+			if(algorithm.charAt(i+1) == ' ')	{
+				move +=algorithm.charAt(i+1) + "";
+				i++;
+			}
+		}
+		if(move != "")  {
+			count++;
+		}
+	}
+	println(algorithm, " is ", count, " moves");
+	return count;
 }
 
 // Saves performance stats of the solving algorithm every 10 seconds to a file.
@@ -1696,6 +1748,7 @@ void pocketCubeGodAlgorithm()	{
 	cube.iSmallSolver();
 	cube.smallDFSSolver.solve();
 }
+
 void lsSolve()	{
 	cube.lsAlgorithm.solve();
 }

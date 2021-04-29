@@ -1,7 +1,7 @@
 class Kociemba{
     
     Cube2 cube;
-    int stage, nodes, moveCount, currentDepth;
+    int stage, nodes, moveCount = 0, currentDepth;
     boolean g1, g2;
     String g1Algorithm, g2Algorithm, solution;
     ArrayList<String> allMoves = new ArrayList<String>(
@@ -23,7 +23,7 @@ class Kociemba{
         stage++;
         // Phase 1
         // Orient corners, edges and permutate e slice edges to the e slice.
-        if(!edgesOriented(cube) && !cornersOriented(cube) && !eSliceEdges(cube))
+        if(!edgesOriented(cube) || !cornersOriented(cube) || !eSliceEdges(cube))
         {
             getGroup(stage);
             memConsumptionArray.add(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
@@ -56,7 +56,7 @@ class Kociemba{
         // Reset cube
         Cube2 tmp = new Cube2(cube);
         // Test solution
-        tmp.testAlgorithm(prefix);
+        tmp.applyAlgorithm(prefix);
         // Test if cube is worth searching for solution at this depth.
         if (prune(2, tmp, depth, stage))  
             return;
@@ -84,7 +84,7 @@ class Kociemba{
                 tmp = new Cube2(cube);
                 //println(s);
                 // Append moves
-                tmp.testAlgorithm(s);
+                tmp.applyAlgorithm(s);
                 //tmp.imageState();
                 // Check if it's worth continuing the search at this depth
                 if (prune(2, tmp, depth, stage)) continue; //<>//
@@ -102,7 +102,7 @@ class Kociemba{
         switch(stage)   {
             case 1:
                 g1Algorithm = prefix;
-                cube.testAlgorithm(g1Algorithm); 
+                cube.applyAlgorithm(g1Algorithm); 
                 returnSolution(g1Algorithm);
                 cube.imageState();
                 g1Algorithm = "";
@@ -110,46 +110,52 @@ class Kociemba{
                 break;
             case 2:
                 g2Algorithm = prefix;
-                cube.testAlgorithm(g2Algorithm); 
+                cube.applyAlgorithm(g2Algorithm); 
                 returnSolution(g2Algorithm); 
-                // g2Algorithm = "";
+                g2Algorithm = "";
                 solution += prefix;
                 break;
         }
     }
+
     void returnSolution(String solution)   {
         // println(solution);
-        moves = solution;
-        for(int i = 0; i < solution.length(); i++)    {
-            String move = solution.charAt(i) + "";
-            if(i+1 < solution.length())  {
-                if(solution.charAt(i+1) == '\'' || solution.charAt(i+1) == '2') {
-                    move += solution.charAt(i+1) + "";
+        // str.replaceAll("\\s", "")
+        moves = solution.replaceAll(" ", "");
+        // println("\"" + moves + "\"");
+        for(int i = 0; i < moves.length(); i++)    {
+            String move = moves.charAt(i) + "";
+            if(i+1 < moves.length())  {
+                if(moves.charAt(i+1) == '\'' || moves.charAt(i+1) == '2') {
+                    move += moves.charAt(i+1) + "";
                     i++;
                 }
             }
+            if(move == " ") continue;
             if(move != "")  {
+                // println("[" + moveCount + "]\"" + move + "\"");
                 addMoveToSequence(move);
                 moveCount += 1;
             }
         }
+        // println("Solution: " + moveCount + " moves");
     }
 
     void getGroup(int x)    {
         int depth = 0;
         if (x == 1)  {
-            cube.imageState();
+            // cube.imageState();
             depth = 12;
-            println("branching factor: " + allMoves.size());
+            // println("branching factor: " + allMoves.size());
         }
         if (x == 2)  {
-            delay(5000);
-            cube.imageState();
+            // delay(5000);
+            // cube.imageState();
             depth = 18;
-            println("branching factor: " + allMoves.size());
+            // println("branching factor: " + allMoves.size());
         }
         // Takes 1 - 7 moves to orient all edges to fulfil G1 requirements.
-        println("\t\t\tDepth\tNodes\tTime");
+        // println("\t\t\tDepth\tNodes\tTime");
         String t = "    ";
         outputBox.append("Depth" + t + "Nodes" + t + "Time\n");
         long start = System.currentTimeMillis();
@@ -160,7 +166,7 @@ class Kociemba{
             searchAllAtDepth(i);
             end = System.currentTimeMillis();
             duration = (end - start) / 1000F;
-            println("\t\t\t" + i + "\t" + nodes + "\t" + duration + "s");
+            // println("\t\t\t" + i + "\t" + nodes + "\t" + duration + "s");
             outputBox.append(i + t + nodes + t + duration + "s\n");
             nodes = 0;
             if ((stage == 1 && g1) ||

@@ -33,7 +33,7 @@ class LocalSearch   {
 	}
 	
 	void solve()    {
-		switch(stage)   { //<>// //<>//
+		switch(stage)   { //<>// //<>// //<>//
 			// Generate / Prepare algorithms for use.
 			case 0:
 				initialiseAlgorithms();
@@ -154,7 +154,7 @@ class LocalSearch   {
 	void Treesearch(FastCube f, int d)	{
 		if ((f.scoreUD("white") + f.scoreUD("yellow")) == 0)	{
 			// Apply sequence of moves to main cube object.
-			cube.testAlgorithm(previousAlgo);
+			cube.applyAlgorithm(previousAlgo);
 			// Prints cube state after sequence of moves applied.
 			f.printCube();
 			println("Desired state reached!");
@@ -162,7 +162,7 @@ class LocalSearch   {
 		} else if(d > 0)	{
 			if(d != 1) {
 				for(String prefix : eachMove) {
-					Treesearch(f.testAlgorithm(prefix), d-1);
+					Treesearch(f.applyAlgorithm(prefix), d-1);
 				}
 			}
 		}
@@ -179,7 +179,7 @@ class LocalSearch   {
 	// void Treesearch(Cube2 f, int d)	{
 	// 	if ((f.scoreUD("white") + f.scoreUD("yellow")) == 0)	{
 	// 		// Apply sequence of moves to main cube object.
-	// 		cube.testAlgorithm(previousAlgo);
+	// 		cube.applyAlgorithm(previousAlgo);
 	// 		// Prints cube state after sequence of moves applied.
 	// 		f.printCube();
 	// 		println("Desired state reached!");
@@ -187,7 +187,7 @@ class LocalSearch   {
 	// 	} else if(d > 0)	{
 	// 		if(d != 1) {
 	// 			for(String prefix : eachMove) {
-	// 				Treesearch(f.testAlgorithm(prefix), d-1);
+	// 				Treesearch(f.applyAlgorithm(prefix), d-1);
 	// 			}
 	// 		}
 	// 	}
@@ -463,7 +463,7 @@ class LocalSearch   {
 			score = 0;
 			copy = new FastCube(copyCube);
 
-			copy.testAlgorithm(algorithm);
+			copy.applyAlgorithm(algorithm);
 			score = (copy.scoreUD("white") + copy.scoreUD("yellow"));
 			
 			if(copy.scoreCube(copy) == 0 || score == 0)	{
@@ -503,7 +503,7 @@ class LocalSearch   {
 		}
 
 		// copy = new FastCube(copyCube);
-		// copy.testAlgorithm(bestAlgo);
+		// copy.applyAlgorithm(bestAlgo);
 		// copy.printCube();
 		// println("G1 Score: " + copy.scoreUD("white") + "\t" + copy.scoreUD("yellow"));
 		// if(lowScores.size() == 1)	{
@@ -543,7 +543,7 @@ class LocalSearch   {
 			score = 0;
 			copy = new FastCube(cube);
 			// Test algorithm on copy of the cube
-			copy = copy.testAlgorithm(algorithm);
+			copy = copy.applyAlgorithm(algorithm);
 			if((copy.scoreUD("white") + copy.scoreUD("yellow") + copy.scoreMiddleEdges()) != 0)	{
 				continue;
 			}
@@ -688,7 +688,7 @@ class LocalSearch   {
 			score = 0;
 			copy = new FastCube(cube);
 			// Test algorithm on copy of the cube
-			copy = copy.testAlgorithm(algorithm);
+			copy = copy.applyAlgorithm(algorithm);
 			score = copy.scoreFace("white");
 			allScores.add(score);
 		}
@@ -732,10 +732,10 @@ class LocalSearch   {
 		println(algorithms.size() + " algorithms to test");
 		for(String algorithm : algorithms)	{
 			copy = new FastCube(cube);
-			copy.testAlgorithm(moves);
+			copy.applyAlgorithm(moves);
 			whiteFaceScore = copy.scoreFace("white");
 			if(whiteFaceScore == 0)	{
-				copy = copy.testAlgorithm(algorithm);
+				copy = copy.applyAlgorithm(algorithm);
 				score = copy.scoreFace(copy.red, "red");
 				allScores.add(score);
 				println("Algorithm : " + algorithm + "\t Score: " + score);
@@ -777,7 +777,7 @@ class LocalSearch   {
 
 	// 	// Score the copy cube after an algorithm is applied to it
 	// 	for (String moves : algorithms)   {
-	// 		float combination = scoreCube(copy.testAlgorithm(moves));
+	// 		float combination = scoreCube(copy.applyAlgorithm(moves));
 	// 		allScores.add(combination);
 	// 	}
 		
@@ -809,13 +809,13 @@ class LocalSearch   {
 		// Score the copy cube after an algorithm is applied to it
 		for (String moves : algorithms)   {
 			if(whiteFaceSolved)	{
-				copy.testAlgorithm(moves);
+				copy.applyAlgorithm(moves);
 				float whiteFaceScore = copy.scoreFace("white");
 				if(whiteFaceScore != 0)	continue;
-				float combination = copy.scoreCube(copy.testAlgorithm(moves));
+				float combination = copy.scoreCube(copy.applyAlgorithm(moves));
 				allScores.add(combination);
 			} else {
-				float combination = copy.scoreCube(copy.testAlgorithm(moves));
+				float combination = copy.scoreCube(copy.applyAlgorithm(moves));
 				allScores.add(combination);
 			}
 		}

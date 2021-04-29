@@ -9,7 +9,7 @@ void keyPressed() {
     } else if(key == BACKSPACE) {
       enterMoves.setText("");
     } else if(key == ENTER) {
-      cube.testAlgorithm(enterMoves.getText());
+      cube.applyAlgorithm(enterMoves.getText());
       enterMoves.setText("");
     }
     return;
@@ -39,38 +39,17 @@ void keyPressed() {
       break;
     case 'a':
       // thread("aboutWindow");
-      thread("pixWindow");
+      // thread("pixWindow");
+      // soundFile.play();
+      generateScrambles(50, 100);
+      // Cube2 cube2 = new Cube2();
+      // cube2.encode_eslice_perms();
       break;
     case 't': // Solves various cubes x amount of times using specified method.
-        // thread("testHumanAlgorithmSolver");
-        // thread("testKorfs");
-        // create_slice_table();
-        // create_e_slice_table();
-        // create_ms_slice_table();
-        // create_tetrad_table();
         // generateScrambles(50, 50);
-        // println("" + popcount(4095));
-        // create_edges_p_table();
-        // create_corners_p_table();
-        // thread("testThistlethwaite");
-        // thread("testKociembas");
-        // create_es_co_table();
-        // create_corner_p_ms_table();
-        // create_ms_slice_table();
-        // create_e_slice_table();
-        // create_double_turn_table();
-        // thread("testAlgorithm");
-        create_K1_table() ;
-        // create_corner_p_ms_table();
-        // thread("korfsAlgorithm");
-        // thread("thistlethwaitesAlgorithm")
         // thread("oneMinuteSearchStats");
-        // create_half_turn_table();
-        // thread("create_corner_p_ms_table");
-        // create_corner_p_g3_table();
         // thread("nodesPerSecond");
-        // create_ms_slice_table();
-        // e_slice_tables(12, 4);
+        thread("applyAlgorithm");
       break;
     case 'c':
       // Cube2 tmp = new Cube2(cube);
@@ -88,7 +67,7 @@ void keyPressed() {
       // cube.hardcodedScrambleCube();
       Cube2 ha = new Cube2(cube);
       ha.imageState();
-      // cube.testAlgorithm(cube.generateScramble(10000));
+      // cube.applyAlgorithm(cube.generateScramble(10000));
       break;
     case 'x':
       currentScreen++;
@@ -125,7 +104,7 @@ void keyPressed() {
       cube.testMoves('Y');
       break;
     case '8':
-      cube.testAlgorithm("R U R' U' R' F R2 U' R' U' R U R' F'");
+      cube.applyAlgorithm("R U R' U' R' F R2 U' R' U' R U R' F'");
       break;
     case '9':
       display2D = !display2D;

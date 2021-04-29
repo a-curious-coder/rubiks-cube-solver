@@ -68,7 +68,7 @@ class HumanAlgorithm {
         moveCount = moveCounter;
         counterReset = true;
         hAlgorithmRunning = false;
-        moveCounter = moveCount;
+        // moveCounter = moveCount;
       } else {
         if(captionsOn)  println("Something went wrong during solve - try solving again.");
       }
@@ -702,7 +702,9 @@ class HumanAlgorithm {
     completedCorners = 0;
     completedEdges = 0;
     stage = 0;
-    hSolve = !hSolve;      
+    hSolve = false;
+    // moveCounter = 0;
+    sequence.clear();
   }
 
 }

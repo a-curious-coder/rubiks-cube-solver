@@ -319,7 +319,7 @@ class FastCube  {
     * @param    algorithm   The algorithm we're testing on this object
     * @return   this        The FastCube in its new state after applying the algorithm
     */
-    FastCube testAlgorithm(String algorithm)   {
+    FastCube applyAlgorithm(String algorithm)   {
         for (int i = 0; i < algorithm.length(); i++) {
             // Initially direction of each move is 1
             int dir = 1;

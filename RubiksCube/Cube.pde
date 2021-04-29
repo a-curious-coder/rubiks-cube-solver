@@ -184,7 +184,7 @@ class Cube {
 			finaliseTurn(currentAxis, rotatingIndex, currentDirection);
 		}
 		// Temporary fix here... 
-		// Unsure why the D face won't behave accordingly to it's given direction. Needs inverting. //<>//
+		// Unsure why the D face won't behave accordingly to it's given direction. Needs inverting. //<>// //<>//
 		if(axisFace == 'Y' && index == axis && dir != 2)	dir = -dir;
 		currentAxis = axisFace;
 		currentDirection = dir;
@@ -504,7 +504,7 @@ class Cube {
 		formatMoves();
 	}
 
-	Cube testAlgorithm(Move[] moves)	{
+	Cube applyAlgorithm(Move[] moves)	{
 		for(Move m : moves)	{
 			this.turn(m.currentAxis, m.index, m.dir);
 		}
@@ -515,7 +515,7 @@ class Cube {
 	* @param	algorithm	The algorithm of moves tested on this cube object
 	* @return	this		This new cube state is returned after the algorithm is applied
 	*/
-	Cube testAlgorithm(String algorithm) {
+	Cube applyAlgorithm(String algorithm) {
 		// println("\nTesting: " + algorithm + "\tNumber of chars: " + algorithm.length()+"\n");
 		for (int i = 0; i < algorithm.length(); i++) {
 			if(algorithm.charAt(i) + "" == " ")	continue;

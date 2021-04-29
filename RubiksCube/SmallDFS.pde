@@ -30,6 +30,7 @@ class SmallDFS  {
             while(!oriented)    {
                 oriented = orientCube();
             }
+            println("Oriented cube");
             // Initialises permutation/orientation values from cube object
             iPermutations();
             iOrientations();

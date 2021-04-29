@@ -50,7 +50,7 @@ class Thistlethwaite  {
         stage++; // 2
         long end = System.currentTimeMillis();
         float duration = (end - start) / 1000F;
-        println("G1\t" + duration + "s\t" + g1Algorithm);
+        println("G1\t" + duration + "s\t" + g1Algorithm + "\t" + moveCount);
         t = "           ";
         memConsumptionArray.add(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()); // Appends memory usage to array when collecting stats.
         outputBox.append("G1" + t + duration + "s" + t + g1Algorithm + "\n");
@@ -68,14 +68,14 @@ class Thistlethwaite  {
         stage++; // 3
         end = System.currentTimeMillis(); 
         duration = (end - start) / 1000F;
-        println("G2\t" + duration + "s\t" + g2Algorithm);
+        println("G2\t" + duration + "s\t" + g2Algorithm + "\t" + moveCount);
         outputBox.append("G2" + t + duration + "s" + t + g2Algorithm + "\n");
         memConsumptionArray.add(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
         
         // Stage 3 Of Solve
         start = System.currentTimeMillis();
         if (!cornersPermutated(cube) && !allEdgesInCorrectSlice(cube)) {
-            println("Trying to get G3");
+            // println("Trying to get G3");
             getGroup(stage); // Permutate cubies until F/B colours are on F/B faces and U/D colours are on U/D faces. 
         } else {
             g3 = true;
@@ -85,19 +85,19 @@ class Thistlethwaite  {
         stage++;
         end = System.currentTimeMillis();
         duration = (end - start) / 1000F;
-        println("G3\t" + duration + "s\t" + g3Algorithm);
+        println("G3\t" + duration + "s\t" + g3Algorithm + "\t" + moveCount);
         outputBox.append("G3" + t + duration + "s" + t + g3Algorithm + "\n");
         memConsumptionArray.add(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
         
         // Stage 4 Of Solve
         if (!cubeSolved(cube))    {
-            println("Trying to get G4");
+            // println("Trying to get G4");
             getGroup(stage); // Solve cube using only 180 moves.
             
         } else {
             println("Already achieved stage: " + stage);
         }
-        println("G4\t" + duration + "s\t" + g4Algorithm);
+        println("G4\t" + duration + "s\t" + g4Algorithm + "\t" + moveCount);
         outputBox.append("G4" + t + duration + "s" + t + g4Algorithm + "\n");
         println("Complete Solution : " + solution + "\n");
         memConsumptionArray.add(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
@@ -160,33 +160,32 @@ class Thistlethwaite  {
         int depth = 0;
         if (x == 1)  {
             depth = 7;
-            println("branching factor: " + allMoves.size());
+            // println("branching factor: " + allMoves.size());
         }
         if (x == 2)  {
             depth = 10;
-            println("branching factor: " + allMoves.size());
+            // println("branching factor: " + allMoves.size());
         }
         if (x == 3)  {
             depth = 13;
-            println("branching factor: " + allMoves.size());
+            // println("branching factor: " + allMoves.size());
         }
         if (x == 4)  {
             depth = 15;
-            println("branching factor: " + allMoves.size());
+            // println("branching factor: " + allMoves.size());
         }
         // Takes 1 - 7 moves to orient all edges to fulfil G1 requirements.
-        println("\t\t\tDepth\tNodes\tTime");
+        // println("\t\t\tDepth\tNodes\tTime");
         String t = "    ";
         outputBox.append("Depth" + t + "Nodes" + t + "Time\n");
         long start = System.currentTimeMillis();
-        long end = System.currentTimeMillis();
-        float duration = (end - start) / 1000F;
+        
         for (int i = 1; i <= depth; i++) {
             start = System.currentTimeMillis();
             searchAllAtDepth(i);
-            end = System.currentTimeMillis();
-            duration = (end - start) / 1000F;
-            println("\t\t\t" + i + "\t" + nodes + "\t" + duration + "s");
+            long end = System.currentTimeMillis();
+            float duration = (end - start) / 1000F;
+            // println("\t\t\t" + i + "\t" + nodes + "\t" + duration + "s");
             outputBox.append(i + t + nodes + t + duration + "s\n");
             nodes = 0;
             if (stage == 1 && g1 ||
@@ -208,7 +207,7 @@ class Thistlethwaite  {
                 tmp = new Cube2(cube);
                 //println(s);
                 // Append moves
-                tmp.testAlgorithm(s);
+                tmp.applyAlgorithm(s);
                 //tmp.imageState();
                 // Check if it's worth continuing the search at this depth
                 if (prune(1, tmp, depth, stage)) continue; 
@@ -231,10 +230,9 @@ class Thistlethwaite  {
         // Reset cube
         Cube2 tmp = new Cube2(cube);
         // Test solution
-        tmp.testAlgorithm(prefix);
+        tmp.applyAlgorithm(prefix);
         // Test if cube is worth searching for solution at this depth.
-        if (stage == 3)  if (prune(1, tmp, depth, stage)) return;
-        if (stage != 3) if (prune(1, tmp, depth, stage)) return;
+        if (prune(1, tmp, depth, stage)) return;
         if (depth == 0)  {
             // Test if cube has a valid solution for this stage.
             if (stage(tmp))  appendSolution(prefix);
@@ -244,45 +242,69 @@ class Thistlethwaite  {
             for (String move : allMoves)   {
                 if ((stage == 1 && g1) || (stage == 2 && g2) || (stage == 3 && g3) || (stage == 4 && g4))
                     return;
-                search(prefix + move, depth - 1);
+                search(prefix + move + " ", depth - 1);
                 nodes++;
             } 
         }
     }
     
     void appendSolution(String prefix)    {
-        println("Solution: " + prefix);
+        // println("Solution: " + prefix);
         switch(stage)   {
             case 1:
-            g1Algorithm = prefix;
-            cube.testAlgorithm(g1Algorithm); 
-            returnSolution(g1Algorithm);
-            g1Algorithm = "";
-            solution += prefix;
-            break;
+                g1Algorithm = prefix;
+                cube.applyAlgorithm(g1Algorithm); 
+                returnSolution(g1Algorithm);
+                // g1Algorithm = "";
+                solution += prefix;
+                break;
             case 2:
-            g2Algorithm = prefix;
-            cube.testAlgorithm(g2Algorithm); 
-            returnSolution(g2Algorithm); 
-            // g2Algorithm = "";
-            solution += prefix;
-            break;
+                g2Algorithm = prefix;
+                cube.applyAlgorithm(g2Algorithm); 
+                returnSolution(g2Algorithm); 
+                // g2Algorithm = "";
+                solution += prefix;
+                break;
             case 3:
-            g3Algorithm = prefix;
-            cube.testAlgorithm(g3Algorithm); 
-            returnSolution(g3Algorithm); 
-            // g3Algorithm = "";
-            solution += prefix;
-            break;
+                g3Algorithm = prefix;
+                cube.applyAlgorithm(g3Algorithm); 
+                returnSolution(g3Algorithm); 
+                // g3Algorithm = "";
+                solution += prefix;
+                break;
             case 4:
-            g4Algorithm = prefix;
-            cube.testAlgorithm(g4Algorithm); 
-            returnSolution(g4Algorithm); 
-            // g4Algorithm = "";
-            solution += prefix;
-            break;
+                g4Algorithm = prefix;
+                cube.applyAlgorithm(g4Algorithm); 
+                returnSolution(g4Algorithm); 
+                // g4Algorithm = "";
+                solution += prefix;
+                break;
         }
     }
+
+    /**
+* Returns the solution to the main thread to be applied to the graphical cube object
+* @param solution   The solution to solving the cube.
+*/
+void returnSolution(String solution)   {
+    // println(solution);
+    moves = solution.replaceAll(" ", "");
+    for(int i = 0; i < moves.length(); i++)    {
+        String move = moves.charAt(i) + "";
+        if(i+1 < moves.length())  {
+            if(moves.charAt(i+1) == '\'' || moves.charAt(i+1) == '2') {
+                move += moves.charAt(i+1) + "";
+                i++;
+            }
+        }
+        if(move != "")  {
+            moveCount++;
+            addMoveToSequence(move);
+        }
+    }
+    // moveCounter = moveCount;
+}
+
     /**
     * This function's right according to: https://observablehq.com/@onionhoney/how-to-model-a-rubiks-cube
     * Checks if edges are oriented

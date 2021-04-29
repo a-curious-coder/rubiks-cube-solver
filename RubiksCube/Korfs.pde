@@ -316,6 +316,27 @@ class Korfs {
         }
         return false;
         }
+
+    /**
+    * Returns the solution to the main thread to be applied to the graphical cube object
+    * @param solution   The solution to solving the cube.
+    */
+    void returnSolution(String solution)   {
+        // println(solution);
+        moves = solution;
+        for(int i = 0; i < solution.length(); i++)    {
+            String move = solution.charAt(i) + "";
+            if(i+1 < solution.length())  {
+                if(solution.charAt(i+1) == '\'' || solution.charAt(i+1) == '2') {
+                    move += solution.charAt(i+1) + "";
+                    i++;
+                }
+            }
+            if(move != "")  {
+                addMoveToSequence(move);
+            }
+        }
+    }
     /**
     * Matches a cubie's position with hardcoded position
     * @param    a   Cubie's position/permutation on cube
