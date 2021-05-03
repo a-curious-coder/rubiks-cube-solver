@@ -1,7 +1,0 @@
-{
-    "editor.fontFamily": "Iosevka",
-    "editor.fontLigatures": true,
-    "files.autoSave": "off",
-    "python.pythonPath": "c:\\Windows\\py.exe",
-    "cmake.configureOnOpen": false
-}
