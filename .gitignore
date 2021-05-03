@@ -6,6 +6,8 @@
 *.DS_Store
 *.autosave
 *.txt
+/.vscode
+/application.macosx
 applet
 application.linux-arm64
 application.linux-armv6hf
