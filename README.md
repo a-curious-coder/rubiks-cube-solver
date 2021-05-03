@@ -12,17 +12,63 @@
 
 <h1> Table of contents</h1>
 
-1. [Terminology and Notation](#notation)
-2. [Project Description](#desc)
-3. [Project Goals](#achieve)
-4. [Project Background](#skill)
-5. [Development Stages](#stages)
-6. [Development Issues](#issues)
-7. [How to use the program (Under construction)](#howtouse)
-8. [Creating a 'Faster' Cube](#fastercube)
-9. [Log Book](#logbook)
+1. [Project Setup](#setup)
+2. [Terminology and Notation](#notation)
+3. [Project Description](#desc)
+4. [Project Goals](#achieve)
+5. [Project Background](#skill)
+6. [Development Stages](#stages)
+7. [Development Issues](#issues)
+8. [How to use the program (Under construction)](#howtouse)
+9. [Creating a 'Faster' Cube](#fastercube)
+10. [Log Book](#logbook)
 
 ---
+
+<h1>Project Setup</h1> <a name="setup"></a>
+
+Open a terminal / powershell window and download this repository's files via:
+
+```text
+git clone <this repository's link>
+```
+
+Once the files have been downloaded, proceed to the next steps.
+
+1. Download and install [Processing](https://processing.org/download/)
+
+   ![image-20210503141834499](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503141834499.png)
+
+2. Open Processing and click Sketch > Import Library > Add Library
+
+   ![image-20210503142014775](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142014775.png)
+
+3. Search for, download and install:
+
+   1. PeasyCam
+
+      ![image-20210503142057035](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142057035.png)
+
+   2. ControlP5
+
+      ![image-20210503142125422](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142125422.png)
+
+4. Open RubiksCube.pde in the folder 'RubiksCube'
+
+5. Click the play button
+
+   ![image-20210503142226683](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142226683.png)
+
+   ![image-20210503142257069](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142257069.png)
+
+   To enter 'Presentation Mode' for best visibility, comment out line 145 and uncomment line 146. Have yet to add a stable run-time option for switching views; this is the best compromise.
+
+   ![image-20210503142431741](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142431741.png)
+
+   ![image-20210503142507271](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142507271.png)
+
+   ![image-20210503142650454](C:\Users\callu\AppData\Roaming\Typora\typora-user-images\image-20210503142650454.png)
+
 
 <h1>Terminology and Notation</h1> <a name="notation"></a>
 <h3>Terminology</h3>
@@ -79,6 +125,7 @@
     </td>
   </tr>
 </table>
+
 
 <h3>Notation</h3>
 
